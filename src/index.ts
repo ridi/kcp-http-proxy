@@ -7,7 +7,8 @@ import { createExpressServer, getMetadataArgsStorage, useContainer as routingUse
 import { routingControllersToSpec } from "routing-controllers-openapi";
 import { Container } from "typedi";
 import { Config, TestConfig, Mode } from "./api/common/config";
-import { KcpController } from "./api/presentation/controllers";
+import { KcpController } from "./api/presentation/KcpController";
+import { HealthCheckController } from "./api/presentation/HealthCheckController";
 
 // load .env
 dotenv.config();
@@ -35,6 +36,7 @@ Container.set(`config.kcp.${Mode.PROD_TAX}`, new Config(
 const app: Application = createExpressServer({
     routePrefix: '/api',
     controllers: [
+        HealthCheckController,
         KcpController
     ]
 });

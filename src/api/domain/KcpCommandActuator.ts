@@ -1,10 +1,12 @@
 import { exec } from "child_process";
 import { Container, Service } from "typedi";
-import { AuthKeyRequestCommand, Command, CommandType, PaymentApprovalCommand, PaymentCancellationCommand } from "../application/commands";
 import { Config } from "../common/config";
-
-const RecordSeparator: string = String.fromCharCode(30);
-const UnitSeparator: string = String.fromCharCode(31);
+import { Ascii } from "../common/constants";
+import { Command } from "../application/command/Command";
+import { CommandType } from "../application/command/CommandType";
+import { AuthKeyRequestCommand } from "../application/command/AuthKeyRequestCommand";
+import { PaymentApprovalCommand } from "../application/command/PaymentApprovalCommand";
+import { PaymentCancellationCommand } from "../application/command/PaymentCancellationCommand";
 
 @Service()
 export class KcpComandActuator {
@@ -30,16 +32,16 @@ export class KcpComandActuator {
     private requestBatchKey(command: AuthKeyRequestCommand): Promise<string> {
         const payx_data = [
             `payx_data=`,
-            `${RecordSeparator}card=card_mny=`,
+            `${Ascii.RecordSeparator}card=card_mny=`,
             `card_tx_type=${this.config.code.request.batchKey.cardTxType}`,
             `card_no=${command.cardNumber}`,
             `card_expiry=${command.cardExpiryDate}`,
             `card_taxno=${command.cardTaxNumber}`,
             `card_pwd=${command.cardPassword}`,
-            `${RecordSeparator}auth=sign_txtype=${this.config.code.request.batchKey.signTxType}`,
+            `${Ascii.RecordSeparator}auth=sign_txtype=${this.config.code.request.batchKey.signTxType}`,
             `group_id=${this.config.groupId}`,
-            `${RecordSeparator}`
-        ].join(UnitSeparator);
+            `${Ascii.RecordSeparator}`
+        ].join(Ascii.UnitSeparator);
         
         const pp_cli_arg = {
             payx_data: payx_data
@@ -53,13 +55,13 @@ export class KcpComandActuator {
             `payx_data=common=amount=${command.goodsPrice}`,
             `currency=${this.config.code.currency.KRW}`,
             `escw_mod=${this.config.code.escrowUse.No}`,
-            `${RecordSeparator}card=card_mny=${command.goodsPrice}`,
+            `${Ascii.RecordSeparator}card=card_mny=${command.goodsPrice}`,
             `card_tx_type=${this.config.code.request.txApproval.cardTxType}`,
             `quota=${command.installmentMonths}`,
             `bt_group_id=${this.config.groupId}`,
             `bt_batch_key=${command.batchKey}`,
-            `${RecordSeparator}`
-        ].join(UnitSeparator);
+            `${Ascii.RecordSeparator}`
+        ].join(Ascii.UnitSeparator);
 
         const ordr_data = [
             `ordr_data=ordr_idxx=${command.orderId}`,
@@ -70,7 +72,7 @@ export class KcpComandActuator {
             `buyr_tel2=${command.buyerTel2}`,
             `buyr_mail=${command.buyerEmail}`,
             ''
-        ].join(UnitSeparator);
+        ].join(Ascii.UnitSeparator);
 
         const pp_cli_arg = {
             ordr_idx: command.orderId,
@@ -87,7 +89,7 @@ export class KcpComandActuator {
             `mod_type=${this.config.code.request.txCancellation.modType.full}`,
             `mod_desc='${command.reason}'`,
             ''
-        ].join(UnitSeparator);
+        ].join(Ascii.UnitSeparator);
 
         const pp_cli_arg = {
             modx_data: data

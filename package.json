@@ -28,6 +28,7 @@
     "reflect-metadata": "^0.1.13",
     "routing-controllers": "^0.7.7",
     "routing-controllers-openapi": "^1.5.0",
+    "swagger-express-ts": "^1.0.1",
     "typedi": "^0.8.0"
   }
 }
