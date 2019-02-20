@@ -1,9 +1,9 @@
 import { Container } from "typedi";
 
 export enum Mode {
-    DEV = 'd',
-    PROD = 'p',
-    PROD_TAX = 'x'//production - tax deduction
+    DEV = 'dev',
+    PROD = 'prd',
+    PROD_TAX = 'ptx'//production - tax deduction
 };
 
 export class Config {

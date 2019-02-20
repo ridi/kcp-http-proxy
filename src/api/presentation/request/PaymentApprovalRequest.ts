@@ -8,7 +8,7 @@ export class PaymentApprovalRequest extends KcpRequest {
     @IsNotEmpty({ message: "거래번호는 필수값입니다." })
     txId: string;
 
-    @IsNotEmpty({message: "상품명은 필수값입니다."})
+    @IsNotEmpty({ message: "상품명은 필수값입니다." })
     productName: string;
 
     @IsNotEmpty({ message: "상품금액은 필수값입니다." })

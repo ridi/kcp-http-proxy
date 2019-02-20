@@ -3,12 +3,13 @@ import * as dotenv from "dotenv";
 import { Application } from "express";
 import * as path from "path";
 import "reflect-metadata";
-import { createExpressServer, getMetadataArgsStorage, useContainer as routingUseContainer } from "routing-controllers";
+import { createExpressServer, getMetadataArgsStorage, useContainer as routingUseContainer, Action } from "routing-controllers";
 import { routingControllersToSpec } from "routing-controllers-openapi";
 import { Container } from "typedi";
-import { Config, TestConfig, Mode } from "./api/common/config";
-import { KcpController } from "./api/presentation/KcpController";
-import { HealthCheckController } from "./api/presentation/HealthCheckController";
+import { Config, Mode, TestConfig } from "./api/common/config";
+import * as jwt from "jsonwebtoken";
+import * as fs from "fs";
+import { ExceptionHandler } from "./api/presentation/middleware/ExceptionHandler";
 
 // load .env
 dotenv.config();
@@ -32,13 +33,29 @@ Container.set(`config.kcp.${Mode.PROD_TAX}`, new Config(
     process.env.KCP_TAX_DEDUCTION_GROUP_ID
 ));
 
+// const cert = fs.readFileSync(Container.get('app.root') + '/resources/ridi-pay_to_ridi-kcp.key');
+// jwt.sign({
+//     iss: "ridi-pay",
+//     aud: "ridi-kcp",
+//     exp: 1577718000
+// }, cert, { algorithm: "RS256" }, (err, token) => {
+//     console.log('JWT TOKEN:', token);
+//     console.log("=========");
+//     const pem = fs.readFileSync(Container.get('app.root') + '/resources/ridi-pay_to_ridi-kcp.key.pub');
+//     jwt.verify(token, pem, (err, decoded) => {
+//         console.log('ERR', err);
+//         console.log('DECODED', decoded);
+//     });
+// });
+
+
+
 // scan controllers
 const app: Application = createExpressServer({
     routePrefix: '/api',
-    controllers: [
-        HealthCheckController,
-        KcpController
-    ]
+    controllers: [ __dirname + "/api/presentation/*Controller.*" ],
+    defaultErrorHandler: false,
+    middlewares: [ __dirname + "/api/presentation/middleware/*.*" ]
 });
 
 // generate open api schema
