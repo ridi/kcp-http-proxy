@@ -1,10 +1,13 @@
 import * as bodyParser from "body-parser";
+import { getFromContainer, MetadataStorage } from "class-validator";
+import { validationMetadatasToSchemas } from "class-validator-jsonschema";
 import * as dotenv from "dotenv";
 import { Application } from "express";
 import * as path from "path";
 import "reflect-metadata";
 import { createExpressServer, getMetadataArgsStorage, useContainer as routingUseContainer } from "routing-controllers";
 import { routingControllersToSpec } from "routing-controllers-openapi";
+import * as swaggerUi from "swagger-ui-express";
 import { Container } from "typedi";
 import { Config, Mode, TestConfig } from "./api/common/config";
 
@@ -30,18 +33,39 @@ Container.set(`config.kcp.${Mode.PROD_TAX}`, new Config(
     process.env.KCP_TAX_DEDUCTION_GROUP_ID
 ));
 
-// scan controllers
-const app: Application = createExpressServer({
+// controllers
+const routingControllersOptions = {
     routePrefix: '/api',
     controllers: [ __dirname + "/api/presentation/*Controller.*" ],
     defaultErrorHandler: false,
     middlewares: [ __dirname + "/api/presentation/middleware/*.*" ]
-});
+};
+// create server
+const app: Application = createExpressServer(routingControllersOptions);
 
-// generate open api schema
+// generate open api schema & swagger ui
+const metadata = (getFromContainer(MetadataStorage) as any).validationMetadatas;
+const schemas = validationMetadatasToSchemas(metadata, {
+    refPointerPrefix: "#/components/schemas"
+})
 const storage = getMetadataArgsStorage();
-const spec = routingControllersToSpec(storage);
-//console.log(spec);
+const spec = routingControllersToSpec(storage, routingControllersOptions, {
+    components: {
+        schemas,
+        securitySchemes: {
+            basicAuth: {
+                scheme: "basic",
+                type: "http"
+            }
+        }
+    },
+    info: {
+        description: "Generated with 'routing-controllers-openapi'",
+        title: "RIDI KCP Micro-service Rest API",
+        version: "1.0.0"
+    }
+});
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(spec));
 
 // to allow json
 app.use(bodyParser.json());

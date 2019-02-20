@@ -9,7 +9,7 @@ export class ExceptionHandler implements ExpressErrorMiddlewareInterface {
         //TODO logging error.message
         switch (error.constructor) {            
             case InvalidRequestException: {
-                response.status(400).send({
+                response.status(400).json({
                     code: "400",
                     message: (error as InvalidRequestException).errors,
                     isSuccess: false,
@@ -17,7 +17,7 @@ export class ExceptionHandler implements ExpressErrorMiddlewareInterface {
                 break;
             }
             case InvalidCommandException: {
-                response.status(400).send({
+                response.status(400).json({
                     code: "400",
                     message: error.message,
                     isSuccess: false
@@ -25,7 +25,7 @@ export class ExceptionHandler implements ExpressErrorMiddlewareInterface {
                 break;
             }
             case PayPlusException: {
-                response.status(500).send({
+                response.status(500).json({
                     code: (error as PayPlusException).code,
                     message: error.message,
                     isSuccess: false
@@ -34,7 +34,7 @@ export class ExceptionHandler implements ExpressErrorMiddlewareInterface {
             }
             case HttpError: {
                 const httpCode: number = (error as HttpError).httpCode || 500;
-                response.status(httpCode).send({
+                response.status(httpCode).json({
                     code: httpCode.toString(),
                     message: error.message ? (error.message.startsWith("Command failed") ? "Command failed." : error.message) : "Internal Server Error",
                     isSuccess: false
@@ -42,7 +42,7 @@ export class ExceptionHandler implements ExpressErrorMiddlewareInterface {
                 break;
             }
             default: {
-                response.status(500).send({
+                response.status(500).json({
                     code: "500",
                     message: error.message ? (error.message.startsWith("Command failed") ? "Command failed." : error.message) : "Internal Server Error",
                     isSuccess: false

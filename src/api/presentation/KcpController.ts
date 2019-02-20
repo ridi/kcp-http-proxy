@@ -14,7 +14,12 @@ import { PaymentApprovalRequest } from "./request/PaymentApprovalRequest";
 import { PaymentCancellationRequest } from "./request/PaymentCancellationRequest";
 import { RequestValidator } from "./request/RequestValidator";
 import { Authorized } from "./middleware/Authorized";
+import { ApiPath, ApiOperationPost, SwaggerDefinitionConstant } from "swagger-express-ts";
 
+@ApiPath({
+    path: "/api/kcp",
+    name: "KCP"
+})
 @JsonController("/kcp")
 export class KcpController {
     @Inject()
@@ -38,7 +43,7 @@ export class KcpController {
         );
 
         const result: AuthKeyRequestResult = await this.kcpService.requestAuthKey(command);
-        return res.send(result);
+        return res.json(result);
     }
 
     @ResponseSchema(PaymentApprovalResult, { description: "결제요청" })
@@ -59,7 +64,7 @@ export class KcpController {
         );
 
         const result: PaymentApprovalResult = await this.kcpService.approvePayment(command);
-        return res.send(result);
+        return res.json(result);
     }
 
     @ResponseSchema(PaymentCancellationResult, { description: "결제취소" })
@@ -72,6 +77,6 @@ export class KcpController {
         const command = new PaymentCancellationCommand(req.mode, req.txId, req.reason)
 
         const result: PaymentCancellationResult = await this.kcpService.cancelPayment(command);
-        return res.send(result);
+        return res.json(result);
     }
 }
