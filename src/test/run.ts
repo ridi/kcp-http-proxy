@@ -6,8 +6,8 @@ const suite = new mocha();
 
 fs.readdir(path.join(__dirname, "integration"), (err, files) => {
 	if (err) {
-        throw err;
-    }
+		throw err;
+	}
 
 	files.filter((filename) => (filename.match(/\.ts$/))).map((filename) => {
 		suite.addFile(path.join(__dirname, "integration", filename));
