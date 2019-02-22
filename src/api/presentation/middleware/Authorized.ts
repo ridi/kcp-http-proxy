@@ -4,6 +4,8 @@ import * as jwt from "jsonwebtoken";
 import { ExpressMiddlewareInterface, HttpError } from "routing-controllers";
 import { Container } from "typedi";
 
+const pem = fs.readFileSync(Container.get('app.root') + '/resources/ridi-pay_to_ridi-kcp.key.pub');
+
 export class Authorized implements ExpressMiddlewareInterface {
     use(request: express.Request, response: express.Response, next: (err?: any) => any) {
         const authorization: string = request.headers["authorization"];
@@ -11,7 +13,7 @@ export class Authorized implements ExpressMiddlewareInterface {
         let decoded: any;
         try {
             const token: string = authorization.split("Bearer")[1].trim();
-            const pem = fs.readFileSync(Container.get('app.root') + '/resources/ridi-pay_to_ridi-kcp.key.pub');
+            
             decoded = jwt.verify(token, pem, (err, decoded) => decoded);
             if (!decoded) {
                 throw "Failed to decode JWT";
