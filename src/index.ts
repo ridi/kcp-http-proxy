@@ -9,9 +9,6 @@ import { createExpressServer, getMetadataArgsStorage, useContainer as routingUse
 import { routingControllersToSpec } from "routing-controllers-openapi";
 import * as swaggerUi from "swagger-ui-express";
 import { Container } from "typedi";
-import { AuthKeyRequestResult } from "./api/application/result/AuthKeyRequestResult";
-import { PaymentApprovalResult } from "./api/application/result/PaymentApprovalResult";
-import { PaymentCancellationResult } from "./api/application/result/PaymentCancellationResult";
 import { Config, Mode, TestConfig } from "./api/common/config";
 
 // load .env
@@ -56,13 +53,16 @@ const schemas = validationMetadatasToSchemas(metadata, {
 const storage = getMetadataArgsStorage();
 const spec = routingControllersToSpec(storage, routingControllersOptions, {
     components: {
-        schemas,
+        schemas,            
         securitySchemes: {
-            basicAuth: {
-                scheme: "basic",
-                type: "http"
+            bearerAuth: {
+                description: "JWT Authorization",
+                type: "http",
+                scheme: "bearer",
+                in: "header",
+                bearerFormat: "JWT"
             }
-        }, 
+        }
     },
     info: {
         description: "Generated with 'routing-controllers-openapi'",
@@ -70,7 +70,7 @@ const spec = routingControllersToSpec(storage, routingControllersOptions, {
         version: "1.0.0"
     }
 });
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(spec));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(spec));
 
 // to allow json
 app.use(bodyParser.json());
