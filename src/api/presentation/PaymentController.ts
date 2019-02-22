@@ -15,7 +15,7 @@ import { PaymentApprovalRequest } from "./request/PaymentApprovalRequest";
 import { PaymentCancellationRequest } from "./request/PaymentCancellationRequest";
 import { RequestValidator } from "./request/RequestValidator";
 
-@JsonController("/payments")
+@JsonController()
 export class PaymentController {
     @Inject()
     kcpService: KcpService;
@@ -26,7 +26,7 @@ export class PaymentController {
     @ResponseSchema(AuthKeyRequestResult)
     @HttpCode(201)
     @UseBefore(Authorized)
-    @Post("/auth-key")
+    @Post("/payments/auth-key")
     async requestAuthKey(@Body() req: AuthKeyRequest, @Res() res: Response): Promise<AuthKeyRequestResult> {  
         await this.requestValidator.validate(req);
 
@@ -45,7 +45,7 @@ export class PaymentController {
     @ResponseSchema(PaymentApprovalResult)
     @HttpCode(200)
     @UseBefore(Authorized)
-    @Post("/approve")
+    @Post("/payments")
     async approvePayment(@Body() req: PaymentApprovalRequest, @Res() res: Response): Promise<Response> {
         await this.requestValidator.validate(req);
         
@@ -68,7 +68,7 @@ export class PaymentController {
     @ResponseSchema(PaymentCancellationResult)
     @UseBefore(Authorized)
     @HttpCode(200)
-    @Delete("/:kcp_tno/cancel")
+    @Delete("/payments/:kcp_tno")
     async cancelPayment(@Param("kcp_tno") kcp_tno: string, @Body() req: PaymentCancellationRequest, @Res() res: Response): Promise<Response> {
         req.trace_no = kcp_tno;
 
