@@ -12,7 +12,7 @@ export class ExceptionHandler implements ExpressErrorMiddlewareInterface {
                 response.status(400).json({
                     code: "400",
                     message: (error as InvalidRequestException).errors,
-                    isSuccess: false,
+                    is_success: false,
                 });
                 break;
             }
@@ -20,7 +20,7 @@ export class ExceptionHandler implements ExpressErrorMiddlewareInterface {
                 response.status(400).json({
                     code: "400",
                     message: error.message,
-                    isSuccess: false
+                    is_success: false
                 });
                 break;
             }
@@ -28,7 +28,7 @@ export class ExceptionHandler implements ExpressErrorMiddlewareInterface {
                 response.status(500).json({
                     code: (error as PayPlusException).code,
                     message: error.message,
-                    isSuccess: false
+                    is_success: false
                 });
                 break;
             }
@@ -37,7 +37,7 @@ export class ExceptionHandler implements ExpressErrorMiddlewareInterface {
                 response.status(httpCode).json({
                     code: httpCode.toString(),
                     message: error.message ? (error.message.startsWith("Command failed") ? "Command failed." : error.message) : "Internal Server Error",
-                    isSuccess: false
+                    is_success: false
                 });
                 break;
             }
@@ -45,7 +45,7 @@ export class ExceptionHandler implements ExpressErrorMiddlewareInterface {
                 response.status(500).json({
                     code: "500",
                     message: error.message ? (error.message.startsWith("Command failed") ? "Command failed." : error.message) : "Internal Server Error",
-                    isSuccess: false
+                    is_success: false
                 });
                 break;
             }

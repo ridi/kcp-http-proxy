@@ -9,6 +9,9 @@ import { createExpressServer, getMetadataArgsStorage, useContainer as routingUse
 import { routingControllersToSpec } from "routing-controllers-openapi";
 import * as swaggerUi from "swagger-ui-express";
 import { Container } from "typedi";
+import { AuthKeyRequestResult } from "./api/application/result/AuthKeyRequestResult";
+import { PaymentApprovalResult } from "./api/application/result/PaymentApprovalResult";
+import { PaymentCancellationResult } from "./api/application/result/PaymentCancellationResult";
 import { Config, Mode, TestConfig } from "./api/common/config";
 
 // load .env
@@ -35,7 +38,7 @@ Container.set(`config.kcp.${Mode.PROD_TAX}`, new Config(
 
 // controllers
 const routingControllersOptions = {
-    routePrefix: '/api',
+    routePrefix: '/kcp',
     controllers: [ __dirname + "/api/presentation/*Controller.*" ],
     defaultErrorHandler: false,
     middlewares: [ __dirname + "/api/presentation/middleware/*.*" ]
@@ -45,9 +48,11 @@ const app: Application = createExpressServer(routingControllersOptions);
 
 // generate open api schema & swagger ui
 const metadata = (getFromContainer(MetadataStorage) as any).validationMetadatas;
+
 const schemas = validationMetadatasToSchemas(metadata, {
     refPointerPrefix: "#/components/schemas"
-})
+});
+
 const storage = getMetadataArgsStorage();
 const spec = routingControllersToSpec(storage, routingControllersOptions, {
     components: {
@@ -57,7 +62,7 @@ const spec = routingControllersToSpec(storage, routingControllersOptions, {
                 scheme: "basic",
                 type: "http"
             }
-        }
+        }, 
     },
     info: {
         description: "Generated with 'routing-controllers-openapi'",

@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { Body, Delete, JsonController, Param, Post, QueryParams, Res, UseBefore } from "routing-controllers";
+import { Body, Delete, JsonController, Param, Post, Res, UseBefore } from "routing-controllers";
 import { ResponseSchema } from "routing-controllers-openapi";
 import { Inject } from "typedi";
 import { AuthKeyRequestCommand } from "../application/command/AuthKeyRequestCommand";
@@ -9,56 +9,52 @@ import { KcpService } from "../application/KcpService";
 import { AuthKeyRequestResult } from "../application/result/AuthKeyRequestResult";
 import { PaymentApprovalResult } from "../application/result/PaymentApprovalResult";
 import { PaymentCancellationResult } from "../application/result/PaymentCancellationResult";
+import { Authorized } from "./middleware/Authorized";
 import { AuthKeyRequest } from "./request/AuthKeyRequest";
 import { PaymentApprovalRequest } from "./request/PaymentApprovalRequest";
 import { PaymentCancellationRequest } from "./request/PaymentCancellationRequest";
 import { RequestValidator } from "./request/RequestValidator";
-import { Authorized } from "./middleware/Authorized";
-import { ApiPath, ApiOperationPost, SwaggerDefinitionConstant } from "swagger-express-ts";
 
-@ApiPath({
-    path: "/api/kcp",
-    name: "KCP"
-})
-@JsonController("/kcp")
-export class KcpController {
+@JsonController("/payments")
+export class PaymentController {
     @Inject()
     kcpService: KcpService;
 
     @Inject()
     requestValidator: RequestValidator;
 
-    @ResponseSchema(AuthKeyRequestResult, { description: "카드등록을 위한 배치키 발급요청" })    
+    @ResponseSchema(AuthKeyRequestResult)
     @UseBefore(Authorized)
-    @Post("/auth/key")
-    async requestAuthKey(@Body() req: AuthKeyRequest, @Res() res: Response): Promise<Response> {  
+    @Post("/auth-key")
+    async requestAuthKey(@Body() req: AuthKeyRequest, @Res() res: Response): Promise<AuthKeyRequestResult> {  
         await this.requestValidator.validate(req);
 
         const command = new AuthKeyRequestCommand(
             req.mode,
-            req.cardNumber,
-            req.cardExpiryDate,
-            req.cardTaxNumber,
-            req.cardPassword
+            req.card_no,
+            req.card_expiry_date,
+            req.card_tax_no,
+            req.card_password
         );
 
         const result: AuthKeyRequestResult = await this.kcpService.requestAuthKey(command);
-        return res.json(result);
+        return result;
     }
-
-    @ResponseSchema(PaymentApprovalResult, { description: "결제요청" })
-    @Post("/payment/approval")
+    
+    @ResponseSchema(PaymentApprovalResult)
+    @UseBefore(Authorized)
+    @Post("/approve")
     async approvePayment(@Body() req: PaymentApprovalRequest, @Res() res: Response): Promise<Response> {
         await this.requestValidator.validate(req);
         
         const command = new PaymentApprovalCommand(
             req.mode,
-            req.billKey,
-            req.txId,
-            req.productName,
-            req.productAmount,
-            req.buyerName,
-            req.buyerEmail,
+            req.bill_key,
+            req.order_no,
+            req.product_name,
+            req.product_amount,
+            req.buyer_name,
+            req.buyer_email,
             '',
             ''
         );
@@ -67,14 +63,15 @@ export class KcpController {
         return res.json(result);
     }
 
-    @ResponseSchema(PaymentCancellationResult, { description: "결제취소" })
-    @Delete("/payment/cancel/:txId")
-    async cancelPayment(@Param("txId") txId: string, @QueryParams() req: PaymentCancellationRequest, @Res() res: Response): Promise<Response> {
-        req.txId = txId;
+    @ResponseSchema(PaymentCancellationResult)
+    @UseBefore(Authorized)
+    @Delete("/:kcp_tno/cancel")
+    async cancelPayment(@Param("kcp_tno") kcp_tno: string, @Body() req: PaymentCancellationRequest, @Res() res: Response): Promise<Response> {
+        req.trace_no = kcp_tno;
 
         await this.requestValidator.validate(req);
 
-        const command = new PaymentCancellationCommand(req.mode, req.txId, req.reason)
+        const command = new PaymentCancellationCommand(req.mode, req.trace_no, req.reason)
 
         const result: PaymentCancellationResult = await this.kcpService.cancelPayment(command);
         return res.json(result);

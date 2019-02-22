@@ -1,4 +1,5 @@
-import { ApiModel, ApiModelProperty } from "swagger-express-ts";
+import { IsBoolean, IsNumber, IsString } from "class-validator";
+import { JSONSchema } from "class-validator-jsonschema";
 import { PayPlusResult } from "./PayPlusResult";
 
 export type PaymentApprovalOutput = {
@@ -40,145 +41,179 @@ export type PaymentApprovalOutput = {
     join_cd: string
 };
 
-@ApiModel({ description: "KCP 결제 요청 결과" })
+@JSONSchema({ description: "결제 요청 결과" })
 export class PaymentApprovalResult extends PayPlusResult {
-    @ApiModelProperty({ description: "영문메시지" })
-    readonly englishMessage: string;
+    @JSONSchema({ description: "영문 메시지" })
+    @IsString()
+    readonly english_message: string;
 
-    @ApiModelProperty({ description: "" })
-    readonly traceNo: string;
+    @JSONSchema({ description: "KCP 결제 고유 번호" })
+    @IsString()
+    readonly trace_no: string;
 
-    @ApiModelProperty({ description: "" })
-    readonly paymentMethod: string;
+    @JSONSchema({ description: "사용 결제 수단" })
+    @IsString()
+    readonly payment_method: string;
 
-    @ApiModelProperty({ description: "가맹점 주문 번호" })
-    readonly orderNo: string;
+    @JSONSchema({ description: "가맹점 주문 번호" })
+    @IsString()
+    readonly order_no: string;
     
-    @ApiModelProperty({ description: "" })
-    readonly cardCode: string;
+    @JSONSchema({ description: "카드 발급사 코드" })
+    @IsString()
+    readonly card_code: string;
     
-    @ApiModelProperty({ description: "" })
-    readonly cardName: string;
+    @JSONSchema({ description: "카드 이름" })
+    @IsString()
+    readonly card_name: string;
     
-    @ApiModelProperty({ description: "카드매입사 코드" })
-    readonly acquiredeeCode: string;
+    @JSONSchema({ description: "카드 매입사 코드" })
+    @IsString()
+    readonly acquiredee_code: string;
     
-    @ApiModelProperty({ description: "카드매입사 이름(한글)" })
-    readonly acquiredeeName: string;
+    @JSONSchema({ description: "카드 매입사 이름", format: "한글" })
+    @IsString()
+    readonly acquiredee_name: string;
     
-    @ApiModelProperty({ description: "" })
-    readonly cardNo: string;
+    @JSONSchema({ description: "카드 번호" })
+    @IsString()
+    readonly card_no: string;
     
-    @ApiModelProperty({ description: "" })
-    readonly mechantTaxNo: string;
+    @JSONSchema({ description: "" })
+    @IsString()
+    readonly mechant_tax_no: string;
     
-    @ApiModelProperty({ description: "가맹점 주문번호??" })
-    readonly mallTaxNo: string;
+    @JSONSchema({ description: "가맹점 주문 번호??" })
+    @IsString()
+    readonly mall_tax_no: string;
 
-    @ApiModelProperty({ description: "" })
-    readonly caOrderId: string;
+    @JSONSchema({ description: "" })
+    @IsString()
+    readonly ca_order_id: string;
     
-    @ApiModelProperty({ description: "결제 완료 후 결제 건에 대한 고유 값, 결제 건 취소 시 이용" })
+    @JSONSchema({ description: "KCP 거래 번호" })
+    @IsString()
     readonly tno: string;
     
-    @ApiModelProperty({ description: "총결제금액" })
+    @JSONSchema({ description: "총 결제 금액" })
+    @IsNumber()
     readonly amount: number;
     
-    @ApiModelProperty({ description: "카드결제금액" })
-    readonly cardAmount: number;
+    @JSONSchema({ description: "카드 결제 금액" })
+    @IsNumber()
+    readonly card_amount: number;
     
-    @ApiModelProperty({ description: "쿠폰결제금액" })
-    readonly couponAmount: number;
+    @JSONSchema({ description: "쿠폰 결제 금액" })
+    @IsNumber()
+    readonly coupon_amount: number;
     
-    @ApiModelProperty({ description: "" })
-    readonly escrowUse: boolean;
+    @JSONSchema({ description: "에스크로 사용 여부" })
+    @IsBoolean()
+    readonly is_escrow: boolean;
 
-    @ApiModelProperty({ description: "" })
-    readonly vanCode: string;
+    @JSONSchema({ description: "VAN사 코드" })
+    @IsString()
+    readonly van_code: string;
 
-    @ApiModelProperty({ description: "결제승인시각 - yyyyMMddHHmmss" })
-    readonly approvalTime: string;//
+    @JSONSchema({ description: "결제 승인 시각(공통)", format: "yyyyMMddHHmmss" })
+    @IsString()
+    readonly approval_time: string;
 
-    @ApiModelProperty({ description: "" })
-    readonly vanApprovalTime: string;
+    @JSONSchema({ description: "VAN사 결제 승인 시각" })
+    @IsString()
+    readonly van_approval_time: string;
 
-    @ApiModelProperty({ description: "정상 결제 거래의 승인 번호, KCP와 카드사에서 공통적으로 관리하는 번호" })
-    readonly approvalNo: string;
+    @JSONSchema({ description: "정상 결제 거래의 승인 번호, KCP와 카드사에서 공통적으로 관리하는 번호" })
+    @IsString()
+    readonly approval_no: string;
 
-    @ApiModelProperty({ description: "" })
-    readonly businessNo: string;
+    @JSONSchema({ description: "" })
+    @IsString()
+    readonly business_no: string;
 
-    @ApiModelProperty({ description: "할부 개월 수(0 ~ 12, 0: 일시불)" })
+    @JSONSchema({ description: "할부 개월(0: 일시불)", format: "0~12" })
+    @IsNumber()
     readonly quota: number;
 
-    @ApiModelProperty({ description: "무이자 할부 결제 여부" })
-    readonly isInterestFreeMonthlyInstallments: boolean;
+    @JSONSchema({ description: "무이자 할부 결제 여부" })
+    @IsBoolean()
+    readonly is_interest_free: boolean;
 
-    @ApiModelProperty({ description: "" })
-    readonly pgTxId: string;
+    @JSONSchema({ description: "" })
+    @IsString()
+    readonly pg_tx_id: string;
 
-    @ApiModelProperty({ description: "가맹점에서 제공한 복합 과세 타입" })
-    readonly taxFlag: string;
+    @JSONSchema({ description: "가맹점에서 제공한 복합 과세 타입" })
+    @IsString()
+    readonly tax_flag: string;
 
-    @ApiModelProperty({ description: "" })
-    readonly taxAmount: number;
+    @JSONSchema({ description: "세액" })
+    @IsNumber()
+    readonly tax_amount: number;
 
-    @ApiModelProperty({ description: "" })
-    readonly taxFreeAmount: number;
+    @JSONSchema({ description: "비과세액" })
+    @IsNumber()
+    readonly tax_free_amount: number;
 
-    @ApiModelProperty({ description: "" })
-    readonly vatAmount: number;
+    @JSONSchema({ description: "부가세액" })
+    @IsNumber()
+    readonly vat_amount: number;
 
-    @ApiModelProperty({ description: "" })
-    readonly isPartialCancellation: boolean;
+    @JSONSchema({ description: "부분 취소 여부" })
+    @IsBoolean()
+    readonly is_partial_cancellation: boolean;
 
-    @ApiModelProperty({ description: "" })
-    readonly cardBinType01: string;
+    @JSONSchema({ description: "" })
+    @IsString()
+    readonly card_bin_type_01: string;
 
-    @ApiModelProperty({ description: "" })
-    readonly cardBinType02: string;
+    @JSONSchema({ description: "" })
+    @IsString()
+    readonly card_bin_type_02: string;
 
-    @ApiModelProperty({ description: "" })
-    readonly cardBinBankCode: string;
+    @JSONSchema({ description: "" })
+    @IsString()
+    readonly card_bin_bank_code: string;
 
-    @ApiModelProperty({ description: "" })
-    readonly joinCode: string;
+    @JSONSchema({ description: "" })
+    @IsString()
+    readonly join_code: string;
     
     constructor(output: PaymentApprovalOutput) {
         super(output.res_cd, output.res_msg);
-        this.englishMessage = output.res_en_msg;
-        this.traceNo = output.trace_no;
-        this.paymentMethod = output.pay_method;
-        this.orderNo = output.order_no;
-        this.cardCode = output.card_cd;
-        this.cardName = output.card_name;
-        this.acquiredeeCode = output.acqu_cd;
-        this.acquiredeeName = output.acqu_name;
-        this.cardNo = output.card_no;
-        this.mechantTaxNo = output.mcht_taxno;
-        this.mallTaxNo = output.mall_taxno;
-        this.caOrderId = output.ca_order_id;
+        this.english_message = output.res_en_msg;
+        this.trace_no = output.trace_no;
+        this.payment_method = output.pay_method;
+        this.order_no = output.order_no;
+        this.card_code = output.card_cd;
+        this.card_name = output.card_name;
+        this.acquiredee_code = output.acqu_cd;
+        this.acquiredee_name = output.acqu_name;
+        this.card_no = output.card_no;
+        this.mechant_tax_no = output.mcht_taxno;
+        this.mall_tax_no = output.mall_taxno;
+        this.ca_order_id = output.ca_order_id;
         this.tno = output.tno;
         this.amount = parseInt(output.amount || "0");
-        this.cardAmount = parseInt(output.card_mny || "0");
-        this.couponAmount = parseInt(output.coupon_mny || "0");
-        this.escrowUse = (output.escw_yn || "N") === "N";
-        this.vanCode = output.van_cd;
-        this.approvalTime = output.app_time;
-        this.vanApprovalTime = output.van_apptime;
-        this.approvalNo = output.app_no;
-        this.businessNo = output.bizx_numb;
+        this.card_amount = parseInt(output.card_mny || "0");
+        this.coupon_amount = parseInt(output.coupon_mny || "0");
+        this.is_escrow = (output.escw_yn || "N") === "N";
+        this.van_code = output.van_cd;
+        this.approval_time = output.app_time;
+        this.van_approval_time = output.van_apptime;
+        this.approval_no = output.app_no;
+        this.business_no = output.bizx_numb;
         this.quota = parseInt(output.quota || "0");
-        this.isInterestFreeMonthlyInstallments = (output.noinf || "N") === "Y";
-        this.pgTxId = output.pg_txid;
-        this.taxFlag = output.res_tax_flag;
-        this.taxAmount = parseInt(output.res_tax_mny || "0");
-        this.taxFreeAmount = parseInt(output.res_free_mny || "0");
-        this.vatAmount = parseInt(output.res_vat_mny || "0");
-        this.isPartialCancellation = (output.partcanc_yn || "N") === "Y";
-        this.cardBinType01 = output.card_bin_type_01;
-        this.cardBinType02 = output.card_bin_type_02;
-        this.cardBinBankCode = output.card_bin_bank_cd;
-        this.joinCode = output.join_cd;
+        this.is_interest_free = (output.noinf || "N") === "Y";
+        this.pg_tx_id = output.pg_txid;
+        this.tax_flag = output.res_tax_flag;
+        this.tax_amount = parseInt(output.res_tax_mny || "0");
+        this.tax_free_amount = parseInt(output.res_free_mny || "0");
+        this.vat_amount = parseInt(output.res_vat_mny || "0");
+        this.is_partial_cancellation = (output.partcanc_yn || "N") === "Y";
+        this.card_bin_type_01 = output.card_bin_type_01;
+        this.card_bin_type_02 = output.card_bin_type_02;
+        this.card_bin_bank_code = output.card_bin_bank_cd;
+        this.join_code = output.join_cd;
     }
 }

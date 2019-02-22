@@ -1,19 +1,19 @@
-import { ApiModelProperty } from "swagger-express-ts";
+import { JSONSchema } from "class-validator-jsonschema";
 import { PayPlusStatus } from "../../common/constants";
 
 export abstract class PayPlusResult {
-    @ApiModelProperty({ description: "KCP 결과 코드: 0000 (정상처리)" })
+    @JSONSchema({ description: "KCP 결과 코드: 0000 (정상처리)" })
     readonly code: string;
 
-    @ApiModelProperty({ description: "KCP 결과 메시지" })
+    @JSONSchema({ description: "KCP 결과 메시지" })
     readonly messsage: string | object;
 
-    @ApiModelProperty({ description: "KCP 결과 성공 여부" })
-    readonly isSuccess: boolean;
+    @JSONSchema({ description: "KCP 결과 성공 여부" })
+    readonly is_success: boolean;
     
     constructor(res_cd: string, res_msg: string | object) {
         this.code = res_cd;
         this.messsage = res_msg;
-        this.isSuccess = this.code === PayPlusStatus.OK;
+        this.is_success = this.code === PayPlusStatus.OK;
     }
 }
