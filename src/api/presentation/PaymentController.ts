@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { Body, Delete, JsonController, Param, Post, Res, UseBefore, HttpCode } from "routing-controllers";
+import { Body, Delete, HttpCode, JsonController, Param, Post, Res, UseBefore } from "routing-controllers";
 import { ResponseSchema } from "routing-controllers-openapi";
 import { Inject } from "typedi";
 import { AuthKeyRequestCommand } from "../application/command/AuthKeyRequestCommand";
@@ -46,7 +46,7 @@ export class PaymentController {
     @HttpCode(200)
     @UseBefore(Authorized)
     @Post("/payments")
-    async approvePayment(@Body() req: PaymentApprovalRequest, @Res() res: Response): Promise<Response> {
+    async approvePayment(@Body() req: PaymentApprovalRequest, @Res() res: Response): Promise<PaymentApprovalResult> {
         await this.requestValidator.validate(req);
         
         const command = new PaymentApprovalCommand(
@@ -62,14 +62,14 @@ export class PaymentController {
         );
 
         const result: PaymentApprovalResult = await this.kcpService.approvePayment(command);
-        return res.json(result);
+        return result;
     }
 
     @ResponseSchema(PaymentCancellationResult)
     @UseBefore(Authorized)
     @HttpCode(200)
     @Delete("/payments/:kcp_tno")
-    async cancelPayment(@Param("kcp_tno") kcp_tno: string, @Body() req: PaymentCancellationRequest, @Res() res: Response): Promise<Response> {
+    async cancelPayment(@Param("kcp_tno") kcp_tno: string, @Body() req: PaymentCancellationRequest, @Res() res: Response): Promise<PaymentCancellationResult> {
         req.trace_no = kcp_tno;
 
         await this.requestValidator.validate(req);
@@ -77,6 +77,6 @@ export class PaymentController {
         const command = new PaymentCancellationCommand(req.mode, req.trace_no, req.reason)
 
         const result: PaymentCancellationResult = await this.kcpService.cancelPayment(command);
-        return res.json(result);
+        return result;
     }
 }
