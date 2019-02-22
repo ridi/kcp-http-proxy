@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { Body, Delete, JsonController, Param, Post, Res, UseBefore } from "routing-controllers";
+import { Body, Delete, JsonController, Param, Post, Res, UseBefore, HttpCode } from "routing-controllers";
 import { ResponseSchema } from "routing-controllers-openapi";
 import { Inject } from "typedi";
 import { AuthKeyRequestCommand } from "../application/command/AuthKeyRequestCommand";
@@ -24,6 +24,7 @@ export class PaymentController {
     requestValidator: RequestValidator;
 
     @ResponseSchema(AuthKeyRequestResult)
+    @HttpCode(201)
     @UseBefore(Authorized)
     @Post("/auth-key")
     async requestAuthKey(@Body() req: AuthKeyRequest, @Res() res: Response): Promise<AuthKeyRequestResult> {  
@@ -42,6 +43,7 @@ export class PaymentController {
     }
     
     @ResponseSchema(PaymentApprovalResult)
+    @HttpCode(200)
     @UseBefore(Authorized)
     @Post("/approve")
     async approvePayment(@Body() req: PaymentApprovalRequest, @Res() res: Response): Promise<Response> {
@@ -65,6 +67,7 @@ export class PaymentController {
 
     @ResponseSchema(PaymentCancellationResult)
     @UseBefore(Authorized)
+    @HttpCode(200)
     @Delete("/:kcp_tno/cancel")
     async cancelPayment(@Param("kcp_tno") kcp_tno: string, @Body() req: PaymentCancellationRequest, @Res() res: Response): Promise<Response> {
         req.trace_no = kcp_tno;
