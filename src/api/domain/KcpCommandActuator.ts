@@ -57,7 +57,7 @@ export class KcpComandActuator {
             `escw_mod=${this.config.code.escrowUse.No}`,
             `${Ascii.RecordSeparator}card=card_mny=${command.goodsPrice}`,
             `card_tx_type=${this.config.code.request.txApproval.cardTxType}`,
-            `quota=${command.installmentMonths}`,
+            `quota=${command.installmentMonths.toString().padStart(2, "0")}`,
             `bt_group_id=${this.config.groupId}`,
             `bt_batch_key=${command.batchKey}`,
             `${Ascii.RecordSeparator}`

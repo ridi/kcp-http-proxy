@@ -39,5 +39,24 @@ describe("kcp payments api", () => {
                 chai.expect(res).to.have.status(201);
                 return done();
             });
-    })
+    });
+
+    it("결제 요청 200 상태 반환", (done) => {
+        chai.request(app)
+            .post("/kcp/payments")
+            .set("Authorization", `Bearer ${token}`)
+            .send({
+                bill_key: "190222114295545B",
+                order_no: `TEST${new Date().getTime()}`,
+                product_name: "테스트 상품",
+                product_amount: 10000,
+                buyer_name: "테스터",
+                buyer_email: "payment-test@ridi.com",
+                mode: "dev"
+            })
+            .end((_, res) => {
+                chai.expect(res).to.have.status(200);
+                return done();
+            })
+    });
 });

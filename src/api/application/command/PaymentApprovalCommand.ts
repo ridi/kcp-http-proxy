@@ -12,7 +12,7 @@ export class PaymentApprovalCommand extends Command {
     readonly buyerTel2: string;
     readonly buyerEmail: string;
 
-    readonly installmentMonths: number =0;//할부 개월수
+    readonly installmentMonths: number = 0;//할부 개월수
 
     constructor(
         mode: Mode,
