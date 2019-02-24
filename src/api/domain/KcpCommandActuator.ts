@@ -1,4 +1,4 @@
-import { exec } from "child_process";
+import { exec, ExecException } from "child_process";
 import { Container, Service } from "typedi";
 import { Config } from "../common/config";
 import { Ascii } from "../common/constants";
@@ -7,7 +7,7 @@ import { CommandType } from "../application/command/CommandType";
 import { AuthKeyRequestCommand } from "../application/command/AuthKeyRequestCommand";
 import { PaymentApprovalCommand } from "../application/command/PaymentApprovalCommand";
 import { PaymentCancellationCommand } from "../application/command/PaymentCancellationCommand";
-
+import * as iconv from "iconv-lite";
 @Service()
 export class KcpComandActuator {
     private config: Config;
@@ -113,19 +113,19 @@ export class KcpComandActuator {
             {
                 log_level: this.config.log.level,
                 log_path: this.config.log.path,
-                opt: this.config.options.encoding.UTF_8
+                opt: this.config.options.encoding.EUC_KR //UTF_8 적용시 '결제 요청 처리(payments)'에서 인식이 안 됨
             }
         );
 
         const command = `${this.config.modulePath} -h ${commandArgument.flatten(',')}`;
 
         return new Promise((resolve, reject) => {
-            exec(command, (error, stdout, stderr) => {
+            exec(command, { encoding: "euckr" }, (error: ExecException, stdout: Buffer, stderr) => {
                 if (error) {
                     reject(error);
                     return;
                 }
-                resolve(stdout.trim());
+                resolve(iconv.decode(stdout, 'euc-kr').trim());
             });
         });
     }
