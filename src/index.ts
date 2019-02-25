@@ -10,6 +10,8 @@ import { routingControllersToSpec } from "routing-controllers-openapi";
 import * as swaggerUi from "swagger-ui-express";
 import { Container } from "typedi";
 import { Config, Mode, TestConfig } from "./api/common/config";
+import * as Logger from "aws-cloudwatch-log";
+import * as Raven from "raven";
 
 // load .env
 dotenv.config();
@@ -33,11 +35,26 @@ Container.set(`config.kcp.${Mode.PROD_TAX}`, new Config(
     process.env.KCP_TAX_DEDUCTION_GROUP_ID
 ));
 
+// AWS CloudWatch Logger
+const loggerConfig = {
+    logGroupName: "",
+    logStreamName: "",
+    region: "",
+    accessKeyId: "",
+    secretAccessKey: "",
+    uploadFreq: 10000,
+    local: false
+};
+Container.set(Logger, new Logger(loggerConfig));
+
+// TODO raven sentry logger//
+//Raven.config();
+
 // controllers
 const routingControllersOptions = {
     routePrefix: '/kcp',
-    controllers: [ __dirname + "/api/presentation/*Controller.*" ],
     defaultErrorHandler: false,
+    controllers: [ __dirname + "/api/presentation/*Controller.*" ],    
     middlewares: [ __dirname + "/api/presentation/middleware/*.*" ]
 };
 // create server
