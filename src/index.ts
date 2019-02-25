@@ -1,17 +1,17 @@
+import * as Logger from "aws-cloudwatch-log";
 import * as bodyParser from "body-parser";
 import { getFromContainer, MetadataStorage } from "class-validator";
 import { validationMetadatasToSchemas } from "class-validator-jsonschema";
 import * as dotenv from "dotenv";
 import { Application } from "express";
 import * as path from "path";
+import * as Raven from "raven";
 import "reflect-metadata";
 import { createExpressServer, getMetadataArgsStorage, useContainer as routingUseContainer } from "routing-controllers";
 import { routingControllersToSpec } from "routing-controllers-openapi";
 import * as swaggerUi from "swagger-ui-express";
 import { Container } from "typedi";
 import { Config, Mode, TestConfig } from "./api/common/config";
-import * as Logger from "aws-cloudwatch-log";
-import * as Raven from "raven";
 
 // load .env
 dotenv.config();
