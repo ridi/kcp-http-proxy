@@ -1,12 +1,19 @@
+import { Logger } from "aws-cloudwatch-log";
+import * as Raven from "raven";
 import { ExpressErrorMiddlewareInterface, HttpError, Middleware } from "routing-controllers";
+import { Inject } from "typedi";
 import { InvalidCommandException } from "../../application/exception/InvalidCommandException";
 import { PayPlusException } from "../../application/exception/PayPlusException";
 import { InvalidRequestException } from "../request/InvalidRequestException";
 
 @Middleware({ type: "after" })
-export class ExceptionHandler implements ExpressErrorMiddlewareInterface {
+export class ErrorHandler implements ExpressErrorMiddlewareInterface {
+    @Inject()
+    logger: Logger;
+
     error(error: any, request: any, response: any, next: (err?: any) => any): void {
-        //TODO logging error.message
+        this.logger.error(error);
+
         switch (error.constructor) {            
             case InvalidRequestException: {
                 response.status(400).json({
@@ -24,7 +31,9 @@ export class ExceptionHandler implements ExpressErrorMiddlewareInterface {
                 });
                 break;
             }
-            case PayPlusException: {
+            case PayPlusException: {                
+                Raven.captureException(error);
+                
                 response.status(500).json({
                     code: (error as PayPlusException).code,
                     message: error.message,
@@ -33,6 +42,8 @@ export class ExceptionHandler implements ExpressErrorMiddlewareInterface {
                 break;
             }
             case HttpError: {
+                Raven.captureException(error);
+
                 const httpCode: number = (error as HttpError).httpCode || 500;
                 response.status(httpCode).json({
                     code: httpCode.toString(),
@@ -42,6 +53,8 @@ export class ExceptionHandler implements ExpressErrorMiddlewareInterface {
                 break;
             }
             default: {
+                Raven.captureException(error);
+
                 response.status(500).json({
                     code: "500",
                     message: error.message ? (error.message.startsWith("Command failed") ? "Command failed." : error.message) : "Internal Server Error",

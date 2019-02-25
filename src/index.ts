@@ -48,7 +48,7 @@ const loggerConfig = {
 Container.set(Logger, new Logger(loggerConfig));
 
 // TODO raven sentry logger//
-//Raven.config();
+Raven.config('').install();//TODO
 
 // controllers
 const routingControllersOptions = {
