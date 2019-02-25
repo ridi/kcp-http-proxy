@@ -29,7 +29,7 @@ export class Authorized implements ExpressMiddlewareInterface {
             throw new HttpError(401, "Invalid JWT Audience");
         }            
         if (!decoded.exp || decoded.exp * 1000 < Date.now()) {
-            throw new HttpError(401, "Expirted JWT");
+            throw new HttpError(401, "Expired JWT");
         }
 
         next();

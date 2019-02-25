@@ -73,7 +73,7 @@ export class PaymentCancellationResult extends PayPlusResult {
     
     @JSONSchema({ description: "" })
     @IsString()
-    readonly mechant_tax_no: string;
+    readonly merchant_tax_no: string;
     
     @JSONSchema({ description: "가맹점 주문번호??" })
     @IsString()
@@ -153,7 +153,7 @@ export class PaymentCancellationResult extends PayPlusResult {
         this.card_name = output.card_name;
         this.acquiredee_code = output.acqu_cd;
         this.acquiredee_name = output.acqu_name;
-        this.mechant_tax_no = output.mcht_taxno;
+        this.merchant_tax_no = output.mcht_taxno;
         this.mall_tax_no = output.mall_taxno;
         this.ca_order_id = output.ca_order_id;
         this.tno = output.tno;

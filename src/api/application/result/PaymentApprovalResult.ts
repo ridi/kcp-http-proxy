@@ -81,7 +81,7 @@ export class PaymentApprovalResult extends PayPlusResult {
     
     @JSONSchema({ description: "" })
     @IsString()
-    readonly mechant_tax_no: string;
+    readonly merchant_tax_no: string;
     
     @JSONSchema({ description: "가맹점 주문 번호??" })
     @IsString()
@@ -190,7 +190,7 @@ export class PaymentApprovalResult extends PayPlusResult {
         this.acquiredee_code = output.acqu_cd;
         this.acquiredee_name = output.acqu_name;
         this.card_no = output.card_no;
-        this.mechant_tax_no = output.mcht_taxno;
+        this.merchant_tax_no = output.mcht_taxno;
         this.mall_tax_no = output.mall_taxno;
         this.ca_order_id = output.ca_order_id;
         this.tno = output.tno;
