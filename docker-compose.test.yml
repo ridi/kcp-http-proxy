@@ -2,11 +2,11 @@ version: "3"
 
 services:
   web:
-    container_name: ridi_kcp
+    container_name: ridi_kcp_test
     image: node:lts
     volumes:
       - ./:/app
     working_dir: /app    
     ports:
       - 3000:3000
-    command: npm run prod
+    command: npm run test
