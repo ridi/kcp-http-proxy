@@ -32,6 +32,7 @@
     "typescript": "^3.3.1"
   },
   "dependencies": {
+    "@sentry/node": "^4.6.3",
     "body-parse": "^0.1.0",
     "bunyan": "^1.8.12",
     "bunyan-cloudwatch": "^2.2.0",
@@ -42,7 +43,6 @@
     "express-prettify": "^0.1.1",
     "iconv-lite": "^0.4.24",
     "jsonwebtoken": "^8.4.0",
-    "raven": "^2.6.4",
     "reflect-metadata": "^0.1.13",
     "routing-controllers": "^0.7.7",
     "routing-controllers-openapi": "^1.5.0",

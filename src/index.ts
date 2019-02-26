@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/node";
 import * as bodyParser from "body-parser";
 import * as Logger from "bunyan";
 import * as createCloudWatchStream from "bunyan-cloudwatch";
@@ -12,7 +13,6 @@ import { routingControllersToSpec } from "routing-controllers-openapi";
 import * as swaggerUi from "swagger-ui-express";
 import { Container } from "typedi";
 import { Config, Mode, TestConfig } from "./api/common/config";
-
 // load .env
 dotenv.config();
 
@@ -35,6 +35,7 @@ Container.set(`config.kcp.${Mode.PROD_TAX}`, new Config(
     process.env.KCP_TAX_DEDUCTION_GROUP_ID
 ));
 
+const isProduction: boolean = process.env.APP_MODE === "production";
 // Logger with AWS cloudwatch appednder
 const cloudWatchStream = createCloudWatchStream({
     logGroupName: process.env.AWS_LOG_GROUP,
@@ -48,8 +49,11 @@ Container.set('logger', Logger.createLogger({
     ]
 }));
 
-// TODO raven sentry logger//
-//Raven.config('').install();//TODO
+// Sentry
+Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.APP_MODE === "production" ? "prod": "test" 
+});
 
 // controllers
 const routingControllersOptions = {

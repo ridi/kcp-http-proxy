@@ -1,4 +1,4 @@
-//import * as Raven from "raven";
+import * as Sentry from "@sentry/node";
 import * as Logger from "bunyan";
 import { Inject, Service } from 'typedi';
 import { Ascii, PayPlusStatus } from '../common/constants';
@@ -62,9 +62,8 @@ export class KcpService {
                     }
                 }
             }).catch(error => {
-                this.logger.error('KcpService.executeCommand', error);
-                //TODO logging sentry
-                //Raven.captureException(error);
+                Sentry.captureException(error);
+                this.logger.error('KcpService.executeCommand', error);                
                 return error;
             });
     }
