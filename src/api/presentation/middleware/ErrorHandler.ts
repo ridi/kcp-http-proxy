@@ -1,13 +1,14 @@
-import { getLogger, Logger } from "log4js";
+import * as Logger from "bunyan";
 import { ExpressErrorMiddlewareInterface, HttpError, Middleware } from "routing-controllers";
+import { Inject } from "typedi";
 import { InvalidCommandException } from "../../application/exception/InvalidCommandException";
 import { PayPlusException } from "../../application/exception/PayPlusException";
 import { InvalidRequestException } from "../request/InvalidRequestException";
 
 @Middleware({ type: "after" })
 export class ErrorHandler implements ExpressErrorMiddlewareInterface {
-
-    readonly logger: Logger = getLogger("app");
+    @Inject("logger")
+    logger: Logger;
 
     error(error: any, request: any, response: any, next: (err?: any) => any): void {
         this.logger.error(error);

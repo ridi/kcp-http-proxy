@@ -1,11 +1,12 @@
+import * as Logger from "bunyan";
 import { Request } from "express";
-import { getLogger, Logger } from "log4js";
 import { ExpressMiddlewareInterface, Middleware } from "routing-controllers";
+import { Inject } from "typedi";
 
 @Middleware({ type: "before" })
 export class RequestLoggingAspect implements ExpressMiddlewareInterface {    
-
-    readonly logger: Logger = getLogger("http");
+    @Inject("logger")
+    logger: Logger;
 
     use(request: any, response: any, next: (err?: any) => any) {
         const req = request as Request;

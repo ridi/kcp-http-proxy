@@ -1,4 +1,5 @@
 //import * as Raven from "raven";
+import * as Logger from "bunyan";
 import { Inject, Service } from 'typedi';
 import { Ascii, PayPlusStatus } from '../common/constants';
 import { KcpComandActuator } from '../domain/KcpCommandActuator';
@@ -15,6 +16,9 @@ import { PaymentCancellationOutput, PaymentCancellationResult } from './result/P
 
 @Service()
 export class KcpService {
+    @Inject("logger")
+    logger: Logger;
+
     @Inject()
     commandActuator: KcpComandActuator;
 
@@ -58,6 +62,7 @@ export class KcpService {
                     }
                 }
             }).catch(error => {
+                this.logger.error('KcpService.executeCommand', error);
                 //TODO logging sentry
                 //Raven.captureException(error);
                 return error;
