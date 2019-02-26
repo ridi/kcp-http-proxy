@@ -1,3 +1,4 @@
+//import * as Raven from "raven";
 import { Inject, Service } from 'typedi';
 import { Ascii, PayPlusStatus } from '../common/constants';
 import { KcpComandActuator } from '../domain/KcpCommandActuator';
@@ -56,6 +57,10 @@ export class KcpService {
                         throw new InvalidCommandException(`Unknown Command Type: ${command.type}`);
                     }
                 }
+            }).catch(error => {
+                //TODO logging sentry
+                //Raven.captureException(error);
+                return error;
             });
     }
 }

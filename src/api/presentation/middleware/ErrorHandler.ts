@@ -1,15 +1,13 @@
-import { Logger } from "aws-cloudwatch-log";
-import * as Raven from "raven";
+import { getLogger, Logger } from "log4js";
 import { ExpressErrorMiddlewareInterface, HttpError, Middleware } from "routing-controllers";
-import { Inject } from "typedi";
 import { InvalidCommandException } from "../../application/exception/InvalidCommandException";
 import { PayPlusException } from "../../application/exception/PayPlusException";
 import { InvalidRequestException } from "../request/InvalidRequestException";
 
 @Middleware({ type: "after" })
 export class ErrorHandler implements ExpressErrorMiddlewareInterface {
-    @Inject()
-    logger: Logger;
+
+    readonly logger: Logger = getLogger("app");
 
     error(error: any, request: any, response: any, next: (err?: any) => any): void {
         this.logger.error(error);
@@ -31,9 +29,7 @@ export class ErrorHandler implements ExpressErrorMiddlewareInterface {
                 });
                 break;
             }
-            case PayPlusException: {                
-                Raven.captureException(error);
-                
+            case PayPlusException: {
                 response.status(500).json({
                     code: (error as PayPlusException).code,
                     message: error.message,
@@ -42,8 +38,6 @@ export class ErrorHandler implements ExpressErrorMiddlewareInterface {
                 break;
             }
             case HttpError: {
-                Raven.captureException(error);
-
                 const httpCode: number = (error as HttpError).httpCode || 500;
                 response.status(httpCode).json({
                     code: httpCode.toString(),
@@ -53,8 +47,6 @@ export class ErrorHandler implements ExpressErrorMiddlewareInterface {
                 break;
             }
             default: {
-                Raven.captureException(error);
-
                 response.status(500).json({
                     code: "500",
                     message: error.message ? (error.message.startsWith("Command failed") ? "Command failed." : error.message) : "Internal Server Error",

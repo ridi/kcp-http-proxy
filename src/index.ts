@@ -1,11 +1,10 @@
-import * as Logger from "aws-cloudwatch-log";
 import * as bodyParser from "body-parser";
 import { getFromContainer, MetadataStorage } from "class-validator";
 import { validationMetadatasToSchemas } from "class-validator-jsonschema";
 import * as dotenv from "dotenv";
 import { Application } from "express";
+import * as log4js from "log4js";
 import * as path from "path";
-import * as Raven from "raven";
 import "reflect-metadata";
 import { createExpressServer, getMetadataArgsStorage, useContainer as routingUseContainer } from "routing-controllers";
 import { routingControllersToSpec } from "routing-controllers-openapi";
@@ -35,20 +34,44 @@ Container.set(`config.kcp.${Mode.PROD_TAX}`, new Config(
     process.env.KCP_TAX_DEDUCTION_GROUP_ID
 ));
 
-// AWS CloudWatch Logger
-const loggerConfig = {
-    logGroupName: "",
-    logStreamName: "",
-    region: "",
-    accessKeyId: "",
-    secretAccessKey: "",
-    uploadFreq: 10000,
-    local: false
-};
-Container.set(Logger, new Logger(loggerConfig));
+// Log4js with AWS cloudwatch appednder
+const logger: log4js.Logger = log4js.getLogger();
+const categoryAppenderOptions = process.env.APP_MODE === "production" 
+    ? {
+        appenders: [ "aws" ],
+        level: "info"
+    }
+    : {
+        appenders: [ "out" ],
+        level: "debug"
+    };
+
+log4js.configure({
+    appenders: {
+        out: {
+            type: "console"
+        },
+        // aws: {
+        //     type: "log4js-cloudwatch-appender",
+        //     accessKeyId: '<accessKeyId>',
+        //     secretAccessKey: '<secretAccessKey>',
+        //     region: 'eu-central-1',
+        //     logGroup: 'prod',
+        //     logStream: 'apps',
+        //     layout: '<custom layout object>',
+        //     lawgsConfig: '<optional alwgs config object>'
+        // }
+    },
+    categories: {
+        default: categoryAppenderOptions,
+        http: categoryAppenderOptions,
+        app: categoryAppenderOptions
+    }
+});
+Container.set("logger", logger);
 
 // TODO raven sentry logger//
-Raven.config('').install();//TODO
+//Raven.config('').install();//TODO
 
 // controllers
 const routingControllersOptions = {

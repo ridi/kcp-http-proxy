@@ -23,18 +23,14 @@
     "@types/node": "^10.12.23",
     "@types/raven": "^2.5.3",
     "@types/swagger-ui-express": "^3.0.0",
-    "@types/when": "^2.4.33",
     "chai": "^4.2.0",
     "chai-http": "^4.2.1",
     "mocha": "^6.0.1",
     "nodemon": "^1.18.9",
-    "should": "^13.2.3",
     "ts-node": "^8.0.2",
-    "typescript": "^3.3.1",
-    "when": "^3.7.8"
+    "typescript": "^3.3.1"
   },
   "dependencies": {
-    "aws-cloudwatch-log": "^0.1.2",
     "body-parse": "^0.1.0",
     "class-validator": "^0.9.1",
     "class-validator-jsonschema": "^1.2.0",
@@ -43,6 +39,8 @@
     "express-prettify": "^0.1.1",
     "iconv-lite": "^0.4.24",
     "jsonwebtoken": "^8.4.0",
+    "log4js": "^4.0.2",
+    "log4js-cloudwatch-appender": "^1.1.0",
     "raven": "^2.6.4",
     "reflect-metadata": "^0.1.13",
     "routing-controllers": "^0.7.7",

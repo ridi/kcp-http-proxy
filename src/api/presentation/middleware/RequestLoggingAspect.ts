@@ -1,17 +1,17 @@
-import { Logger } from "aws-cloudwatch-log";
 import { Request } from "express";
+import { getLogger, Logger } from "log4js";
 import { ExpressMiddlewareInterface, Middleware } from "routing-controllers";
-import { Inject } from "typedi";
 
 @Middleware({ type: "before" })
-export class RequestLoggingAspect implements ExpressMiddlewareInterface {
-    @Inject()
-    logger: Logger;
+export class RequestLoggingAspect implements ExpressMiddlewareInterface {    
 
-    use(request: any, response: any, next: (err?: any) => any) {//TODO
+    readonly logger: Logger = getLogger("http");
+
+    use(request: any, response: any, next: (err?: any) => any) {
         const req = request as Request;
 
-        this.logger.log("[INFO]", `${req.method} ${req.url}`, new Date().getTime());
+        this.logger.info(`${req.method} ${req.url}`);
+
         next();
     }
 }
