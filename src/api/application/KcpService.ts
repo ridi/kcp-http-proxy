@@ -18,6 +18,9 @@ export class KcpService {
     @Inject()
     commandActuator: KcpComandActuator;
 
+    @Inject("sentry.loggable")
+    sentryLoggable: boolean;
+
     requestAuthKey(command: AuthKeyRequestCommand): Promise<AuthKeyRequestResult> {
         return this.executeCommand(command);
     }
@@ -58,7 +61,9 @@ export class KcpService {
                     }
                 }
             }).catch(error => {
-                Sentry.captureException(error);
+                if (this.sentryLoggable) {
+                    Sentry.captureException(error);
+                }
                 throw error;
             });
     }

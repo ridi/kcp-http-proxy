@@ -59,8 +59,9 @@ Container.set('logger', Logger.createLogger({
 // Sentry
 Sentry.init({
     dsn: process.env.SENTRY_DSN,
-    environment: process.env.APP_MODE === "production" ? "prod": "test" 
+    environment: isProduction ? "prod": "test" 
 });
+Container.set("sentry.loggable", isProduction);
 
 // controllers
 const routingControllersOptions = {
