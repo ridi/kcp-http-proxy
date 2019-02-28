@@ -9,11 +9,11 @@ fs.readdir(path.join(__dirname, "integration"), (err, files) => {
 		throw err;
 	}
 
-	files.filter((filename) => (filename.match(/\.ts$/))).map((filename) => {
+	files.filter((filename: string) => (filename.match(/\.ts$/))).map((filename) => {
 		suite.addFile(path.join(__dirname, "integration", filename));
 	});
 
-	suite.run((failures) => {
+	suite.run((failures: number) => {
 		process.exit(failures);
 	});
 });

@@ -25,24 +25,24 @@ Container.set('app.root', path.resolve(__dirname));
 // set kcp configuration by mode
 Container.set(`config.kcp.${Mode.DEV}`, new TestConfig());
 Container.set(`config.kcp.${Mode.PROD}`, new Config(
-    process.env.KCP_SITE_CODE,
-    process.env.KCP_SITE_KEY,
-    process.env.KCP_GROUP_ID
+    process.env.KCP_SITE_CODE || "",
+    process.env.KCP_SITE_KEY || "",
+    process.env.KCP_GROUP_ID || ""
 ));
 Container.set(`config.kcp.${Mode.PROD_TAX}`, new Config(
-    process.env.KCP_TAX_DEDUCTION_SITE_CODE,
-    process.env.KCP_TAX_DEDUCTION_SITE_KEY,
-    process.env.KCP_TAX_DEDUCTION_GROUP_ID
+    process.env.KCP_TAX_DEDUCTION_SITE_CODE || "",
+    process.env.KCP_TAX_DEDUCTION_SITE_KEY || "",
+    process.env.KCP_TAX_DEDUCTION_GROUP_ID || ""
 ));
 
 const isProduction: boolean = process.env.APP_MODE === "production";
 // Logger with AWS cloudwatch appednder
 const cloudWatchStream = createCloudWatchStream({
-    logGroupName: process.env.AWS_LOG_GROUP,
-    logStreamName: process.env.AWS_LOG_STREAM_NAME
+    logGroupName: process.env.AWS_LOG_GROUP || "",
+    logStreamName: process.env.AWS_LOG_STREAM_NAME || ""
 });
 Container.set('logger', Logger.createLogger({
-    name: process.env.AWS_LOG_STREAM_NAME,
+    name: process.env.AWS_LOG_STREAM_NAME || "",
     streams: [
         //{ stream: process.stderr, type: "stream", level: "debug" },
         { stream: cloudWatchStream, type: "raw", level: "info" }

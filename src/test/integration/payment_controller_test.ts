@@ -7,11 +7,11 @@ import * as app from "../../index";
 
 chai.use(require("chai-http"));
 
-const cert = fs.readFileSync(path.resolve(__dirname, "../../resources/ridi-pay_to_ridi-kcp.key"));
+const cert: Buffer = fs.readFileSync(path.resolve(__dirname, "../../resources/ridi-pay_to_ridi-kcp.key"));
 
-const today = new Date();
-const lastYear = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
-const nextYear = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate());
+const today: Date = new Date();
+const lastYear: Date = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
+const nextYear: Date = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate());
 
 const SHIHANCARD_MOCK_REQUEST = {
     card_no: "4499140000000000",
@@ -21,7 +21,7 @@ const SHIHANCARD_MOCK_REQUEST = {
 };
 
 describe("Authorization Tests", () => {
-    const EXPIRED_JWT = jwt.sign(
+    const EXPIRED_JWT: string = jwt.sign(
         {
             iss: "ridi-pay",
             aud: "ridi-kcp",
@@ -48,7 +48,7 @@ describe("Authorization Tests", () => {
 });
 
 describe("Payments Tests", () => {
-    const TEST_JWT = jwt.sign(
+    const TEST_JWT: string = jwt.sign(
         {
             iss: "ridi-pay",
             aud: "ridi-kcp",
@@ -60,11 +60,11 @@ describe("Payments Tests", () => {
         }
     );
 
-    let TEST_AUTH_KEY;
-    let TEST_KCP_TNO;
+    let TEST_AUTH_KEY: string;
+    let TEST_KCP_TNO: string;
 
-    const TEST_ORDER_NO = `TEST${new Date().getTime()}`;
-    const TEST_PRODUCT_AMOUNT = 10000;
+    const TEST_ORDER_NO: string = `TEST${new Date().getTime()}`;
+    const TEST_PRODUCT_AMOUNT: number = 10000;
 
     it("배치키 요청 201 상태 반환", (done) => {
         chai.request(app)

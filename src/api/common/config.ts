@@ -55,6 +55,9 @@ export class Config {
     readonly groupId: string;//상점 그룹 ID
 
     constructor(siteCode: string, siteKey: string, groupId: string) {
+        if (!siteCode || !siteKey || !groupId) {
+            throw new Error("siteCode, siteKey and groupId cannot be null or empty");
+        }
         this.siteCode = siteCode;
         this.siteKey = siteKey;
         this.groupId = groupId;
