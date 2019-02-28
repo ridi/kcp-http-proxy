@@ -1,5 +1,4 @@
 import * as Sentry from "@sentry/node";
-import * as Logger from "bunyan";
 import { Inject, Service } from 'typedi';
 import { Ascii, PayPlusStatus } from '../common/constants';
 import { KcpComandActuator } from '../domain/KcpCommandActuator';
@@ -16,9 +15,6 @@ import { PaymentCancellationOutput, PaymentCancellationResult } from './result/P
 
 @Service()
 export class KcpService {
-    @Inject("logger")
-    logger: Logger;
-
     @Inject()
     commandActuator: KcpComandActuator;
 
@@ -44,7 +40,7 @@ export class KcpService {
                 });
 
                 if (outputObject["res_cd"] !== PayPlusStatus.OK) {
-                    throw new PayPlusException(outputObject["res_cd"], outputObject["res_msg"]);
+                    throw new PayPlusException(outputObject["res_cd"], outputObject["res_msg"] + "\ncommand: " + JSON.stringify(command));
                 }
 
                 switch (command.type) {
@@ -63,8 +59,7 @@ export class KcpService {
                 }
             }).catch(error => {
                 Sentry.captureException(error);
-                this.logger.error('KcpService.executeCommand', error);                
-                return error;
+                throw error;
             });
     }
 }

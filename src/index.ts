@@ -37,16 +37,23 @@ Container.set(`config.kcp.${Mode.PROD_TAX}`, new Config(
 
 const isProduction: boolean = process.env.APP_MODE === "production";
 // Logger with AWS cloudwatch appednder
-const cloudWatchStream = createCloudWatchStream({
-    logGroupName: process.env.AWS_LOG_GROUP || "",
-    logStreamName: process.env.AWS_LOG_STREAM_NAME || ""
-});
+const logStream: any = isProduction 
+? {
+    stream: createCloudWatchStream({
+        logGroupName: process.env.AWS_LOG_GROUP || "",
+        logStreamName: process.env.AWS_LOG_STREAM_NAME || ""
+    }), 
+    type: "raw",
+    level: "info"
+}
+: {
+    stream: process.stderr,
+    type: "stream",
+    level: "debug" 
+};
 Container.set('logger', Logger.createLogger({
-    name: process.env.AWS_LOG_STREAM_NAME || "",
-    streams: [
-        //{ stream: process.stderr, type: "stream", level: "debug" },
-        { stream: cloudWatchStream, type: "raw", level: "info" }
-    ]
+    name: process.env.AWS_LOG_STREAM_NAME || "default",
+    streams: [ logStream ]
 }));
 
 // Sentry

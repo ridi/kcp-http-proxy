@@ -35,10 +35,10 @@ export class KcpComandActuator {
             `payx_data=`,
             `${Ascii.RecordSeparator}card=card_mny=`,
             `card_tx_type=${this.config.code.request.batchKey.cardTxType}`,
-            `card_no=${command.cardNumber}`,
-            `card_expiry=${command.cardExpiryDate}`,
-            `card_taxno=${command.cardTaxNumber}`,
-            `card_pwd=${command.cardPassword}`,
+            `card_no=${command.card_number}`,
+            `card_expiry=${command.card_expiry_date}`,
+            `card_taxno=${command.card_tax_no}`,
+            `card_pwd=${command.card_password}`,
             `${Ascii.RecordSeparator}auth=sign_txtype=${this.config.code.request.batchKey.signTxType}`,
             `group_id=${this.config.groupId}`,
             `${Ascii.RecordSeparator}`
@@ -53,30 +53,30 @@ export class KcpComandActuator {
 
     private batchOrder(command: PaymentApprovalCommand): Promise<string> {
         const payx_data = [
-            `payx_data=common=amount=${command.goodsPrice}`,
+            `payx_data=common=amount=${command.goods_price}`,
             `currency=${this.config.code.currency.KRW}`,
             `escw_mod=${this.config.code.escrowUse.No}`,
-            `${Ascii.RecordSeparator}card=card_mny=${command.goodsPrice}`,
+            `${Ascii.RecordSeparator}card=card_mny=${command.goods_price}`,
             `card_tx_type=${this.config.code.request.txApproval.cardTxType}`,
-            `quota=${command.installmentMonths.toString().padStart(2, "0")}`,
+            `quota=${command.installment_months.toString().padStart(2, "0")}`,
             `bt_group_id=${this.config.groupId}`,
-            `bt_batch_key=${command.batchKey}`,
+            `bt_batch_key=${command.batch_key}`,
             `${Ascii.RecordSeparator}`
         ].join(Ascii.UnitSeparator);
 
         const ordr_data = [
-            `ordr_data=ordr_idxx=${command.orderId}`,
-            `good_name=${command.goodsName}`,
-            `good_mny=${command.goodsPrice}`,
-            `buyr_name=${command.buyerName}`,
-            `buyr_tel1=${command.buyerTel1}`,
-            `buyr_tel2=${command.buyerTel2}`,
-            `buyr_mail=${command.buyerEmail}`,
+            `ordr_data=ordr_idxx=${command.order_id}`,
+            `good_name=${command.goods_name}`,
+            `good_mny=${command.goods_price}`,
+            `buyr_name=${command.buyer_name}`,
+            `buyr_tel1=${command.buyer_tel1}`,
+            `buyr_tel2=${command.buyer_tel2}`,
+            `buyr_mail=${command.buyer_email}`,
             ''
         ].join(Ascii.UnitSeparator);
 
         const pp_cli_arg = {
-            ordr_idx: command.orderId,
+            ordr_idx: command.order_id,
             payx_data: payx_data,
             ordr_data: ordr_data
         };
@@ -86,7 +86,7 @@ export class KcpComandActuator {
 
     private cancelTransaction(command: PaymentCancellationCommand): Promise<string> {
         const data = [
-            `mod_data=tno=${command.kcpTno}`,
+            `mod_data=tno=${command.kcp_tno}`,
             `mod_type=${this.config.code.request.txCancellation.modType.full}`,
             `mod_desc='${command.reason}'`,
             ''

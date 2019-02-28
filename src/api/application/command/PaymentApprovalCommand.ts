@@ -3,16 +3,16 @@ import { CommandType } from "./CommandType";
 import { Mode } from "../../common/config";
 
 export class PaymentApprovalCommand extends Command {
-    readonly batchKey: string;//발급받은 배치키    
-    readonly orderId: string;
-    readonly goodsName: string;
-    readonly goodsPrice: number;
-    readonly buyerName: string;
-    readonly buyerTel1: string;
-    readonly buyerTel2: string;
-    readonly buyerEmail: string;
+    readonly batch_key: string;//발급받은 배치키    
+    readonly order_id: string;
+    readonly goods_name: string;
+    readonly goods_price: number;
+    readonly buyer_name: string;
+    readonly buyer_tel1: string;
+    readonly buyer_tel2: string;
+    readonly buyer_email: string;
 
-    readonly installmentMonths: number = 0;//할부 개월수
+    readonly installment_months: number = 0;//할부 개월수
 
     constructor(
         mode: Mode,
@@ -26,13 +26,13 @@ export class PaymentApprovalCommand extends Command {
         buyerTel2: string,
     ) {
         super(mode, CommandType.PAY_REQ);
-        this.batchKey = batchKey;
-        this.orderId = orderId;
-        this.goodsName = goodsName;
-        this.goodsPrice = goodsPrice;
-        this.buyerName = buyerName;
-        this.buyerEmail = buyerEmail;
-        this.buyerTel1 = buyerTel1;
-        this.buyerTel2 = buyerTel2;
+        this.batch_key = batchKey;
+        this.order_id = orderId;
+        this.goods_name = goodsName;
+        this.goods_price = goodsPrice;
+        this.buyer_name = buyerName;
+        this.buyer_email = buyerEmail;
+        this.buyer_tel1 = buyerTel1;
+        this.buyer_tel2 = buyerTel2;
     }
 }
