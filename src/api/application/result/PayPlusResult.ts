@@ -6,14 +6,14 @@ export abstract class PayPlusResult {
     readonly code: string;
 
     @JSONSchema({ description: "KCP 결과 메시지" })
-    readonly messsage: string | object;
+    readonly message: string;
 
     @JSONSchema({ description: "KCP 결과 성공 여부" })
     readonly is_success: boolean;
     
-    constructor(res_cd: string, res_msg: string | object) {
+    constructor(res_cd: string, res_msg: string) {
         this.code = res_cd;
-        this.messsage = res_msg;
+        this.message = res_msg;
         this.is_success = this.code === PayPlusStatus.OK;
     }
 }

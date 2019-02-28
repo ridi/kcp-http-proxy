@@ -12,24 +12,43 @@ import { PayPlusException } from './exception/PayPlusException';
 import { AuthKeyRequestOutput, AuthKeyRequestResult } from './result/AuthKeyRequestResult';
 import { PaymentApprovalOutput, PaymentApprovalResult } from './result/PaymentApprovalResult';
 import { PaymentCancellationOutput, PaymentCancellationResult } from './result/PaymentCancellationResult';
+import { PaymentRequestService } from "./PaymentRequestService";
 
 @Service()
 export class KcpService {
     @Inject()
     commandActuator: KcpComandActuator;
 
+    @Inject()
+    requestService: PaymentRequestService;
+
     @Inject("sentry.loggable")
     sentryLoggable: boolean;
 
-    requestAuthKey(command: AuthKeyRequestCommand): Promise<AuthKeyRequestResult> {
+    async requestAuthKey(command: AuthKeyRequestCommand): Promise<AuthKeyRequestResult> {
         return this.executeCommand(command);
     }
 
-    approvePayment(command: PaymentApprovalCommand): Promise<PaymentApprovalResult> {
-        return this.executeCommand(command);
+    async approvePayment(command: PaymentApprovalCommand): Promise<PaymentApprovalResult> {
+        // check request log for preventing duplicate payment approval
+        const found: PaymentApprovalResult | null = await this.requestService.findApprovalResult(command.batch_key, command.order_id, command.goods_price);
+        if (found) {
+            return found;
+        }
+
+        // save request log
+        const reqLogId: number = await this.requestService.saveRequetLog(command.batch_key, command.order_id, command.goods_price);
+
+        // payment approval
+        const result: PaymentApprovalResult = await this.executeCommand(command);
+
+        // save log
+        await this.requestService.addResultToRequestLog(reqLogId, result);
+
+        return result;
     }
 
-    cancelPayment(command: PaymentCancellationCommand): Promise<PaymentCancellationResult> {
+    async cancelPayment(command: PaymentCancellationCommand): Promise<PaymentCancellationResult> {
         return this.executeCommand(command);
     }
 
