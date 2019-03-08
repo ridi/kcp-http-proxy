@@ -8,8 +8,8 @@ import { PaymentCancellationCommand } from "../application/command/PaymentCancel
 import { PaymentApprovalResultDto } from "../application/dto/PaymentApprovalResultDto";
 import { PaymentAuthKeyResultDto } from "../application/dto/PaymentAuthKeyResultDto";
 import { PaymentCancellationResultDto } from "../application/dto/PaymentCancellationResultDto";
-import { IKcpService } from "../application/IKcpService";
-import { KcpService } from "../application/KcpService";
+import { IKcpAppService } from "../application/IKcpAppService";
+import { KcpAppService } from "../application/KcpAppService";
 import { Authorized } from "./middleware/Authorized";
 import { AuthKeyRequest } from "./request/AuthKeyRequest";
 import { PaymentApprovalRequest } from "./request/PaymentApprovalRequest";
@@ -18,8 +18,8 @@ import { RequestValidator } from "./request/RequestValidator";
 
 @JsonController()
 export class PaymentController {
-    @Inject(type => KcpService)
-    kcpService: IKcpService;
+    @Inject(type => KcpAppService)
+    kcpService: IKcpAppService;
 
     @Inject()
     requestValidator: RequestValidator;
@@ -71,11 +71,11 @@ export class PaymentController {
     @HttpCode(200)
     @Delete("/payments/:kcp_tno")
     async cancelPayment(@Param("kcp_tno") kcp_tno: string, @Body() req: PaymentCancellationRequest, @Res() res: Response): Promise<PaymentCancellationResultDto> {
-        req.trace_no = kcp_tno;
+        req.tno = kcp_tno;
 
         await this.requestValidator.validate(req);
 
-        const command = new PaymentCancellationCommand(req.mode, req.trace_no, req.reason)
+        const command = new PaymentCancellationCommand(req.mode, req.tno, req.reason)
 
         const result: PaymentCancellationResultDto = await this.kcpService.cancelPayment(command);
         return result;

@@ -16,13 +16,13 @@ export class KcpComandActuator {
     actuate(command: Command): Promise<string> {
         this.config = Container.get(`config.kcp.${command.mode}`);
         switch (command.type) {
-            case CommandType.AUTH_KEY_REQ: {
+            case CommandType.REQUEST_AUTH_KEY: {
                 return this.requestBatchKey((command as AuthKeyRequestCommand));
             }
-            case CommandType.PAY_REQ: {
+            case CommandType.PAYMENT_APPROVAL: {
                 return this.batchOrder((command as PaymentApprovalCommand));
             }
-            case CommandType.PAY_CANCEL: {
+            case CommandType.PAYMENT_CANCELLATION: {
                 return this.cancelTransaction((command as PaymentCancellationCommand));
             }
             default:
@@ -86,7 +86,7 @@ export class KcpComandActuator {
 
     private cancelTransaction(command: PaymentCancellationCommand): Promise<string> {
         const data = [
-            `mod_data=tno=${command.kcp_tno}`,
+            `mod_data=tno=${command.tno}`,
             `mod_type=${this.config.code.request.txCancellation.modType.full}`,
             `mod_desc='${command.reason}'`,
             ''

@@ -8,6 +8,7 @@ import { KcpComandActuator } from '../domain/KcpCommandActuator';
 import { PaymentApprovalResultType } from "../domain/result/PaymentApprovalResultType";
 import { PaymentAuthKeyResultType } from "../domain/result/PaymentAuthKeyResultType";
 import { PaymentCancellationResultType } from "../domain/result/PaymentCancellationResultType";
+import { PaymentRequestService } from "../domain/service/PaymentRequestService";
 import { AuthKeyRequestCommand } from "./command/AuthKeyRequestCommand";
 import { Command } from "./command/Command";
 import { CommandType } from "./command/CommandType";
@@ -18,11 +19,10 @@ import { PaymentAuthKeyResultDto } from "./dto/PaymentAuthKeyResultDto";
 import { PaymentCancellationResultDto } from "./dto/PaymentCancellationResultDto";
 import { InvalidCommandException } from './exception/InvalidCommandException';
 import { PayPlusException } from './exception/PayPlusException';
-import { PaymentRequestService } from "./PaymentRequestService";
-import { IKcpService } from "./IKcpService";
+import { IKcpAppService } from "./IKcpAppService";
 
 @Service()
-export class KcpService implements IKcpService {
+export class KcpAppService implements IKcpAppService {
     @Inject()
     commandActuator: KcpComandActuator;
 
@@ -50,6 +50,7 @@ export class KcpService implements IKcpService {
         return Object.assign(new PaymentCancellationResultDto(), rest);
     }
 
+    //TODO AOP saving and check result request
     private executeCommand(command: Command): Promise<PaymentAuthKeyResultEntity | PaymentApprovalResultEntity | PaymentCancellationResultEntity> {
         return this.commandActuator.actuate(command)
             .then(output => {
@@ -64,13 +65,13 @@ export class KcpService implements IKcpService {
                 }
 
                 switch (command.type) {
-                    case CommandType.AUTH_KEY_REQ: {
+                    case CommandType.REQUEST_AUTH_KEY: {
                         return PaymentAuthKeyResultEntity.parse(outputObject as PaymentAuthKeyResultType);
                     }
-                    case CommandType.PAY_REQ: {
+                    case CommandType.PAYMENT_APPROVAL: {
                         return PaymentApprovalResultEntity.parse(outputObject as PaymentApprovalResultType);
                     }
-                    case CommandType.PAY_CANCEL: {
+                    case CommandType.PAYMENT_CANCELLATION: {
                         return PaymentCancellationResultEntity.parse(outputObject as PaymentCancellationResultType);
                     }
                     default: {

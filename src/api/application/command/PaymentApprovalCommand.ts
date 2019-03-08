@@ -25,7 +25,7 @@ export class PaymentApprovalCommand extends Command {
         buyerTel1: string,
         buyerTel2: string,
     ) {
-        super(mode, CommandType.PAY_REQ);
+        super(mode, CommandType.PAYMENT_APPROVAL);
         this.batch_key = batchKey;
         this.order_id = orderId;
         this.goods_name = goodsName;

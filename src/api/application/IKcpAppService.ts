@@ -5,7 +5,7 @@ import { PaymentApprovalResultDto } from "./dto/PaymentApprovalResultDto";
 import { PaymentAuthKeyResultDto } from "./dto/PaymentAuthKeyResultDto";
 import { PaymentCancellationResultDto } from "./dto/PaymentCancellationResultDto";
 
-export interface IKcpService {
+export interface IKcpAppService {
     requestAuthKey(command: AuthKeyRequestCommand): Promise<PaymentAuthKeyResultDto>;
 
     approvePayment(command: PaymentApprovalCommand): Promise<PaymentApprovalResultDto>;

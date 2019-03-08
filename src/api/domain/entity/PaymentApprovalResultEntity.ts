@@ -1,6 +1,7 @@
-import { Column, Entity } from "typeorm";
+import { Column, Entity, ManyToOne } from "typeorm";
 import { PaymentApprovalResultType } from "../result/PaymentApprovalResultType";
 import { AbstractPaymentResultEntity } from "./AbstractPaymentResultEntity";
+import { PaymentRequestEntity } from "./PaymentRequestEntity";
 
 @Entity("t_payment_approval_results")
 export class PaymentApprovalResultEntity extends AbstractPaymentResultEntity {
@@ -146,4 +147,7 @@ export class PaymentApprovalResultEntity extends AbstractPaymentResultEntity {
 
     @Column({ nullable: true })
     join_code: string;
+
+    @ManyToOne(type => PaymentRequestEntity, request => request.approval_results)
+    request: PaymentRequestEntity;
 }

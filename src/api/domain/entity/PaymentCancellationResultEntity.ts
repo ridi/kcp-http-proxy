@@ -1,6 +1,7 @@
-import { Column, Entity } from "typeorm";
+import { Column, Entity, ManyToOne } from "typeorm";
 import { PaymentCancellationResultType } from "../result/PaymentCancellationResultType";
 import { AbstractPaymentResultEntity } from "./AbstractPaymentResultEntity";
+import { PaymentRequestEntity } from "./PaymentRequestEntity";
 
 @Entity("t_payment_cancellation_results")
 export class PaymentCancellationResultEntity extends AbstractPaymentResultEntity {
@@ -117,4 +118,7 @@ export class PaymentCancellationResultEntity extends AbstractPaymentResultEntity
 
     @Column({ nullable: true })
     pg_txid: string;
+
+    @ManyToOne(type => PaymentRequestEntity, request => request.cancel_results)
+    request: PaymentRequestEntity;
 }

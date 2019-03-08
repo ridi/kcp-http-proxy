@@ -9,7 +9,7 @@ export class AuthKeyRequestCommand extends Command {
     readonly card_password: string;// 카드 비밀번호 앞 2자리
 
     constructor(mode: Mode, cardNumber: string, cardExpiryDate: string, cardTaxNumber: string, cardPassword: string) {
-        super(mode, CommandType.AUTH_KEY_REQ);
+        super(mode, CommandType.REQUEST_AUTH_KEY);
         this.card_number = cardNumber;
         this.card_expiry_date = cardExpiryDate;
         this.card_tax_no = cardTaxNumber;
