@@ -45,6 +45,7 @@
     "express-prettify": "^0.1.1",
     "iconv-lite": "^0.4.24",
     "jsonwebtoken": "^8.4.0",
+    "mysql": "^2.16.0",
     "reflect-metadata": "^0.1.13",
     "routing-controllers": "^0.7.7",
     "routing-controllers-openapi": "^1.5.0",

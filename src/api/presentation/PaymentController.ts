@@ -5,10 +5,11 @@ import { Inject } from "typedi";
 import { AuthKeyRequestCommand } from "../application/command/AuthKeyRequestCommand";
 import { PaymentApprovalCommand } from "../application/command/PaymentApprovalCommand";
 import { PaymentCancellationCommand } from "../application/command/PaymentCancellationCommand";
+import { PaymentApprovalResultDto } from "../application/dto/PaymentApprovalResultDto";
+import { PaymentAuthKeyResultDto } from "../application/dto/PaymentAuthKeyResultDto";
+import { PaymentCancellationResultDto } from "../application/dto/PaymentCancellationResultDto";
+import { IKcpService } from "../application/IKcpService";
 import { KcpService } from "../application/KcpService";
-import { AuthKeyRequestResult } from "../application/result/AuthKeyRequestResult";
-import { PaymentApprovalResult } from "../application/result/PaymentApprovalResult";
-import { PaymentCancellationResult } from "../application/result/PaymentCancellationResult";
 import { Authorized } from "./middleware/Authorized";
 import { AuthKeyRequest } from "./request/AuthKeyRequest";
 import { PaymentApprovalRequest } from "./request/PaymentApprovalRequest";
@@ -17,17 +18,17 @@ import { RequestValidator } from "./request/RequestValidator";
 
 @JsonController()
 export class PaymentController {
-    @Inject()
-    kcpService: KcpService;
+    @Inject(type => KcpService)
+    kcpService: IKcpService;
 
     @Inject()
     requestValidator: RequestValidator;
 
-    @ResponseSchema(AuthKeyRequestResult)
+    @ResponseSchema(PaymentAuthKeyResultDto)
     @HttpCode(201)
     @UseBefore(Authorized)
     @Post("/payments/auth-key")
-    async requestAuthKey(@Body() req: AuthKeyRequest, @Res() res: Response): Promise<AuthKeyRequestResult> {  
+    async requestAuthKey(@Body() req: AuthKeyRequest, @Res() res: Response): Promise<PaymentAuthKeyResultDto> {  
         await this.requestValidator.validate(req);
 
         const command = new AuthKeyRequestCommand(
@@ -38,15 +39,15 @@ export class PaymentController {
             req.card_password
         );
 
-        const result: AuthKeyRequestResult = await this.kcpService.requestAuthKey(command);
+        const result: PaymentAuthKeyResultDto = await this.kcpService.requestAuthKey(command);
         return result;
     }
     
-    @ResponseSchema(PaymentApprovalResult)
+    @ResponseSchema(PaymentApprovalResultDto)
     @HttpCode(200)
     @UseBefore(Authorized)
     @Post("/payments")
-    async approvePayment(@Body() req: PaymentApprovalRequest, @Res() res: Response): Promise<PaymentApprovalResult> {
+    async approvePayment(@Body() req: PaymentApprovalRequest, @Res() res: Response): Promise<PaymentApprovalResultDto> {
         await this.requestValidator.validate(req);
         
         const command = new PaymentApprovalCommand(
@@ -61,22 +62,22 @@ export class PaymentController {
             ''
         );
 
-        const result: PaymentApprovalResult = await this.kcpService.approvePayment(command);
+        const result: PaymentApprovalResultDto = await this.kcpService.approvePayment(command);
         return result;
     }
 
-    @ResponseSchema(PaymentCancellationResult)
+    @ResponseSchema(PaymentCancellationResultDto)
     @UseBefore(Authorized)
     @HttpCode(200)
     @Delete("/payments/:kcp_tno")
-    async cancelPayment(@Param("kcp_tno") kcp_tno: string, @Body() req: PaymentCancellationRequest, @Res() res: Response): Promise<PaymentCancellationResult> {
+    async cancelPayment(@Param("kcp_tno") kcp_tno: string, @Body() req: PaymentCancellationRequest, @Res() res: Response): Promise<PaymentCancellationResultDto> {
         req.trace_no = kcp_tno;
 
         await this.requestValidator.validate(req);
 
         const command = new PaymentCancellationCommand(req.mode, req.trace_no, req.reason)
 
-        const result: PaymentCancellationResult = await this.kcpService.cancelPayment(command);
+        const result: PaymentCancellationResultDto = await this.kcpService.cancelPayment(command);
         return result;
     }
 }

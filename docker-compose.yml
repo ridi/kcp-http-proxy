@@ -1,12 +1,25 @@
 version: "3"
 
 services:
+  database:
+    container_name: ridi_kcp_test_db
+    image: mariadb
+    environment:
+      MYSQL_DATABASE: test
+      MYSQL_USER: scott
+      MYSQL_PASSWORD: tiger
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+    command: --character-set-server=utf8 --collation-server=utf8_unicode_ci
+    ports:
+      - 3306:3306
   web:
-    container_name: ridi_kcp
+    container_name: ridi_kcp_test
     image: node:lts
     volumes:
       - ./:/app
     working_dir: /app    
     ports:
       - 3000:3000
-    command: npm run prod
+    command: npm run dev
+    links:
+      - database

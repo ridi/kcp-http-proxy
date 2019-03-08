@@ -1,21 +1,28 @@
 import * as Sentry from "@sentry/node";
 import { Inject, Service } from 'typedi';
 import { Ascii, PayPlusStatus } from '../common/constants';
+import { PaymentApprovalResultEntity } from "../domain/entity/PaymentApprovalResultEntity";
+import { PaymentAuthKeyResultEntity } from "../domain/entity/PaymentAuthKeyResultEntity";
+import { PaymentCancellationResultEntity } from "../domain/entity/PaymentCancellationResultEntity";
 import { KcpComandActuator } from '../domain/KcpCommandActuator';
+import { PaymentApprovalResultType } from "../domain/result/PaymentApprovalResultType";
+import { PaymentAuthKeyResultType } from "../domain/result/PaymentAuthKeyResultType";
+import { PaymentCancellationResultType } from "../domain/result/PaymentCancellationResultType";
 import { AuthKeyRequestCommand } from "./command/AuthKeyRequestCommand";
 import { Command } from "./command/Command";
 import { CommandType } from "./command/CommandType";
 import { PaymentApprovalCommand } from "./command/PaymentApprovalCommand";
 import { PaymentCancellationCommand } from "./command/PaymentCancellationCommand";
+import { PaymentApprovalResultDto } from "./dto/PaymentApprovalResultDto";
+import { PaymentAuthKeyResultDto } from "./dto/PaymentAuthKeyResultDto";
+import { PaymentCancellationResultDto } from "./dto/PaymentCancellationResultDto";
 import { InvalidCommandException } from './exception/InvalidCommandException';
 import { PayPlusException } from './exception/PayPlusException';
-import { AuthKeyRequestOutput, AuthKeyRequestResult } from './result/AuthKeyRequestResult';
-import { PaymentApprovalOutput, PaymentApprovalResult } from './result/PaymentApprovalResult';
-import { PaymentCancellationOutput, PaymentCancellationResult } from './result/PaymentCancellationResult';
 import { PaymentRequestService } from "./PaymentRequestService";
+import { IKcpService } from "./IKcpService";
 
 @Service()
-export class KcpService {
+export class KcpService implements IKcpService {
     @Inject()
     commandActuator: KcpComandActuator;
 
@@ -25,34 +32,25 @@ export class KcpService {
     @Inject("sentry.loggable")
     sentryLoggable: boolean;
 
-    async requestAuthKey(command: AuthKeyRequestCommand): Promise<AuthKeyRequestResult> {
-        return this.executeCommand(command);
+    async requestAuthKey(command: AuthKeyRequestCommand): Promise<PaymentAuthKeyResultDto> {
+        const entity: any = await this.executeCommand(command);
+        const { id, created_at, ...rest } = entity as PaymentAuthKeyResultEntity;
+        return Object.assign(new PaymentAuthKeyResultDto(), rest);
     }
 
-    async approvePayment(command: PaymentApprovalCommand): Promise<PaymentApprovalResult> {
-        // check request log for preventing duplicate payment approval
-        const found: PaymentApprovalResult | null = await this.requestService.findApprovalResult(command.batch_key, command.order_id, command.goods_price);
-        if (found) {
-            return found;
-        }
-
-        // save request log
-        const reqLogId: number = await this.requestService.saveRequetLog(command.batch_key, command.order_id, command.goods_price);
-
-        // payment approval
-        const result: PaymentApprovalResult = await this.executeCommand(command);
-
-        // save log
-        await this.requestService.addResultToRequestLog(reqLogId, result);
-
-        return result;
+    async approvePayment(command: PaymentApprovalCommand): Promise<PaymentApprovalResultDto> {
+        const entity: any = await this.executeCommand(command);
+        const { id, created_at, ...rest } = entity as PaymentApprovalResultEntity;
+        return Object.assign(new PaymentApprovalResultDto(), rest);
     }
 
-    async cancelPayment(command: PaymentCancellationCommand): Promise<PaymentCancellationResult> {
-        return this.executeCommand(command);
+    async cancelPayment(command: PaymentCancellationCommand): Promise<PaymentCancellationResultDto> {
+        const entity: any = await this.executeCommand(command);
+        const { id, created_at, ...rest } = entity as PaymentCancellationResultEntity;
+        return Object.assign(new PaymentCancellationResultDto(), rest);
     }
 
-    private executeCommand(command: Command): Promise<any> {
+    private executeCommand(command: Command): Promise<PaymentAuthKeyResultEntity | PaymentApprovalResultEntity | PaymentCancellationResultEntity> {
         return this.commandActuator.actuate(command)
             .then(output => {
                 const outputObject = {};
@@ -67,13 +65,13 @@ export class KcpService {
 
                 switch (command.type) {
                     case CommandType.AUTH_KEY_REQ: {
-                        return new AuthKeyRequestResult(outputObject as AuthKeyRequestOutput);
+                        return PaymentAuthKeyResultEntity.parse(outputObject as PaymentAuthKeyResultType);
                     }
                     case CommandType.PAY_REQ: {
-                        return new PaymentApprovalResult(outputObject as PaymentApprovalOutput);
+                        return PaymentApprovalResultEntity.parse(outputObject as PaymentApprovalResultType);
                     }
                     case CommandType.PAY_CANCEL: {
-                        return new PaymentCancellationResult(outputObject as PaymentCancellationOutput);
+                        return PaymentCancellationResultEntity.parse(outputObject as PaymentCancellationResultType);
                     }
                     default: {
                         throw new InvalidCommandException(`Unknown Command Type: ${command.type}`);
