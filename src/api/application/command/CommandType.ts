@@ -1,5 +1,5 @@
 export enum CommandType {
-    AUTH_KEY_REQ,
-    PAY_REQ,
-    PAY_CANCEL
+    AUTH_KEY_REQ = "A",
+    PAY_REQ = "P",
+    PAY_CANCEL = "C"
 }
