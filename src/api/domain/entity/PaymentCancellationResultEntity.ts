@@ -1,7 +1,7 @@
 import { Column, Entity, ManyToOne } from "typeorm";
-import { PaymentCancellationResultType } from "../result/PaymentCancellationResultType";
-import { AbstractPaymentResultEntity } from "./AbstractPaymentResultEntity";
-import { PaymentRequestEntity } from "./PaymentRequestEntity";
+import { AbstractPaymentResultEntity } from "/domain/entity/AbstractPaymentResultEntity";
+import { PaymentRequestEntity } from "/domain/entity/PaymentRequestEntity";
+import { PaymentCancellationResultType } from "/domain/result/PaymentCancellationResultType";
 
 @Entity("t_payment_cancellation_results")
 export class PaymentCancellationResultEntity extends AbstractPaymentResultEntity {

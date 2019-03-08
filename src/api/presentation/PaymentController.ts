@@ -2,19 +2,19 @@ import { Response } from "express";
 import { Body, Delete, HttpCode, JsonController, Param, Post, Res, UseBefore } from "routing-controllers";
 import { ResponseSchema } from "routing-controllers-openapi";
 import { Inject } from "typedi";
-import { AuthKeyRequestCommand } from "../application/command/AuthKeyRequestCommand";
-import { PaymentApprovalCommand } from "../application/command/PaymentApprovalCommand";
-import { PaymentCancellationCommand } from "../application/command/PaymentCancellationCommand";
-import { PaymentApprovalResultDto } from "../application/dto/PaymentApprovalResultDto";
-import { PaymentAuthKeyResultDto } from "../application/dto/PaymentAuthKeyResultDto";
-import { PaymentCancellationResultDto } from "../application/dto/PaymentCancellationResultDto";
-import { IKcpAppService } from "../application/IKcpAppService";
-import { KcpAppService } from "../application/KcpAppService";
-import { Authorized } from "./middleware/Authorized";
-import { AuthKeyRequest } from "./request/AuthKeyRequest";
-import { PaymentApprovalRequest } from "./request/PaymentApprovalRequest";
-import { PaymentCancellationRequest } from "./request/PaymentCancellationRequest";
-import { RequestValidator } from "./request/RequestValidator";
+import { AuthKeyRequestCommand } from "/application/command/AuthKeyRequestCommand";
+import { PaymentApprovalCommand } from "/application/command/PaymentApprovalCommand";
+import { PaymentCancellationCommand } from "/application/command/PaymentCancellationCommand";
+import { PaymentApprovalResultDto } from "/application/dto/PaymentApprovalResultDto";
+import { PaymentAuthKeyResultDto } from "/application/dto/PaymentAuthKeyResultDto";
+import { PaymentCancellationResultDto } from "/application/dto/PaymentCancellationResultDto";
+import { IKcpAppService } from "/application/IKcpAppService";
+import { KcpAppService } from "/application/KcpAppService";
+import { Authorized } from "/presentation/middleware/Authorized";
+import { AuthKeyRequest } from "/presentation/request/AuthKeyRequest";
+import { PaymentApprovalRequest } from "/presentation/request/PaymentApprovalRequest";
+import { PaymentCancellationRequest } from "/presentation/request/PaymentCancellationRequest";
+import { RequestValidator } from "/presentation/request/RequestValidator";
 
 @JsonController()
 export class PaymentController {

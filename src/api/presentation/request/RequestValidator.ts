@@ -1,7 +1,7 @@
-import { InvalidRequestException } from "./InvalidRequestException";
-import { KcpRequest } from "./KcpRequest";
-import { Service } from "typedi";
 import { validate } from "class-validator";
+import { Service } from "typedi";
+import { InvalidRequestException } from "/presentation/request/InvalidRequestException";
+import { KcpRequest } from "/presentation/request/KcpRequest";
 
 @Service()
 export class RequestValidator {

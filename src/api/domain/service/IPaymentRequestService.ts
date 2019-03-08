@@ -1,8 +1,8 @@
-import { Mode } from "../../common/config";
-import { PaymentAuthKeyResultEntity } from "../entity/PaymentAuthKeyResultEntity";
-import { PaymentApprovalResultEntity } from "../entity/PaymentApprovalResultEntity";
-import { PaymentCancellationResultEntity } from "../entity/PaymentCancellationResultEntity";
-import { PaymentRequestEntity } from "../entity/PaymentRequestEntity";
+import { Mode } from "/common/config";
+import { PaymentApprovalResultEntity } from "/domain/entity/PaymentApprovalResultEntity";
+import { PaymentAuthKeyResultEntity } from "/domain/entity/PaymentAuthKeyResultEntity";
+import { PaymentCancellationResultEntity } from "/domain/entity/PaymentCancellationResultEntity";
+import { PaymentRequestEntity } from "/domain/entity/PaymentRequestEntity";
 
 export interface IPaymentRequestService {
     getPaymentAuthKeyResult(mode: Mode, card_number: string, card_expiry_date: string, card_tax_no: string, card_password: string): Promise<PaymentAuthKeyResultEntity | null>;

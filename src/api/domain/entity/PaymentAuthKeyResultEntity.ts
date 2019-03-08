@@ -1,7 +1,7 @@
 import { Column, Entity, ManyToOne } from "typeorm";
-import { PaymentAuthKeyResultType } from "../result/PaymentAuthKeyResultType";
-import { AbstractPaymentResultEntity } from "./AbstractPaymentResultEntity";
-import { PaymentRequestEntity } from "./PaymentRequestEntity";
+import { AbstractPaymentResultEntity } from "/domain/entity/AbstractPaymentResultEntity";
+import { PaymentRequestEntity } from "/domain/entity/PaymentRequestEntity";
+import { PaymentAuthKeyResultType } from "/domain/result/PaymentAuthKeyResultType";
 
 @Entity("t_payment_auth_key_results")
 export class PaymentAuthKeyResultEntity extends AbstractPaymentResultEntity {

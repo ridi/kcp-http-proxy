@@ -1,11 +1,11 @@
 import { EntityManager, EntityRepository } from "typeorm";
 import { OrmManager } from "typeorm-typedi-extensions";
-import { CommandType } from "../../application/command/CommandType";
-import { IPaymentRequestRepository } from "../../domain/entity/IPaymentRequestRepository";
-import { PaymentApprovalResultEntity } from "../../domain/entity/PaymentApprovalResultEntity";
-import { PaymentAuthKeyResultEntity } from "../../domain/entity/PaymentAuthKeyResultEntity";
-import { PaymentCancellationResultEntity } from "../../domain/entity/PaymentCancellationResultEntity";
-import { PaymentRequestEntity } from "../../domain/entity/PaymentRequestEntity";
+import { CommandType } from "/application/command/CommandType";
+import { IPaymentRequestRepository } from "/domain/entity/IPaymentRequestRepository";
+import { PaymentApprovalResultEntity } from "/domain/entity/PaymentApprovalResultEntity";
+import { PaymentAuthKeyResultEntity } from "/domain/entity/PaymentAuthKeyResultEntity";
+import { PaymentCancellationResultEntity } from "/domain/entity/PaymentCancellationResultEntity";
+import { PaymentRequestEntity } from "/domain/entity/PaymentRequestEntity";
 
 @EntityRepository()
 export class TypeOrmPaymentRequestRepository implements IPaymentRequestRepository {    

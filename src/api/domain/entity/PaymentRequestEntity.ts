@@ -1,8 +1,8 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn, Unique } from "typeorm";
-import { CommandType } from "../../application/command/CommandType";
-import { PaymentApprovalResultEntity } from "./PaymentApprovalResultEntity";
-import { PaymentAuthKeyResultEntity } from "./PaymentAuthKeyResultEntity";
-import { PaymentCancellationResultEntity } from "./PaymentCancellationResultEntity";
+import { CommandType } from "/application/command/CommandType";
+import { PaymentApprovalResultEntity } from "/domain/entity/PaymentApprovalResultEntity";
+import { PaymentAuthKeyResultEntity } from "/domain/entity/PaymentAuthKeyResultEntity";
+import { PaymentCancellationResultEntity } from "/domain/entity/PaymentCancellationResultEntity";
 
 @Unique("uniq_payment_requests", [ "command_type", "hash" ])
 @Entity("t_payment_requests")

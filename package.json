@@ -4,6 +4,7 @@
   "description": "RIDI KCP Micro-service Rest API",
   "main": "index.js",
   "scripts": {
+    "check": "tsc --p tsconfig.json",
     "build": "tsc && cp -a src/resources/. dist/resources/",
     "test": "ts-node ./src/test/run.ts",
     "dev": "ts-node ./src/index.ts",

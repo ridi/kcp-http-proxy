@@ -1,6 +1,6 @@
-import { Command } from "./Command";
-import { CommandType } from "./CommandType";
-import { Mode } from "../../common/config";
+import { Command } from "/application/command/Command";
+import { CommandType } from "/application/command/CommandType";
+import { Mode } from "/common/config";
 
 export class PaymentCancellationCommand extends Command {
     readonly tno: string;//KCP측 주문번호

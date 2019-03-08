@@ -2,7 +2,10 @@
     "compilerOptions": {
         "target": "es6",
         "module": "commonjs",
-        // "baseUrl": "./src",
+        "baseUrl": "./src/",
+        "paths": {
+            "/*": ["api/*"]
+        },
         "outDir": "dist",
         "resolveJsonModule": true,
         "emitDecoratorMetadata": true,

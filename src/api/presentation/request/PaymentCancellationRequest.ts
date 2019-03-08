@@ -1,6 +1,6 @@
 import { IsNotEmpty } from "class-validator";
-import { KcpRequest } from "./KcpRequest";
 import { JSONSchema } from "class-validator-jsonschema";
+import { KcpRequest } from "/presentation/request/KcpRequest";
 
 @JSONSchema({
     description: "결제 취소 요청",
