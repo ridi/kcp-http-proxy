@@ -1,6 +1,7 @@
 import { EntityManager, EntityRepository } from "typeorm";
 import { OrmManager } from "typeorm-typedi-extensions";
 import { CommandType } from "/application/command/CommandType";
+import { Mode } from "/common/config";
 import { IPaymentRequestRepository } from "/domain/entity/IPaymentRequestRepository";
 import { PaymentApprovalResultEntity } from "/domain/entity/PaymentApprovalResultEntity";
 import { PaymentAuthKeyResultEntity } from "/domain/entity/PaymentAuthKeyResultEntity";
@@ -16,8 +17,8 @@ export class TypeOrmPaymentRequestRepository implements IPaymentRequestRepositor
         return this.em.findOne(PaymentRequestEntity, { "id": id });
     }
 
-    async getPaymentRequest(command_type: CommandType, hash: string): Promise<PaymentRequestEntity | undefined> {
-        return this.em.findOne(PaymentRequestEntity, { "command_type": command_type, "hash": hash });
+    async getPaymentRequest(command_type: CommandType, mode: Mode, hash: string): Promise<PaymentRequestEntity | undefined> {
+        return this.em.findOne(PaymentRequestEntity, { "command_type": command_type, "mode": mode, "hash": hash });
     }
 
     async savePaymentRequest(request: PaymentRequestEntity): Promise<PaymentRequestEntity> {

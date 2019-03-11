@@ -1,10 +1,11 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn, Unique } from "typeorm";
 import { CommandType } from "/application/command/CommandType";
+import { Mode } from "/common/config";
 import { PaymentApprovalResultEntity } from "/domain/entity/PaymentApprovalResultEntity";
 import { PaymentAuthKeyResultEntity } from "/domain/entity/PaymentAuthKeyResultEntity";
 import { PaymentCancellationResultEntity } from "/domain/entity/PaymentCancellationResultEntity";
 
-@Unique("uniq_payment_requests", [ "command_type", "hash" ])
+@Unique("uniq_payment_requests", [ "command_type", "mode", "hash" ])
 @Entity("t_payment_requests")
 export class PaymentRequestEntity {
     @PrimaryGeneratedColumn()
@@ -12,6 +13,9 @@ export class PaymentRequestEntity {
 
     @Column({ type: "enum", enum: CommandType })
     command_type: CommandType;
+
+    @Column({ type: "enum", enum: Mode })
+    mode: Mode;
 
     @Column()
     hash: string;
