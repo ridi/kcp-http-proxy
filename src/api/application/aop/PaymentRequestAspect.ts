@@ -1,11 +1,11 @@
 import * as hash from "object-hash";
 import Container from "typedi";
-import { AuthKeyRequestCommand } from "../command/AuthKeyRequestCommand";
-import { Command } from "../command/Command";
-import { CommandType } from "../command/CommandType";
-import { PaymentApprovalCommand } from "../command/PaymentApprovalCommand";
-import { PaymentCancellationCommand } from "../command/PaymentCancellationCommand";
-import { InvalidCommandException } from "../exception/InvalidCommandException";
+import { AuthKeyRequestCommand } from "/application/command/AuthKeyRequestCommand";
+import { Command } from "/application/command/Command";
+import { CommandType } from "/application/command/CommandType";
+import { PaymentApprovalCommand } from "/application/command/PaymentApprovalCommand";
+import { PaymentCancellationCommand } from "/application/command/PaymentCancellationCommand";
+import { InvalidCommandException } from "/application/exception/InvalidCommandException";
 import { PayPlusStatus } from "/common/constants";
 import { PaymentApprovalResultEntity } from "/domain/entity/PaymentApprovalResultEntity";
 import { PaymentAuthKeyResultEntity } from "/domain/entity/PaymentAuthKeyResultEntity";

@@ -1,26 +1,26 @@
 import * as Sentry from "@sentry/node";
-import { Inject, Service } from 'typedi';
-import { Ascii, PayPlusStatus } from '../common/constants';
-import { PaymentApprovalResultEntity } from "../domain/entity/PaymentApprovalResultEntity";
-import { PaymentAuthKeyResultEntity } from "../domain/entity/PaymentAuthKeyResultEntity";
-import { PaymentCancellationResultEntity } from "../domain/entity/PaymentCancellationResultEntity";
-import { KcpComandActuator } from '../domain/KcpCommandActuator';
-import { PaymentApprovalResultType } from "../domain/result/PaymentApprovalResultType";
-import { PaymentAuthKeyResultType } from "../domain/result/PaymentAuthKeyResultType";
-import { PaymentCancellationResultType } from "../domain/result/PaymentCancellationResultType";
-import { PaymentRequestService } from "../domain/service/PaymentRequestService";
-import { PaymentRequestAspect } from "./aop/PaymentRequestAspect";
-import { AuthKeyRequestCommand } from "./command/AuthKeyRequestCommand";
-import { Command } from "./command/Command";
-import { CommandType } from "./command/CommandType";
-import { PaymentApprovalCommand } from "./command/PaymentApprovalCommand";
-import { PaymentCancellationCommand } from "./command/PaymentCancellationCommand";
-import { PaymentApprovalResultDto } from "./dto/PaymentApprovalResultDto";
-import { PaymentAuthKeyResultDto } from "./dto/PaymentAuthKeyResultDto";
-import { PaymentCancellationResultDto } from "./dto/PaymentCancellationResultDto";
-import { InvalidCommandException } from './exception/InvalidCommandException';
-import { PayPlusException } from './exception/PayPlusException';
-import { IKcpAppService } from "./IKcpAppService";
+import { Inject, Service } from "typedi";
+import { PaymentRequestAspect } from "/application/aop/PaymentRequestAspect";
+import { AuthKeyRequestCommand } from "/application/command/AuthKeyRequestCommand";
+import { Command } from "/application/command/Command";
+import { CommandType } from "/application/command/CommandType";
+import { PaymentApprovalCommand } from "/application/command/PaymentApprovalCommand";
+import { PaymentCancellationCommand } from "/application/command/PaymentCancellationCommand";
+import { PaymentApprovalResultDto } from "/application/dto/PaymentApprovalResultDto";
+import { PaymentAuthKeyResultDto } from "/application/dto/PaymentAuthKeyResultDto";
+import { PaymentCancellationResultDto } from "/application/dto/PaymentCancellationResultDto";
+import { InvalidCommandException } from "/application/exception/InvalidCommandException";
+import { PayPlusException } from "/application/exception/PayPlusException";
+import { IKcpAppService } from "/application/IKcpAppService";
+import { Ascii, PayPlusStatus } from "/common/constants";
+import { PaymentApprovalResultEntity } from "/domain/entity/PaymentApprovalResultEntity";
+import { PaymentAuthKeyResultEntity } from "/domain/entity/PaymentAuthKeyResultEntity";
+import { PaymentCancellationResultEntity } from "/domain/entity/PaymentCancellationResultEntity";
+import { KcpComandActuator } from "/domain/KcpCommandActuator";
+import { PaymentApprovalResultType } from "/domain/result/PaymentApprovalResultType";
+import { PaymentAuthKeyResultType } from "/domain/result/PaymentAuthKeyResultType";
+import { PaymentCancellationResultType } from "/domain/result/PaymentCancellationResultType";
+import { PaymentRequestService } from "/domain/service/PaymentRequestService";
 
 @Service()
 export class KcpAppService implements IKcpAppService {

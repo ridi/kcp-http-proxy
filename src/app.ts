@@ -11,7 +11,7 @@ import { createExpressServer, getMetadataArgsStorage, useContainer } from "routi
 import { routingControllersToSpec } from "routing-controllers-openapi";
 import * as swaggerUi from "swagger-ui-express";
 import { Container } from "typedi";
-import { Config, Mode, TestConfig } from "./api/common/config";
+import { Config, Mode, TestConfig } from "/common/config";
 
 export class App {
     static init(): Application {

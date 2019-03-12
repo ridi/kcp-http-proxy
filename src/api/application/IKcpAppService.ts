@@ -1,9 +1,9 @@
 import { AuthKeyRequestCommand } from "./command/AuthKeyRequestCommand";
 import { PaymentApprovalCommand } from "./command/PaymentApprovalCommand";
-import { PaymentCancellationCommand } from "./command/PaymentCancellationCommand";
-import { PaymentApprovalResultDto } from "./dto/PaymentApprovalResultDto";
-import { PaymentAuthKeyResultDto } from "./dto/PaymentAuthKeyResultDto";
-import { PaymentCancellationResultDto } from "./dto/PaymentCancellationResultDto";
+import { PaymentCancellationCommand } from "/application/command/PaymentCancellationCommand";
+import { PaymentApprovalResultDto } from "/application/dto/PaymentApprovalResultDto";
+import { PaymentAuthKeyResultDto } from "/application/dto/PaymentAuthKeyResultDto";
+import { PaymentCancellationResultDto } from "/application/dto/PaymentCancellationResultDto";
 
 export interface IKcpAppService {
     requestAuthKey(command: AuthKeyRequestCommand): Promise<PaymentAuthKeyResultDto>;
