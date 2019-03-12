@@ -2,6 +2,7 @@ import { Column, Entity, ManyToOne } from "typeorm";
 import { AbstractPaymentResultEntity } from "/domain/entity/AbstractPaymentResultEntity";
 import { PaymentRequestEntity } from "/domain/entity/PaymentRequestEntity";
 import { PaymentApprovalResultType } from "/domain/result/PaymentApprovalResultType";
+import { PayPlusStatus } from "/common/constants";
 
 @Entity("t_payment_approval_results")
 export class PaymentApprovalResultEntity extends AbstractPaymentResultEntity {
@@ -43,6 +44,7 @@ export class PaymentApprovalResultEntity extends AbstractPaymentResultEntity {
         entity.card_bin_type_02 = result.card_bin_type_02;
         entity.card_bin_bank_code = result.card_bin_bank_cd;
         entity.join_code = result.join_cd;
+        entity.is_success = entity.code === PayPlusStatus.OK;
         return entity;
     }
 

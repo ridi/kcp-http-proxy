@@ -1,4 +1,5 @@
 import { Column, Entity, ManyToOne } from "typeorm";
+import { PayPlusStatus } from "/common/constants";
 import { AbstractPaymentResultEntity } from "/domain/entity/AbstractPaymentResultEntity";
 import { PaymentRequestEntity } from "/domain/entity/PaymentRequestEntity";
 import { PaymentCancellationResultType } from "/domain/result/PaymentCancellationResultType";
@@ -35,6 +36,7 @@ export class PaymentCancellationResultEntity extends AbstractPaymentResultEntity
         entity.quota = parseInt(result.quota || "0");
         entity.is_interest_free = (result.noinf || "N") === "Y";
         entity.pg_txid = result.pg_txid;
+        entity.is_success = entity.code === PayPlusStatus.OK;
         return entity;
     }
 

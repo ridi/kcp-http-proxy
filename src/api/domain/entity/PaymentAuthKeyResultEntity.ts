@@ -1,4 +1,5 @@
 import { Column, Entity, ManyToOne } from "typeorm";
+import { PayPlusStatus } from "/common/constants";
 import { AbstractPaymentResultEntity } from "/domain/entity/AbstractPaymentResultEntity";
 import { PaymentRequestEntity } from "/domain/entity/PaymentRequestEntity";
 import { PaymentAuthKeyResultType } from "/domain/result/PaymentAuthKeyResultType";
@@ -15,6 +16,7 @@ export class PaymentAuthKeyResultEntity extends AbstractPaymentResultEntity {
         entity.batch_key = result.batch_key;
         entity.join_code = result.join_cd;
         entity.card_name = result.card_name;
+        entity.is_success = entity.code === PayPlusStatus.OK;
         return entity;
     }
 
