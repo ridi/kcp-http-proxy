@@ -9,6 +9,7 @@ import { PaymentApprovalResultType } from "../domain/result/PaymentApprovalResul
 import { PaymentAuthKeyResultType } from "../domain/result/PaymentAuthKeyResultType";
 import { PaymentCancellationResultType } from "../domain/result/PaymentCancellationResultType";
 import { PaymentRequestService } from "../domain/service/PaymentRequestService";
+import { PaymentRequestAspect } from "./aop/PaymentRequestAspect";
 import { AuthKeyRequestCommand } from "./command/AuthKeyRequestCommand";
 import { Command } from "./command/Command";
 import { CommandType } from "./command/CommandType";
@@ -50,7 +51,7 @@ export class KcpAppService implements IKcpAppService {
         return Object.assign(new PaymentCancellationResultDto(), rest);
     }
 
-    //TODO AOP saving and check result request
+    @PaymentRequestAspect
     private executeCommand(command: Command): Promise<PaymentAuthKeyResultEntity | PaymentApprovalResultEntity | PaymentCancellationResultEntity> {
         return this.commandActuator.actuate(command)
             .then(output => {
