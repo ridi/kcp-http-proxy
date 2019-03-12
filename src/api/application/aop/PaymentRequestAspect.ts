@@ -22,7 +22,7 @@ export const PaymentRequestAspect = (target: Object, propertyKey: string, descri
 };
 
 class Invoker {    
-    static async invoke(command: Command, fn: any) {
+    static async invoke(command: Command, fn: any): Promise<any> {
         const hashed = Invoker.getHashKey(command);
 
         const repository = Container.get(TypeOrmPaymentRequestRepository);
