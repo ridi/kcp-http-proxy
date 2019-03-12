@@ -1,5 +1,5 @@
-import { CommandType } from "/application/command/CommandType";
-import { Mode } from "/common/config";
+import { CommandType } from "../command/CommandType";
+import { Mode } from "../../common/config";
 
 export abstract class Command {
     readonly mode: Mode;

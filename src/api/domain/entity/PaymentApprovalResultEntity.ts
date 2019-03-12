@@ -1,11 +1,11 @@
-import { Column, Entity, ManyToOne } from "typeorm";
-import { AbstractPaymentResultEntity } from "/domain/entity/AbstractPaymentResultEntity";
-import { PaymentRequestEntity } from "/domain/entity/PaymentRequestEntity";
-import { PaymentApprovalResultType } from "/domain/result/PaymentApprovalResultType";
-import { PayPlusStatus } from "/common/constants";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { AbstractPaymentResultEntity } from "../../domain/entity/AbstractPaymentResultEntity";
+import { PaymentRequestEntity } from "../../domain/entity/PaymentRequestEntity";
+import { PaymentApprovalResultType } from "../../domain/result/PaymentApprovalResultType";
+import { PayPlusStatus } from "../../common/constants";
 
 @Entity("t_payment_approval_results")
-export class PaymentApprovalResultEntity extends AbstractPaymentResultEntity {
+export class PaymentApprovalResultEntity {
     static parse(result: PaymentApprovalResultType): PaymentApprovalResultEntity {
         const entity: PaymentApprovalResultEntity = new PaymentApprovalResultEntity();
         entity.code = result.res_cd;
@@ -47,6 +47,18 @@ export class PaymentApprovalResultEntity extends AbstractPaymentResultEntity {
         entity.is_success = entity.code === PayPlusStatus.OK;
         return entity;
     }
+
+    @PrimaryGeneratedColumn()
+    id: number;    
+    
+    @Column()
+    code: string;
+    
+    @Column({ type: "text" })
+    message: string;
+    
+    @Column()
+    is_success: boolean;
 
     @Column({ nullable: true })
     en_message: string;
@@ -150,6 +162,12 @@ export class PaymentApprovalResultEntity extends AbstractPaymentResultEntity {
     @Column({ nullable: true })
     join_code: string;
 
-    @ManyToOne(type => PaymentRequestEntity, request => request.approval_results)
+    @Column({ type: "datetime", default: () => "CURRENT_TIMESTAMP" })
+    created_at: Date;
+
+    @Column({ type: "datetime", default: () => "CURRENT_TIMESTAMP", onUpdate: "CURRENT_TIMESTAMP" })
+    updated_at: Date;
+
+    @ManyToOne(type => PaymentRequestEntity, request => request.approval_results, { lazy: true })
     request: PaymentRequestEntity;
 }

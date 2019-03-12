@@ -1,6 +1,6 @@
 import { Matches } from "class-validator";
 import { JSONSchema } from "class-validator-jsonschema";
-import { Mode } from "/common/config";
+import { Mode } from "../../common/config";
 
 export abstract class KcpRequest {
     @JSONSchema({ description: "요청모드", examples: [ "dev", "prd", "ptx" ] })

@@ -1,6 +1,6 @@
-import { Command } from "/application/command/Command";
-import { CommandType } from "/application/command/CommandType";
-import { Mode } from "/common/config";
+import { Command } from "./Command";
+import { CommandType } from "./CommandType";
+import { Mode } from "../../common/config";
 
 export class AuthKeyRequestCommand extends Command {
     readonly card_number: string;// 카드번호 공백없이 숫자만

@@ -1,13 +1,13 @@
 import { exec, ExecException } from "child_process";
 import * as iconv from "iconv-lite";
 import { Container, Service } from "typedi";
-import { AuthKeyRequestCommand } from "/application/command/AuthKeyRequestCommand";
-import { Command } from "/application/command/Command";
-import { CommandType } from "/application/command/CommandType";
-import { PaymentApprovalCommand } from "/application/command/PaymentApprovalCommand";
-import { PaymentCancellationCommand } from "/application/command/PaymentCancellationCommand";
-import { Config } from "/common/config";
-import { Ascii } from "/common/constants";
+import { AuthKeyRequestCommand } from "../application/command/AuthKeyRequestCommand";
+import { Command } from "../application/command/Command";
+import { CommandType } from "../application/command/CommandType";
+import { PaymentApprovalCommand } from "../application/command/PaymentApprovalCommand";
+import { PaymentCancellationCommand } from "../application/command/PaymentCancellationCommand";
+import { Config } from "../common/config";
+import { Ascii } from "../common/constants";
 
 @Service()
 export class KcpComandActuator {

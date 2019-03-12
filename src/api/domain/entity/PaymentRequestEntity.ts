@@ -1,9 +1,9 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn, Unique } from "typeorm";
-import { CommandType } from "/application/command/CommandType";
-import { Mode } from "/common/config";
-import { PaymentApprovalResultEntity } from "/domain/entity/PaymentApprovalResultEntity";
-import { PaymentAuthKeyResultEntity } from "/domain/entity/PaymentAuthKeyResultEntity";
-import { PaymentCancellationResultEntity } from "/domain/entity/PaymentCancellationResultEntity";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn, Unique, JoinColumn } from "typeorm";
+import { CommandType } from "../../application/command/CommandType";
+import { Mode } from "../../common/config";
+import { PaymentApprovalResultEntity } from "../../domain/entity/PaymentApprovalResultEntity";
+import { PaymentAuthKeyResultEntity } from "../../domain/entity/PaymentAuthKeyResultEntity";
+import { PaymentCancellationResultEntity } from "../../domain/entity/PaymentCancellationResultEntity";
 
 @Unique("uniq_payment_requests", [ "command_type", "mode", "hash" ])
 @Entity("t_payment_requests")
@@ -26,12 +26,12 @@ export class PaymentRequestEntity {
     @Column({ type: "datetime", default: () => "CURRENT_TIMESTAMP", onUpdate: "CURRENT_TIMESTAMP" })
     updated_at: Date;
 
-    @OneToMany(type => PaymentAuthKeyResultEntity, auth_key_result => auth_key_result.request, { eager: true })
+    @OneToMany(type => PaymentAuthKeyResultEntity, auth_key_result => auth_key_result.request)
     auth_key_results: PaymentAuthKeyResultEntity[];
 
-    @OneToMany(type => PaymentApprovalResultEntity, approval_result => approval_result.request, { eager: true })
+    @OneToMany(type => PaymentApprovalResultEntity, approval_result => approval_result.request)
     approval_results: PaymentApprovalResultEntity[];
 
-    @OneToMany(type => PaymentCancellationResultEntity, cancel_results => cancel_results.request, { eager: true })
+    @OneToMany(type => PaymentCancellationResultEntity, cancel_results => cancel_results.request)
     cancel_results: PaymentCancellationResultEntity[];
 }

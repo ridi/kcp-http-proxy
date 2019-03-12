@@ -11,12 +11,14 @@ import { createExpressServer, getMetadataArgsStorage, useContainer } from "routi
 import { routingControllersToSpec } from "routing-controllers-openapi";
 import * as swaggerUi from "swagger-ui-express";
 import { Container } from "typedi";
-import { Config, Mode, TestConfig } from "/common/config";
+import { Config, Mode, TestConfig } from "./api/common/config";
 
 export class App {
     static init(): Application {
         // enable di container for controller
         useContainer(Container);
+        // logger and sentry
+        App.configureLogger();
         // set app root path
         Container.set('app.root', path.resolve(__dirname));
         // controllers
@@ -29,8 +31,7 @@ export class App {
         const app: Application = createExpressServer(routingControllersOptions);
         // kcp configs
         App.configureKcpEnvironment();
-        // logger and sentry
-        App.configureLogger();
+        
         // swagger ui
         App.configureSwaggerDocs(app, routingControllersOptions);
 

@@ -1,11 +1,11 @@
-import { Column, Entity, ManyToOne } from "typeorm";
-import { PayPlusStatus } from "/common/constants";
-import { AbstractPaymentResultEntity } from "/domain/entity/AbstractPaymentResultEntity";
-import { PaymentRequestEntity } from "/domain/entity/PaymentRequestEntity";
-import { PaymentAuthKeyResultType } from "/domain/result/PaymentAuthKeyResultType";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, AfterLoad } from "typeorm";
+import { PayPlusStatus } from "../../common/constants";
+import { AbstractPaymentResultEntity } from "../../domain/entity/AbstractPaymentResultEntity";
+import { PaymentRequestEntity } from "../../domain/entity/PaymentRequestEntity";
+import { PaymentAuthKeyResultType } from "../../domain/result/PaymentAuthKeyResultType";
 
 @Entity("t_payment_auth_key_results")
-export class PaymentAuthKeyResultEntity extends AbstractPaymentResultEntity {
+export class PaymentAuthKeyResultEntity {
     static parse(result: PaymentAuthKeyResultType): PaymentAuthKeyResultEntity {
         const entity = new PaymentAuthKeyResultEntity();
         entity.code = result.res_cd;
@@ -20,6 +20,17 @@ export class PaymentAuthKeyResultEntity extends AbstractPaymentResultEntity {
         return entity;
     }
 
+    @PrimaryGeneratedColumn()
+    id: number;    
+    
+    @Column()
+    code: string;
+    
+    @Column({ type: "text" })
+    message: string;
+    
+    @Column()
+    is_success: boolean;
     @Column({ nullable: true })
     card_code: string;
     
@@ -41,6 +52,17 @@ export class PaymentAuthKeyResultEntity extends AbstractPaymentResultEntity {
     @Column({ nullable: true })
     join_code: string;
 
-    @ManyToOne(type => PaymentRequestEntity, request => request.auth_key_results)
+    @Column({ type: "datetime", default: () => "CURRENT_TIMESTAMP" })
+    created_at: Date;
+
+    @Column({ type: "datetime", default: () => "CURRENT_TIMESTAMP", onUpdate: "CURRENT_TIMESTAMP" })
+    updated_at: Date;
+
+    @ManyToOne(type => PaymentRequestEntity, request => request.auth_key_results, { lazy: true })
     request: PaymentRequestEntity;
+
+    @AfterLoad()
+    loadAfter() {
+        this.request = null;
+    }
 }

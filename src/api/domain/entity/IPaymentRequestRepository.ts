@@ -1,6 +1,6 @@
-import { CommandType } from "/application/command/CommandType";
-import { Mode } from "/common/config";
-import { PaymentRequestEntity } from "/domain/entity/PaymentRequestEntity";
+import { CommandType } from "../../application/command/CommandType";
+import { Mode } from "../../common/config";
+import { PaymentRequestEntity } from "../../domain/entity/PaymentRequestEntity";
 
 export interface IPaymentRequestRepository {
     getPaymentRequestById(id: number): Promise<PaymentRequestEntity | undefined>;

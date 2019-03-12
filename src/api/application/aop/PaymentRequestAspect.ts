@@ -1,28 +1,69 @@
 import * as hash from "object-hash";
 import Container from "typedi";
-import { AuthKeyRequestCommand } from "/application/command/AuthKeyRequestCommand";
-import { Command } from "/application/command/Command";
-import { CommandType } from "/application/command/CommandType";
-import { PaymentApprovalCommand } from "/application/command/PaymentApprovalCommand";
-import { PaymentCancellationCommand } from "/application/command/PaymentCancellationCommand";
-import { InvalidCommandException } from "/application/exception/InvalidCommandException";
-import { PayPlusStatus } from "/common/constants";
-import { PaymentApprovalResultEntity } from "/domain/entity/PaymentApprovalResultEntity";
-import { PaymentAuthKeyResultEntity } from "/domain/entity/PaymentAuthKeyResultEntity";
-import { PaymentCancellationResultEntity } from "/domain/entity/PaymentCancellationResultEntity";
-import { PaymentRequestEntity } from "/domain/entity/PaymentRequestEntity";
-import { TypeOrmPaymentRequestRepository } from "/infra/repository/TypeOrmPaymentRequestRepository";
+import { AuthKeyRequestCommand } from "../command/AuthKeyRequestCommand";
+import { Command } from "../command/Command";
+import { CommandType } from "../command/CommandType";
+import { PaymentApprovalCommand } from "../command/PaymentApprovalCommand";
+import { PaymentCancellationCommand } from "../command/PaymentCancellationCommand";
+import { InvalidCommandException } from "../exception/InvalidCommandException";
+import { PayPlusStatus } from "../../common/constants";
+import { PaymentApprovalResultEntity } from "../../domain/entity/PaymentApprovalResultEntity";
+import { PaymentAuthKeyResultEntity } from "../../domain/entity/PaymentAuthKeyResultEntity";
+import { PaymentCancellationResultEntity } from "../../domain/entity/PaymentCancellationResultEntity";
+import { PaymentRequestEntity } from "../../domain/entity/PaymentRequestEntity";
+import { TypeOrmPaymentRequestRepository } from "../../infra/repository/TypeOrmPaymentRequestRepository";
 
 export const PaymentRequestAspect = (target: Object, propertyKey: string, descriptor: PropertyDescriptor) => {
     const originalValue = descriptor.value;
 
     descriptor.value = async (command: Command) => {
-        return Invoker.invoke(command, originalValue);
+        const hashed = Invoker.getHashKey(command);
+
+        const repository = Container.get(TypeOrmPaymentRequestRepository);
+        let found: PaymentRequestEntity = await Invoker.getPaymentRequestEntity(repository, command, hashed);
+        let result = Invoker.getSuccessfulResult(command, found);
+        if (result) {
+            return result;
+        }
+
+        if (!found.auth_key_results) {
+            found.auth_key_results = [];
+        }
+        if (!found.approval_results) {
+            found.approval_results = [];
+        }
+        if (!found.cancel_results) {
+            found.cancel_results = [];
+        }
+console.info("LINE", 38);
+        const resultEntity = await originalValue.apply(this, [command]);
+console.info("LINE", 40);
+        switch(command.type) {
+            case CommandType.REQUEST_AUTH_KEY: {
+                found.auth_key_results.push(resultEntity);
+                break;
+            }
+            case CommandType.PAYMENT_APPROVAL: {
+                found.approval_results.push(resultEntity);
+                break;
+            }
+            case CommandType.PAYMENT_CANCELLATION: {
+                found.cancel_results.push(resultEntity);
+                break;
+            }
+        }
+console.info("LINE", 55);       
+        await repository.savePaymentRequest(found);
+console.info("LINE", 57);       
+        return resultEntity;
+
+
+        //return Invoker.invoke(command, originalValue, this);
     }
 };
 
 class Invoker {    
-    static async invoke(command: Command, fn: any): Promise<any> {
+    static async invoke(command: Command, fn: any, context: any): Promise<any> {
         const hashed = Invoker.getHashKey(command);
 
         const repository = Container.get(TypeOrmPaymentRequestRepository);
@@ -42,7 +83,7 @@ class Invoker {
             found.cancel_results = [];
         }
 
-        const resultEntity = await fn.apply(this, [command]);
+        const resultEntity = await fn.apply(context, [command]);
         switch(command.type) {
             case CommandType.REQUEST_AUTH_KEY: {
                 found.auth_key_results.push(resultEntity);
@@ -57,11 +98,11 @@ class Invoker {
                 break;
             }
         }
-        repository.savePaymentRequest(found);
+        await repository.savePaymentRequest(found);
         return resultEntity;
     }
 
-    private static getSuccessfulResult(command: Command, found: PaymentRequestEntity): PaymentAuthKeyResultEntity | PaymentApprovalResultEntity | PaymentCancellationResultEntity | undefined {
+    static getSuccessfulResult(command: Command, found: PaymentRequestEntity): PaymentAuthKeyResultEntity | PaymentApprovalResultEntity | PaymentCancellationResultEntity | undefined {
         let result: PaymentAuthKeyResultEntity | PaymentApprovalResultEntity | PaymentCancellationResultEntity | undefined;
         switch (command.type) {
             case CommandType.REQUEST_AUTH_KEY: {
@@ -86,7 +127,7 @@ class Invoker {
         return result;
     }
 
-    private static async getPaymentRequestEntity(repository:TypeOrmPaymentRequestRepository, command: Command, hashed: string): Promise<PaymentRequestEntity> {
+    static async getPaymentRequestEntity(repository:TypeOrmPaymentRequestRepository, command: Command, hashed: string): Promise<PaymentRequestEntity> {
         let found: PaymentRequestEntity | undefined = await repository.getPaymentRequest(command.type, command.mode, hashed);
         if (!found) {
             const request = new PaymentRequestEntity();
@@ -98,7 +139,7 @@ class Invoker {
         return found;
     }
 
-    private static getHashKey(command: Command): string {
+    static getHashKey(command: Command): string {
         switch (command.constructor) {
             case AuthKeyRequestCommand: {
                 const cmd = command as AuthKeyRequestCommand;

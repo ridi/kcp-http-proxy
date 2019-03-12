@@ -1,15 +1,15 @@
 import * as hash from "object-hash";
 import { Inject, Service } from "typedi";
-import { CommandType } from "/application/command/CommandType";
-import { Mode } from "/common/config";
-import { PayPlusStatus } from "/common/constants";
-import { IPaymentRequestRepository } from "/domain/entity/IPaymentRequestRepository";
-import { PaymentApprovalResultEntity } from "/domain/entity/PaymentApprovalResultEntity";
-import { PaymentAuthKeyResultEntity } from "/domain/entity/PaymentAuthKeyResultEntity";
-import { PaymentCancellationResultEntity } from "/domain/entity/PaymentCancellationResultEntity";
-import { PaymentRequestEntity } from "/domain/entity/PaymentRequestEntity";
-import { IPaymentRequestService } from "/domain/service/IPaymentRequestService";
-import { TypeOrmPaymentRequestRepository } from "/infra/repository/TypeOrmPaymentRequestRepository";
+import { CommandType } from "../../application/command/CommandType";
+import { Mode } from "../../common/config";
+import { PayPlusStatus } from "../../common/constants";
+import { IPaymentRequestRepository } from "../../domain/entity/IPaymentRequestRepository";
+import { PaymentApprovalResultEntity } from "../../domain/entity/PaymentApprovalResultEntity";
+import { PaymentAuthKeyResultEntity } from "../../domain/entity/PaymentAuthKeyResultEntity";
+import { PaymentCancellationResultEntity } from "../../domain/entity/PaymentCancellationResultEntity";
+import { PaymentRequestEntity } from "../../domain/entity/PaymentRequestEntity";
+import { IPaymentRequestService } from "../../domain/service/IPaymentRequestService";
+import { TypeOrmPaymentRequestRepository } from "../../infra/repository/TypeOrmPaymentRequestRepository";
 
 @Service()
 export class PaymentRequestService implements IPaymentRequestService {

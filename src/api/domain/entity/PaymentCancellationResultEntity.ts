@@ -1,11 +1,11 @@
-import { Column, Entity, ManyToOne } from "typeorm";
-import { PayPlusStatus } from "/common/constants";
-import { AbstractPaymentResultEntity } from "/domain/entity/AbstractPaymentResultEntity";
-import { PaymentRequestEntity } from "/domain/entity/PaymentRequestEntity";
-import { PaymentCancellationResultType } from "/domain/result/PaymentCancellationResultType";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { PayPlusStatus } from "../../common/constants";
+import { AbstractPaymentResultEntity } from "../../domain/entity/AbstractPaymentResultEntity";
+import { PaymentRequestEntity } from "../../domain/entity/PaymentRequestEntity";
+import { PaymentCancellationResultType } from "../../domain/result/PaymentCancellationResultType";
 
 @Entity("t_payment_cancellation_results")
-export class PaymentCancellationResultEntity extends AbstractPaymentResultEntity {
+export class PaymentCancellationResultEntity {
     static parse(result: PaymentCancellationResultType): PaymentCancellationResultEntity {
         const entity: PaymentCancellationResultEntity = new PaymentCancellationResultEntity();
         entity.code = result.res_cd;
@@ -40,6 +40,17 @@ export class PaymentCancellationResultEntity extends AbstractPaymentResultEntity
         return entity;
     }
 
+    @PrimaryGeneratedColumn()
+    id: number;    
+    
+    @Column()
+    code: string;
+    
+    @Column({ type: "text" })
+    message: string;
+    
+    @Column()
+    is_success: boolean;
     @Column({ nullable: true })
     en_message: string;
 
@@ -121,6 +132,14 @@ export class PaymentCancellationResultEntity extends AbstractPaymentResultEntity
     @Column({ nullable: true })
     pg_txid: string;
 
-    @ManyToOne(type => PaymentRequestEntity, request => request.cancel_results)
+    @Column({ type: "datetime", default: () => "CURRENT_TIMESTAMP" })
+    created_at: Date;
+
+    @Column({ type: "datetime", default: () => "CURRENT_TIMESTAMP", onUpdate: "CURRENT_TIMESTAMP" })
+    updated_at: Date;
+
+    @ManyToOne(type => PaymentRequestEntity, request => request.cancel_results, { lazy: true })
     request: PaymentRequestEntity;
+
+    request_id: number;
 }

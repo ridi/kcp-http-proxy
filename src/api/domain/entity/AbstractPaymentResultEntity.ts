@@ -10,7 +10,7 @@ export abstract class AbstractPaymentResultEntity {
     code: string;
 
     @JSONSchema({ description: "KCP 결과 메시지" })
-    @Column()
+    @Column({ type: "text" })
     message: string;
 
     @JSONSchema({ description: "KCP 결과 성공 여부" })

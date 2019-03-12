@@ -1,7 +1,7 @@
-import { App } from "app";
-import { Database } from "database";
 import * as dotenv from "dotenv";
 import "reflect-metadata";
+import { App } from "./app";
+import { Database } from "./database";
 // load .env
 dotenv.config();
 
