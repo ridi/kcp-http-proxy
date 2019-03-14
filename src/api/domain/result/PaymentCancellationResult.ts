@@ -1,5 +1,5 @@
-import { PayPlusStatus } from "@/common/constants";
-import { PaymentCancellationResultType } from "@/domain/result/PaymentCancellationResultType";
+import { PayPlusStatus } from "../../common/constants";
+import { PaymentCancellationResultType } from "../../domain/result/PaymentCancellationResultType";
 import { attribute } from "@aws/dynamodb-data-mapper-annotations";
 import { IsBoolean, IsNumber, IsString } from "class-validator";
 import { JSONSchema } from "class-validator-jsonschema";

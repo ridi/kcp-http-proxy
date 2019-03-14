@@ -1,5 +1,5 @@
-import { PayPlusStatus } from "@/common/constants";
-import { PaymentAuthKeyResultType } from "@/domain/result/PaymentAuthKeyResultType";
+import { PayPlusStatus } from "../../common/constants";
+import { PaymentAuthKeyResultType } from "../../domain/result/PaymentAuthKeyResultType";
 import { IsString } from "class-validator";
 import { JSONSchema } from "class-validator-jsonschema";
 import { AbstractPaymentResult } from "./AbstractPaymentResult";

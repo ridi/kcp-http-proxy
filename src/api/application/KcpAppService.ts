@@ -1,9 +1,9 @@
-import { IPaymentRequestRepository } from "@/domain/entity/IPaymentRequestRepository";
-import { PaymentRequestRepository } from "@/infra/repository/PaymentRequestRepository";
+import { NumberValue } from "@aws/dynamodb-auto-marshaller";
 import * as Sentry from "@sentry/node";
 import * as hash from "object-hash";
 import { Container, Inject, Service } from "typedi";
 import { Ascii, PayPlusStatus } from "../common/constants";
+import { IPaymentRequestRepository } from "../domain/entity/IPaymentRequestRepository";
 import { PaymentRequestEntity } from "../domain/entity/PaymentRequestEntity";
 import { KcpComandActuator } from "../domain/KcpCommandActuator";
 import { PaymentApprovalResult } from "../domain/result/PaymentApprovalResult";
@@ -12,6 +12,7 @@ import { PaymentAuthKeyResult } from "../domain/result/PaymentAuthKeyResult";
 import { PaymentAuthKeyResultType } from "../domain/result/PaymentAuthKeyResultType";
 import { PaymentCancellationResult } from "../domain/result/PaymentCancellationResult";
 import { PaymentCancellationResultType } from "../domain/result/PaymentCancellationResultType";
+import { PaymentRequestRepository } from "../infra/repository/PaymentRequestRepository";
 import { AuthKeyRequestCommand } from "./command/AuthKeyRequestCommand";
 import { Command } from "./command/Command";
 import { CommandType } from "./command/CommandType";
@@ -29,9 +30,10 @@ const PaymentRequestAspect = (target: Object, propertyKey: string, descriptor: P
 
         const repository = Container.get(PaymentRequestRepository);
 
-        let found: PaymentRequestEntity = await Invoker.getPaymentRequestEntity(repository, command, key);
+        let found: PaymentRequestEntity = await Invoker.getPaymentRequestEntity(repository, key);
         let result = Invoker.getSuccessfulResult(command, found);
         if (result) {
+            console.info("\nCache Hit!\n");            
             return result;
         }
 
@@ -90,19 +92,26 @@ class Invoker {
     //     return resultEntity;
     // }
 
-    static getSuccessfulResult(command: Command, found: PaymentRequestEntity): PaymentAuthKeyResult | PaymentApprovalResult | PaymentCancellationResult | null {
+    static getSuccessfulResult(command: Command, found: PaymentRequestEntity): any {
         if (found.results) {
             const result = found.results.find(r => r.code === PayPlusStatus.OK);
             if (result) {
-                switch(command.type) {
+                const keys = Object.keys(result);
+                for (const key of keys) {
+                    if (result[key] instanceof NumberValue) {
+                        result[key] = (result[key] as NumberValue).valueOf();
+                    }
+                }
+                console.info("Result Found....");
+                switch (command.type)  {
                     case CommandType.REQUEST_AUTH_KEY: {
-                        return result as PaymentAuthKeyResult;
+                        return Object.assign(new PaymentAuthKeyResult(), result);
                     }
                     case CommandType.PAYMENT_APPROVAL: {
-                        return result as PaymentApprovalResult;
+                        return Object.assign(new PaymentApprovalResult(), result);
                     }
                     case CommandType.PAYMENT_CANCELLATION: {
-                        return result as PaymentAuthKeyResult;
+                        return Object.assign(new PaymentCancellationResult(), result);
                     }
                 }
             }
@@ -110,14 +119,13 @@ class Invoker {
         return null;
     }
 
-    static async getPaymentRequestEntity(repository: IPaymentRequestRepository, command: Command, key: string): Promise<PaymentRequestEntity> {
-        let found: PaymentRequestEntity | undefined = await repository.getPaymentRequest(command.type, command.mode, key);
+    static async getPaymentRequestEntity(repository: IPaymentRequestRepository, key: string): Promise<PaymentRequestEntity> {
+        let found: PaymentRequestEntity | null = await repository.getPaymentRequestById(key);
         if (!found) {
             const request = new PaymentRequestEntity();
-            request.command_type = command.type;
-            request.mode = command.mode;
-            request.key = key;
+            request.id = key;
             found = await repository.savePaymentRequest(request);
+            found.results = [];
         }
         return found;
     }
@@ -127,6 +135,8 @@ class Invoker {
             case AuthKeyRequestCommand: {
                 const cmd = command as AuthKeyRequestCommand;
                 return hash({
+                    command_type: cmd.type,
+                    mode: cmd.mode,
                     card_number: cmd.card_number,
                     card_expiry_date: cmd.card_expiry_date,
                     card_tax_no: cmd.card_tax_no,
@@ -136,13 +146,20 @@ class Invoker {
             case PaymentApprovalCommand: {
                 const cmd = command as PaymentApprovalCommand;
                 return hash({
+                    command_type: cmd.type,
+                    mode: cmd.mode,
                     bill_key: cmd.batch_key,
                     order_no: cmd.order_id,
                     product_amount: cmd.goods_price
                 });
             }
             case PaymentCancellationCommand: {
-                return hash({ tno: (command as PaymentCancellationCommand).tno });
+                const cmd = command as PaymentCancellationCommand;
+                return hash({
+                    command_type: cmd.type,
+                    mode: cmd.mode,
+                    tno: cmd.tno
+                });
             }
             default: {
                 throw new InvalidCommandException(`Unknown Command Type: ${command.constructor}`);

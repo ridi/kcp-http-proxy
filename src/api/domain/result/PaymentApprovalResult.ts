@@ -1,5 +1,5 @@
-import { PayPlusStatus } from "@/common/constants";
-import { PaymentApprovalResultType } from "@/domain/result/PaymentApprovalResultType";
+import { PayPlusStatus } from "../../common/constants";
+import { PaymentApprovalResultType } from "../../domain/result/PaymentApprovalResultType";
 import { attribute } from "@aws/dynamodb-data-mapper-annotations";
 import { IsBoolean, IsNumber, IsString } from "class-validator";
 import { JSONSchema } from "class-validator-jsonschema";
@@ -161,7 +161,7 @@ export class PaymentApprovalResult extends AbstractPaymentResult {
 
     @JSONSchema({ description: "할부 개월(0: 일시불)", format: "0~12" })
     @IsNumber()
-    @attribute()
+    @attribute({ unwrapNumbers: false })
     quota: number;
 
     @JSONSchema({ description: "무이자 할부 결제 여부" })

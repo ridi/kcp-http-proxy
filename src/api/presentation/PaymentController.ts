@@ -1,16 +1,15 @@
 import { Response } from "express";
-import { Body, Delete, HttpCode, JsonController, Param, Post, Res, UseBefore } from "routing-controllers";
+import { Body, Delete, HttpCode, JsonController, Param, Post, Res } from "routing-controllers";
 import { ResponseSchema } from "routing-controllers-openapi";
 import { Inject } from "typedi";
 import { AuthKeyRequestCommand } from "../application/command/AuthKeyRequestCommand";
 import { PaymentApprovalCommand } from "../application/command/PaymentApprovalCommand";
 import { PaymentCancellationCommand } from "../application/command/PaymentCancellationCommand";
+import { IKcpAppService } from "../application/IKcpAppService";
+import { KcpAppService } from "../application/KcpAppService";
 import { PaymentApprovalResult } from "../domain/result/PaymentApprovalResult";
 import { PaymentAuthKeyResult } from "../domain/result/PaymentAuthKeyResult";
 import { PaymentCancellationResult } from "../domain/result/PaymentCancellationResult";
-import { IKcpAppService } from "../application/IKcpAppService";
-import { KcpAppService } from "../application/KcpAppService";
-import { Authorized } from "../presentation/middleware/Authorized";
 import { AuthKeyRequest } from "../presentation/request/AuthKeyRequest";
 import { PaymentApprovalRequest } from "../presentation/request/PaymentApprovalRequest";
 import { PaymentCancellationRequest } from "../presentation/request/PaymentCancellationRequest";
@@ -26,7 +25,6 @@ export class PaymentController {
 
     @ResponseSchema(PaymentAuthKeyResult)
     @HttpCode(201)
-    @UseBefore(Authorized)
     @Post("/payments/auth-key")
     async requestAuthKey(@Body() req: AuthKeyRequest, @Res() res: Response): Promise<PaymentAuthKeyResult> {  
         await this.requestValidator.validate(req);
@@ -45,7 +43,6 @@ export class PaymentController {
     
     @ResponseSchema(PaymentApprovalResult)
     @HttpCode(200)
-    @UseBefore(Authorized)
     @Post("/payments")
     async approvePayment(@Body() req: PaymentApprovalRequest, @Res() res: Response): Promise<PaymentApprovalResult> {
         await this.requestValidator.validate(req);
@@ -67,7 +64,6 @@ export class PaymentController {
     }
 
     @ResponseSchema(PaymentCancellationResult)
-    @UseBefore(Authorized)
     @HttpCode(200)
     @Delete("/payments/:kcp_tno")
     async cancelPayment(@Param("kcp_tno") kcp_tno: string, @Body() req: PaymentCancellationRequest, @Res() res: Response): Promise<PaymentCancellationResult> {
