@@ -1,4 +1,4 @@
-import { PaymentRequestEntity } from "@/domain/entity/PaymentRequestEntity";
+import { PaymentRequestEntity } from "./api/domain/entity/PaymentRequestEntity";
 import { DataMapper } from "@aws/dynamodb-data-mapper";
 import { DynamoDB } from "aws-sdk";
 import { Container } from "typedi";

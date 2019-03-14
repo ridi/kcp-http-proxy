@@ -37,3 +37,6 @@ services:
     links:
       - dynamo
     command: npm run dev
+
+volumes:
+  dynamodata:
