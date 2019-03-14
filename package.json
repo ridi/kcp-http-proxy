@@ -38,14 +38,16 @@
   },
   "dependencies": {
     "@aws/dynamodb-data-mapper": "^0.7.3",
+    "@aws/dynamodb-data-mapper-annotations": "^0.7.3",
     "@sentry/node": "^4.6.3",
-    "aws-sdk": "^2.419.0",
+    "aws-sdk": "^2.421.0",
     "body-parse": "^0.1.0",
     "bunyan": "^1.8.12",
     "bunyan-cloudwatch": "^2.2.0",
     "class-validator": "^0.9.1",
     "class-validator-jsonschema": "^1.2.0",
     "dotenv": "^6.2.0",
+    "dynamo-types": "^2.6.1",
     "express": "^4.16.4",
     "express-prettify": "^0.1.1",
     "iconv-lite": "^0.4.24",
@@ -56,6 +58,7 @@
     "routing-controllers": "^0.7.7",
     "routing-controllers-openapi": "^1.5.0",
     "swagger-ui-express": "^4.0.2",
-    "typedi": "^0.8.0"
+    "typedi": "^0.8.0",
+    "uuid": "^3.3.2"
   }
 }

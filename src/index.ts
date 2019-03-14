@@ -11,7 +11,7 @@ const server = app.listen(PORT, () => {
     console.log(`listening on port ${PORT}`);
 });
 
-Database.connect().then(conn => {
+Database.connect().then(() => {
     console.info("DB connected");
 }).catch(err => {
     console.error(err);

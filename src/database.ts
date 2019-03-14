@@ -1,30 +1,25 @@
+import { PaymentRequestEntity } from "@/domain/entity/PaymentRequestEntity";
+import { DataMapper } from "@aws/dynamodb-data-mapper";
+import { DynamoDB } from "aws-sdk";
 import { Container } from "typedi";
-import { Connection, createConnection, useContainer } from "typeorm";
 
 export class Database {
-    static connect(): Promise<Connection> {
-        useContainer(Container);
-        
-        return createConnection({
-            type: "mysql",
-            host: process.env.APP_DATABASE_HOST,
-            port: parseInt(process.env.APP_DATABASE_PORT || "3306"),
-            username: process.env.APP_DATABASE_USER,
-            password: process.env.APP_DATABASE_PASSWORD,
-            database: process.env.APP_DATABASE_NAME,
-            entities: [
-                `${__dirname}/api/**/entity/*Entity.*`
-            ],
-            synchronize: true,
-            logging: true,
-            charset: "utf8"
-        }).then(connection => {
-            console.log('Connected');
-            return connection;
-        }).catch(error => {
-            console.log('Failed to connect', error);
-            throw error;
+    static async connect(): Promise<void> {
+        const client = new DynamoDB({
+            region: process.env.AWS_REGION || "ap-northeast-2",
+            endpoint: process.env.AWS_DYNAMO_DB_ENDPOINT || "http://dynamo:8000"
         });
+
+        const mapper = new DataMapper({
+            client: client,
+            tableNamePrefix: "t_"
+        });
+
+        await mapper.ensureTableExists(PaymentRequestEntity, { readCapacityUnits: 5, writeCapacityUnits: 5 }).then(() => {
+            console.info("Table created.");
+        });
+
+        Container.set(DataMapper, mapper);
     }
 }
 

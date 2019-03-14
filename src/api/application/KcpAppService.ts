@@ -1,76 +1,50 @@
+import { IPaymentRequestRepository } from "@/domain/entity/IPaymentRequestRepository";
+import { PaymentRequestRepository } from "@/infra/repository/PaymentRequestRepository";
 import * as Sentry from "@sentry/node";
-import { Inject, Service, Container } from "typedi";
+import * as hash from "object-hash";
+import { Container, Inject, Service } from "typedi";
+import { Ascii, PayPlusStatus } from "../common/constants";
+import { PaymentRequestEntity } from "../domain/entity/PaymentRequestEntity";
+import { KcpComandActuator } from "../domain/KcpCommandActuator";
+import { PaymentApprovalResult } from "../domain/result/PaymentApprovalResult";
+import { PaymentApprovalResultType } from "../domain/result/PaymentApprovalResultType";
+import { PaymentAuthKeyResult } from "../domain/result/PaymentAuthKeyResult";
+import { PaymentAuthKeyResultType } from "../domain/result/PaymentAuthKeyResultType";
+import { PaymentCancellationResult } from "../domain/result/PaymentCancellationResult";
+import { PaymentCancellationResultType } from "../domain/result/PaymentCancellationResultType";
 import { AuthKeyRequestCommand } from "./command/AuthKeyRequestCommand";
 import { Command } from "./command/Command";
 import { CommandType } from "./command/CommandType";
 import { PaymentApprovalCommand } from "./command/PaymentApprovalCommand";
 import { PaymentCancellationCommand } from "./command/PaymentCancellationCommand";
-import { PaymentApprovalResultDto } from "./dto/PaymentApprovalResultDto";
-import { PaymentAuthKeyResultDto } from "./dto/PaymentAuthKeyResultDto";
-import { PaymentCancellationResultDto } from "./dto/PaymentCancellationResultDto";
 import { InvalidCommandException } from "./exception/InvalidCommandException";
 import { PayPlusException } from "./exception/PayPlusException";
 import { IKcpAppService } from "./IKcpAppService";
-import { Ascii, PayPlusStatus } from "../common/constants";
-import { PaymentApprovalResultEntity } from "../domain/entity/PaymentApprovalResultEntity";
-import { PaymentAuthKeyResultEntity } from "../domain/entity/PaymentAuthKeyResultEntity";
-import { PaymentCancellationResultEntity } from "../domain/entity/PaymentCancellationResultEntity";
-import { KcpComandActuator } from "../domain/KcpCommandActuator";
-import { PaymentApprovalResultType } from "../domain/result/PaymentApprovalResultType";
-import { PaymentAuthKeyResultType } from "../domain/result/PaymentAuthKeyResultType";
-import { PaymentCancellationResultType } from "../domain/result/PaymentCancellationResultType";
-import { PaymentRequestService } from "../domain/service/PaymentRequestService";
-import { TypeOrmPaymentRequestRepository } from "../infra/repository/TypeOrmPaymentRequestRepository";
-import { PaymentRequestEntity } from "../domain/entity/PaymentRequestEntity";
-import * as hash from "object-hash";
 
 const PaymentRequestAspect = (target: Object, propertyKey: string, descriptor: PropertyDescriptor) => {
     const originalValue = descriptor.value;
 
     descriptor.value = async function(command: Command) {
-        const hashed = Invoker.getHashKey(command);
+        const key = Invoker.getHashedKey(command);
 
-        const repository = Container.get(TypeOrmPaymentRequestRepository);
-        let found: PaymentRequestEntity = await Invoker.getPaymentRequestEntity(repository, command, hashed);
+        const repository = Container.get(PaymentRequestRepository);
+
+        let found: PaymentRequestEntity = await Invoker.getPaymentRequestEntity(repository, command, key);
         let result = Invoker.getSuccessfulResult(command, found);
         if (result) {
             return result;
         }
 
-        if (!found.auth_key_results) {
-            found.auth_key_results = [];
-        }
-        if (!found.approval_results) {
-            found.approval_results = [];
-        }
-        if (!found.cancel_results) {
-            found.cancel_results = [];
+        if (!found.results) {
+            found.results = [];
         }
 console.info("LINE", 38);
-        const resultEntity = await originalValue.apply(this, [command]);
-console.info("\n\nLIN\n resultentityE", 40, resultEntity);
-        switch(command.type) {
-            case CommandType.REQUEST_AUTH_KEY: {
-                console.info("AUTH_KEY");
-                found.auth_key_results.push(resultEntity);
-                break;
-            }
-            case CommandType.PAYMENT_APPROVAL: {
-                found.approval_results.push(resultEntity);
-                break;
-            }
-            case CommandType.PAYMENT_CANCELLATION: {
-                found.cancel_results.push(resultEntity);
-                break;
-            }
-        }
-        
-console.info("LINE", 55, "results size", found.auth_key_results.length);       
+        result = await originalValue.apply(this, [command]);
+console.info("\n\nLIN\n resultentityE", 40, result);
+        found.results.push(result);
         await repository.savePaymentRequest(found);
-console.info("LINE", 57);       
-        return resultEntity;
-
-
+console.info("LINE", 57);
+        return result;
         //return Invoker.invoke(command, originalValue, this);
     }
 };
@@ -116,44 +90,39 @@ class Invoker {
     //     return resultEntity;
     // }
 
-    static getSuccessfulResult(command: Command, found: PaymentRequestEntity): PaymentAuthKeyResultEntity | PaymentApprovalResultEntity | PaymentCancellationResultEntity | undefined {
-        let result: PaymentAuthKeyResultEntity | PaymentApprovalResultEntity | PaymentCancellationResultEntity | undefined;
-        switch (command.type) {
-            case CommandType.REQUEST_AUTH_KEY: {
-                if (found.auth_key_results) {
-                    result = found.auth_key_results.find(r => r.code === PayPlusStatus.OK);
+    static getSuccessfulResult(command: Command, found: PaymentRequestEntity): PaymentAuthKeyResult | PaymentApprovalResult | PaymentCancellationResult | null {
+        if (found.results) {
+            const result = found.results.find(r => r.code === PayPlusStatus.OK);
+            if (result) {
+                switch(command.type) {
+                    case CommandType.REQUEST_AUTH_KEY: {
+                        return result as PaymentAuthKeyResult;
+                    }
+                    case CommandType.PAYMENT_APPROVAL: {
+                        return result as PaymentApprovalResult;
+                    }
+                    case CommandType.PAYMENT_CANCELLATION: {
+                        return result as PaymentAuthKeyResult;
+                    }
                 }
-                break;
-            }
-            case CommandType.PAYMENT_APPROVAL: {
-                if (found.approval_results) {
-                    result = found.approval_results.find(r => r.code === PayPlusStatus.OK);
-                }
-                break;
-            }
-            case CommandType.PAYMENT_CANCELLATION: {
-                if (found.cancel_results) {
-                    result = found.cancel_results.find(r => r.code === PayPlusStatus.OK);
-                }
-                break;
             }
         }
-        return result;
+        return null;
     }
 
-    static async getPaymentRequestEntity(repository:TypeOrmPaymentRequestRepository, command: Command, hashed: string): Promise<PaymentRequestEntity> {
-        let found: PaymentRequestEntity | undefined = await repository.getPaymentRequest(command.type, command.mode, hashed);
+    static async getPaymentRequestEntity(repository: IPaymentRequestRepository, command: Command, key: string): Promise<PaymentRequestEntity> {
+        let found: PaymentRequestEntity | undefined = await repository.getPaymentRequest(command.type, command.mode, key);
         if (!found) {
             const request = new PaymentRequestEntity();
             request.command_type = command.type;
             request.mode = command.mode;
-            request.hash = hashed;
+            request.key = key;
             found = await repository.savePaymentRequest(request);
         }
         return found;
     }
 
-    static getHashKey(command: Command): string {
+    static getHashedKey(command: Command): string {
         switch (command.constructor) {
             case AuthKeyRequestCommand: {
                 const cmd = command as AuthKeyRequestCommand;
@@ -187,32 +156,23 @@ export class KcpAppService implements IKcpAppService {
     @Inject()
     commandActuator: KcpComandActuator;
 
-    @Inject()
-    requestService: PaymentRequestService;
-
     @Inject("sentry.loggable")
     sentryLoggable: boolean;
 
-    async requestAuthKey(command: AuthKeyRequestCommand): Promise<PaymentAuthKeyResultDto> {
-        const entity: any = await this.executeCommand(command);
-        const { id, created_at, ...rest } = entity as PaymentAuthKeyResultEntity;
-        return Object.assign(new PaymentAuthKeyResultDto(), rest);
+    async requestAuthKey(command: AuthKeyRequestCommand): Promise<PaymentAuthKeyResult> {
+        return await this.executeCommand(command) as PaymentAuthKeyResult;
     }
 
-    async approvePayment(command: PaymentApprovalCommand): Promise<PaymentApprovalResultDto> {
-        const entity: any = await this.executeCommand(command);
-        const { id, created_at, ...rest } = entity as PaymentApprovalResultEntity;
-        return Object.assign(new PaymentApprovalResultDto(), rest);
+    async approvePayment(command: PaymentApprovalCommand): Promise<PaymentApprovalResult> {
+        return await this.executeCommand(command) as PaymentApprovalResult;
     }
 
-    async cancelPayment(command: PaymentCancellationCommand): Promise<PaymentCancellationResultDto> {
-        const entity: any = await this.executeCommand(command);
-        const { id, created_at, ...rest } = entity as PaymentCancellationResultEntity;
-        return Object.assign(new PaymentCancellationResultDto(), rest);
+    async cancelPayment(command: PaymentCancellationCommand): Promise<PaymentCancellationResult> {
+        return await this.executeCommand(command) as PaymentCancellationResult;
     }
 
     @PaymentRequestAspect
-    private executeCommand(command: Command): Promise<PaymentAuthKeyResultEntity | PaymentApprovalResultEntity | PaymentCancellationResultEntity> {
+    private async executeCommand(command: Command): Promise<PaymentAuthKeyResult | PaymentApprovalResult | PaymentCancellationResult> {
         return this.commandActuator.actuate(command)
             .then(output => {
                 const outputObject = {};
@@ -227,13 +187,13 @@ export class KcpAppService implements IKcpAppService {
 
                 switch (command.type) {
                     case CommandType.REQUEST_AUTH_KEY: {
-                        return PaymentAuthKeyResultEntity.parse(outputObject as PaymentAuthKeyResultType);
+                        return PaymentAuthKeyResult.parse(outputObject as PaymentAuthKeyResultType);
                     }
                     case CommandType.PAYMENT_APPROVAL: {
-                        return PaymentApprovalResultEntity.parse(outputObject as PaymentApprovalResultType);
+                        return PaymentApprovalResult.parse(outputObject as PaymentApprovalResultType);
                     }
                     case CommandType.PAYMENT_CANCELLATION: {
-                        return PaymentCancellationResultEntity.parse(outputObject as PaymentCancellationResultType);
+                        return PaymentCancellationResult.parse(outputObject as PaymentCancellationResultType);
                     }
                     default: {
                         throw new InvalidCommandException(`Unknown Command Type: ${command.type}`);

@@ -1,18 +1,7 @@
 version: "3"
 
 services:
-  # database:
-  #   container_name: ridi_kcp_api_db
-  #   image: mariadb
-  #   environment:
-  #     MYSQL_DATABASE: "${APP_DATABASE_NAME}"
-  #     MYSQL_USER: "${APP_DATABASE_USER}"
-  #     MYSQL_PASSWORD: "${APP_DATABASE_PASSWORD}"
-  #     MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-  #   command: --character-set-server=utf8 --collation-server=utf8_unicode_ci
-  #   ports:
-  #     - 3306:3306
-  database:
+  dynamo:
     container_name: ridi_kcp_api_db
     image: amazon/dynamodb-local
     ports:
@@ -27,9 +16,24 @@ services:
     image: node:lts
     volumes:
       - ./:/app
-    working_dir: /app    
+    working_dir: /app
+    environment:
+        KCP_SITE_CODE: test
+        KCP_SITE_KEY: test
+        KCP_GROUP_ID: test
+        KCP_TAX_DEDUCTION_SITE_CODE: test
+        KCP_TAX_DEDUCTION_SITE_KEY: test
+        KCP_TAX_DEDUCTION_GROUP_ID: test
+        APP_MODE: development
+        SENTRY_DSN: https://d460d631817d4b7e9d917706eea1f538@sentry.io/1307885
+        AWS_ACCESS_KEY_ID: test
+        AWS_SECRET_ACCESS_KEY: test
+        AWS_REGION: ap-northeast-2
+        AWS_LOG_GROUP: test.ridi-kcp.api
+        AWS_LOG_STREAM_NAME: app
+        AWS_DYNAMO_DB_ENDPOINT: http://dynamo:8000
     ports:
       - 3000:3000
-    command: npm run dev
     links:
-      - database
+      - dynamo
+    command: npm run dev
