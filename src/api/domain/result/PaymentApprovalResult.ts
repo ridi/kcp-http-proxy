@@ -1,8 +1,8 @@
-import { PayPlusStatus } from "../../common/constants";
-import { PaymentApprovalResultType } from "../../domain/result/PaymentApprovalResultType";
 import { attribute } from "@aws/dynamodb-data-mapper-annotations";
 import { IsBoolean, IsNumber, IsString } from "class-validator";
 import { JSONSchema } from "class-validator-jsonschema";
+import { PayPlusStatus } from "../../common/constants";
+import { PaymentApprovalResultType } from "../../domain/result/PaymentApprovalResultType";
 import { AbstractPaymentResult } from "./AbstractPaymentResult";
 
 @JSONSchema({ description: "결제 요청 결과" })
@@ -10,6 +10,7 @@ export class PaymentApprovalResult extends AbstractPaymentResult {
     static parse(output: PaymentApprovalResultType): PaymentApprovalResult {
         const result: PaymentApprovalResult = new PaymentApprovalResult();
         result.code = output.res_cd;
+        result.is_success = result.code === PayPlusStatus.OK;
         result.message = output.res_msg;
         result.en_message = output.res_en_msg;
         result.trace_no = output.trace_no;
@@ -24,28 +25,27 @@ export class PaymentApprovalResult extends AbstractPaymentResult {
         result.mall_taxno = output.mall_taxno;
         result.ca_order_id = output.ca_order_id;
         result.tno = output.tno;
-        result.amount = parseInt(output.amount || "0");
-        result.card_amount = parseInt(output.card_mny || "0");
-        result.coupon_amount = parseInt(output.coupon_mny || "0");
+        result.amount = parseInt(output.amount || "0") as number;
+        result.card_amount = <number>parseInt(output.card_mny || "0");
+        result.coupon_amount = <number>parseInt(output.coupon_mny || "0");
         result.is_escrow = (output.escw_yn || "N") === "N";
         result.van_code = output.van_cd;
         result.app_time = output.app_time;
         result.van_app_time = output.van_apptime;
         result.app_no = output.app_no;
         result.bizx_no = output.bizx_numb;
-        result.quota = parseInt(output.quota || "0");
+        result.quota = <number>parseInt(output.quota || "0");
         result.is_interest_free = (output.noinf || "N") === "Y";
         result.pg_txid = output.pg_txid;
         result.tax_flag = output.res_tax_flag;
-        result.tax_amount = parseInt(output.res_tax_mny || "0");
-        result.tax_free_amount = parseInt(output.res_free_mny || "0");
-        result.vat_amount = parseInt(output.res_vat_mny || "0");
+        result.tax_amount = <number>parseInt(output.res_tax_mny || "0");
+        result.tax_free_amount = <number>parseInt(output.res_free_mny || "0");
+        result.vat_amount = <number>parseInt(output.res_vat_mny || "0");
         result.is_partial_cancel = (output.partcanc_yn || "N") === "Y";
         result.card_bin_type_01 = output.card_bin_type_01;
         result.card_bin_type_02 = output.card_bin_type_02;
         result.card_bin_bank_code = output.card_bin_bank_cd;
         result.join_code = output.join_cd;
-        result.is_success = result.code === PayPlusStatus.OK;
         return result;
     }
 
@@ -161,7 +161,7 @@ export class PaymentApprovalResult extends AbstractPaymentResult {
 
     @JSONSchema({ description: "할부 개월(0: 일시불)", format: "0~12" })
     @IsNumber()
-    @attribute({ unwrapNumbers: false })
+    @attribute()
     quota: number;
 
     @JSONSchema({ description: "무이자 할부 결제 여부" })

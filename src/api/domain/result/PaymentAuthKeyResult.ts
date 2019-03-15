@@ -10,6 +10,7 @@ export class PaymentAuthKeyResult extends AbstractPaymentResult {
     static parse(output: PaymentAuthKeyResultType): PaymentAuthKeyResult {
         const result = new PaymentAuthKeyResult();
         result.code = output.res_cd;
+        result.is_success = result.code === PayPlusStatus.OK;
         result.message = output.res_msg;
         result.card_code = output.card_cd;
         result.van_tx_id = output.van_tx_id;
@@ -17,7 +18,6 @@ export class PaymentAuthKeyResult extends AbstractPaymentResult {
         result.batch_key = output.batch_key;
         result.join_code = output.join_cd;
         result.card_name = output.card_name;
-        result.is_success = result.code === PayPlusStatus.OK;
         return result;
     }
 

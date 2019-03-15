@@ -1,12 +1,8 @@
-import { NumberValue } from "@aws/dynamodb-auto-marshaller";
 import * as hash from "object-hash";
 import { Container } from "typedi";
 import { PayPlusStatus } from "../../common/constants";
 import { IPaymentRequestRepository } from "../../domain/entity/IPaymentRequestRepository";
 import { PaymentRequestEntity } from "../../domain/entity/PaymentRequestEntity";
-import { PaymentApprovalResult } from "../../domain/result/PaymentApprovalResult";
-import { PaymentAuthKeyResult } from "../../domain/result/PaymentAuthKeyResult";
-import { PaymentCancellationResult } from "../../domain/result/PaymentCancellationResult";
 import { PaymentRequestRepository } from "../../infra/repository/PaymentRequestRepository";
 import { AuthKeyRequestCommand } from "../command/AuthKeyRequestCommand";
 import { Command } from "../command/Command";
@@ -23,7 +19,7 @@ export const PaymentRequestAspect = (target: Object, propertyKey: string, descri
     }
 };
 
-class PaymentRequestInvoker {    
+class PaymentRequestInvoker {
     static async invoke(command: Command, fn: any, context: any): Promise<any> {
         const hashId = this.hashId(command);
 
@@ -32,36 +28,45 @@ class PaymentRequestInvoker {
         let found: PaymentRequestEntity = await this.getPaymentRequestEntity(repository, hashId);
         let result = this.findSuccessfulResult(command, found);
         if (result) {
+            delete result.created_at;
             return result;
         }
 
-        if (!found.results) {
-            found.results = [];
-        }
         result = await fn.apply(context, [command]);
-        found.results.push(result);
+        
+        let results = [];
+        switch (command.type) {
+            case CommandType.REQUEST_AUTH_KEY:
+                results = found.auth_key_results;
+                break;
+            case CommandType.PAYMENT_APPROVAL:
+                results = found.approval_results;
+                break;
+            case CommandType.PAYMENT_CANCELLATION:
+                results = found.cancellation_results;
+                break;
+        }
+        results.push(result);
+
         await repository.savePaymentRequest(found);
         return result;
     }
 
     static findSuccessfulResult(command: Command, found: PaymentRequestEntity): any {
-        if (found.results) {
-            const result = found.results.find(r => r.code === PayPlusStatus.OK);
-            if (result) {
-                return this.unmarshallResult(result);
-            }
+        let results = [];
+        switch (command.type) {
+            case CommandType.REQUEST_AUTH_KEY:
+                results = found.auth_key_results;
+                break;
+            case CommandType.PAYMENT_APPROVAL:
+                results = found.approval_results;
+                break;
+            case CommandType.PAYMENT_CANCELLATION:
+                results = found.cancellation_results;
+                break;
         }
-        return null;
-    }
 
-    static unmarshallResult(result: any): any {
-        const keys = Object.keys(result);
-        for (const key of keys) {
-            if (result[key] instanceof NumberValue) {
-                result[key] = (result[key] as NumberValue).valueOf();
-            }
-        }
-        return result;
+        return results.find(r => r.code === PayPlusStatus.OK) || null;
     }
 
     static async getPaymentRequestEntity(repository: IPaymentRequestRepository, id: string): Promise<PaymentRequestEntity> {
@@ -70,7 +75,16 @@ class PaymentRequestInvoker {
             const request = new PaymentRequestEntity();
             request.id = id;
             found = await repository.savePaymentRequest(request);
-            found.results = [];
+            
+        }
+        if (!found.auth_key_results) {
+            found.auth_key_results = [];
+        }
+        if (!found.approval_results) {
+            found.approval_results = [];
+        }
+        if (!found.cancellation_results) {
+            found.cancellation_results = [];
         }
         return found;
     }

@@ -8,16 +8,16 @@ export abstract class AbstractPaymentResult {
     @attribute()
     code: string;
 
-    @JSONSchema({ description: "KCP 결과 메시지" })
-    @IsString()
-    @attribute()
-    message: string;
-
     @JSONSchema({ description: "KCP 결과 성공 여부" })
     @IsBoolean()
     @attribute()
     is_success: boolean;
 
+    @JSONSchema({ description: "KCP 결과 메시지" })
+    @IsString()
+    @attribute()
+    message: string;
+    
     @rangeKey({ defaultProvider: () => new Date() })
     created_at?: Date;
 }

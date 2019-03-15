@@ -9,8 +9,7 @@ export class PaymentRequestRepository implements IPaymentRequestRepository {
     mapper: DataMapper;
     
     async getPaymentRequestById(id: string): Promise<PaymentRequestEntity | null> {
-        return this.mapper.get(Object.assign(new PaymentRequestEntity, { id: id })).then(fetched => {
-                console.info("\nFetced:", fetched);
+        return this.mapper.get(Object.assign(new PaymentRequestEntity, { id: id })).then(fetched => {                
                 return fetched;
             }).catch(err => {
                 if (err.name == ItemNotFoundException.name) {
@@ -26,7 +25,7 @@ export class PaymentRequestRepository implements IPaymentRequestRepository {
         if (saved) {
             return saved;
         }
-        
+
         throw "Failed to persist";
     }
 }

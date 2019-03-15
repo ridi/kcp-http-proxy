@@ -10,6 +10,7 @@ export class PaymentCancellationResult extends AbstractPaymentResult {
     static parse(output: PaymentCancellationResultType): PaymentCancellationResult {
         const result: PaymentCancellationResult = new PaymentCancellationResult();
         result.code = output.res_cd;
+        result.is_success = result.code === PayPlusStatus.OK;
         result.message = output.res_msg;
         result.en_message = output.res_en_msg;
         result.trace_no = output.trace_no;
@@ -23,9 +24,9 @@ export class PaymentCancellationResult extends AbstractPaymentResult {
         result.mall_taxno = output.mall_taxno;
         result.ca_order_id = output.ca_order_id;
         result.tno = output.tno;
-        result.amount = parseInt(output.amount || "0");
-        result.card_amount = parseInt(output.card_mny || "0");
-        result.coupon_amount = parseInt(output.coupon_mny || "0");
+        result.amount = <number>parseInt(output.amount || "0");
+        result.card_amount = <number>parseInt(output.card_mny || "0");
+        result.coupon_amount = <number>parseInt(output.coupon_mny || "0");
         result.is_escrow = (output.escw_yn || "N") === "N";
         result.cancel_gubun = output.canc_gubn;
         result.van_code = output.van_cd;
@@ -34,10 +35,9 @@ export class PaymentCancellationResult extends AbstractPaymentResult {
         result.cancel_time = output.canc_time;
         result.app_no = output.app_no;
         result.bizx_no = output.bizx_numb;
-        result.quota = parseInt(output.quota || "0");
+        result.quota = <number>parseInt(output.quota || "0");
         result.is_interest_free = (output.noinf || "N") === "Y";
         result.pg_txid = output.pg_txid;
-        result.is_success = result.code === PayPlusStatus.OK;
         return result;
     }
 

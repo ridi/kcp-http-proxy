@@ -1,8 +1,7 @@
-import { PaymentRequestEntity } from "./api/domain/entity/PaymentRequestEntity";
 import { DataMapper } from "@aws/dynamodb-data-mapper";
 import { DynamoDB } from "aws-sdk";
 import { Container } from "typedi";
-import { Marshaller } from "@aws/dynamodb-auto-marshaller";
+import { PaymentRequestEntity } from "./api/domain/entity/PaymentRequestEntity";
 
 export class Database {
     static async connect(): Promise<void> {
@@ -10,9 +9,6 @@ export class Database {
             region: process.env.AWS_REGION || "ap-northeast-2",
             endpoint: process.env.AWS_DYNAMO_DB_ENDPOINT || "http://dynamo:8000"
         });
-
-        const marshaller = new Marshaller({ unwrapNumbers: true });
-        Container.set(Marshaller, marshaller);
 
         const mapper = new DataMapper({
             client: client,
