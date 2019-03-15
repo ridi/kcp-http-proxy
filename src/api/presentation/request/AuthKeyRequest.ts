@@ -1,6 +1,6 @@
+import { KcpRequest } from "@app/presentation/request/KcpRequest";
 import { Matches } from "class-validator";
 import { JSONSchema } from "class-validator-jsonschema";
-import { KcpRequest } from "../../presentation/request/KcpRequest";
 
 @JSONSchema({
     description: "결제를 위한 카드 인증(배치)키 요청",

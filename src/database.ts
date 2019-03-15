@@ -1,7 +1,7 @@
+import { PaymentRequestEntity } from "@app/domain/entity/PaymentRequestEntity";
 import { DataMapper } from "@aws/dynamodb-data-mapper";
 import { DynamoDB } from "aws-sdk";
 import { Container } from "typedi";
-import { PaymentRequestEntity } from "./api/domain/entity/PaymentRequestEntity";
 
 export class Database {
     static async connect(): Promise<void> {

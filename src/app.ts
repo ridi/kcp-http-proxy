@@ -1,3 +1,4 @@
+import { Config, Mode, TestConfig } from "@app/common/config";
 import * as Sentry from "@sentry/node";
 import * as bodyParser from "body-parser";
 import * as Logger from "bunyan";
@@ -12,7 +13,6 @@ import { createExpressServer, getMetadataArgsStorage, useContainer } from "routi
 import { routingControllersToSpec } from "routing-controllers-openapi";
 import * as swaggerUi from "swagger-ui-express";
 import { Container } from "typedi";
-import { Config, Mode, TestConfig } from "./api/common/config";
 
 export class App {
     static init(): Application {

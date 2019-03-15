@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as mocha from "mocha";
 import * as path from "path";
+require("module-alias/register");
 
 const suite = new mocha();
 

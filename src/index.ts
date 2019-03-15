@@ -1,7 +1,10 @@
+require("module-alias/register");
+
 import { Application } from "express";
 import "reflect-metadata";
-import { App } from "./app";
-import { Database } from "./database";
+import { App } from "@root/app";
+import { Database } from "@root/database";
+
 
 (async () => {
     const app: Application = App.init();

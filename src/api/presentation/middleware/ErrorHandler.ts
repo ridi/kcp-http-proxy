@@ -1,9 +1,9 @@
+import { InvalidCommandException } from "@app/application/exception/InvalidCommandException";
+import { PayPlusException } from "@app/application/exception/PayPlusException";
+import { InvalidRequestException } from "@app/presentation/request/InvalidRequestException";
 import * as Logger from "bunyan";
 import { ExpressErrorMiddlewareInterface, HttpError, Middleware } from "routing-controllers";
 import { Inject } from "typedi";
-import { InvalidCommandException } from "../../application/exception/InvalidCommandException";
-import { PayPlusException } from "../../application/exception/PayPlusException";
-import { InvalidRequestException } from "../../presentation/request/InvalidRequestException";
 
 @Middleware({ type: "after" })
 export class ErrorHandler implements ExpressErrorMiddlewareInterface {

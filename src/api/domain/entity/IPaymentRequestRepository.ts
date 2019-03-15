@@ -1,4 +1,4 @@
-import { PaymentRequestEntity } from "../../domain/entity/PaymentRequestEntity";
+import { PaymentRequestEntity } from "@app/domain/entity/PaymentRequestEntity";
 
 export interface IPaymentRequestRepository {
     getPaymentRequestById(id: string): Promise<PaymentRequestEntity | null>;

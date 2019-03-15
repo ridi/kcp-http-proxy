@@ -1,7 +1,7 @@
+import { IPaymentRequestRepository } from "@app/domain/entity/IPaymentRequestRepository";
+import { PaymentRequestEntity } from "@app/domain/entity/PaymentRequestEntity";
 import { DataMapper, ItemNotFoundException } from "@aws/dynamodb-data-mapper";
 import { Inject, Service } from "typedi";
-import { IPaymentRequestRepository } from "../../domain/entity/IPaymentRequestRepository";
-import { PaymentRequestEntity } from "../../domain/entity/PaymentRequestEntity";
 
 @Service()
 export class PaymentRequestRepository implements IPaymentRequestRepository {

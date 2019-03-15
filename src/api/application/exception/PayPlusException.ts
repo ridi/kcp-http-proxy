@@ -1,4 +1,3 @@
-
 export class PayPlusException extends Error {
     readonly code: string;
     

@@ -1,9 +1,9 @@
+import { PayPlusStatus } from "@app/common/constants";
+import { AbstractPaymentResult } from "@app/domain/result/AbstractPaymentResult";
+import { PaymentApprovalResultType } from "@app/domain/result/PaymentApprovalResultType";
 import { attribute } from "@aws/dynamodb-data-mapper-annotations";
 import { IsBoolean, IsNumber, IsString } from "class-validator";
 import { JSONSchema } from "class-validator-jsonschema";
-import { PayPlusStatus } from "../../common/constants";
-import { PaymentApprovalResultType } from "../../domain/result/PaymentApprovalResultType";
-import { AbstractPaymentResult } from "./AbstractPaymentResult";
 
 @JSONSchema({ description: "결제 요청 결과" })
 export class PaymentApprovalResult extends AbstractPaymentResult {

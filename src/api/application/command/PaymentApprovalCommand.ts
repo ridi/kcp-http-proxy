@@ -1,6 +1,6 @@
-import { Command } from "../command/Command";
-import { CommandType } from "../command/CommandType";
-import { Mode } from "../../common/config";
+import { Command } from "@app/application/command/Command";
+import { CommandType } from "@app/application/command/CommandType";
+import { Mode } from "@app/common/config";
 
 export class PaymentApprovalCommand extends Command {
     readonly batch_key: string;//발급받은 배치키    

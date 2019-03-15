@@ -1,9 +1,9 @@
+import { CommandType } from "../../application/command/CommandType";
+import { PaymentApprovalResult } from "../../domain/result/PaymentApprovalResult";
+import { PaymentAuthKeyResult } from "../../domain/result/PaymentAuthKeyResult";
+import { PaymentCancellationResult } from "../../domain/result/PaymentCancellationResult";
 import { embed } from "@aws/dynamodb-data-mapper";
 import { attribute, hashKey, table } from "@aws/dynamodb-data-mapper-annotations";
-import { CommandType } from "../../application/command/CommandType";
-import { PaymentApprovalResult } from "../result/PaymentApprovalResult";
-import { PaymentAuthKeyResult } from "../result/PaymentAuthKeyResult";
-import { PaymentCancellationResult } from "../result/PaymentCancellationResult";
 
 @table("payment_requests")
 export class PaymentRequestEntity {
