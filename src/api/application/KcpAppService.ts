@@ -1,10 +1,6 @@
-import { NumberValue } from "@aws/dynamodb-auto-marshaller";
 import * as Sentry from "@sentry/node";
-import * as hash from "object-hash";
-import { Container, Inject, Service } from "typedi";
+import { Inject, Service } from "typedi";
 import { Ascii, PayPlusStatus } from "../common/constants";
-import { IPaymentRequestRepository } from "../domain/entity/IPaymentRequestRepository";
-import { PaymentRequestEntity } from "../domain/entity/PaymentRequestEntity";
 import { KcpComandActuator } from "../domain/KcpCommandActuator";
 import { PaymentApprovalResult } from "../domain/result/PaymentApprovalResult";
 import { PaymentApprovalResultType } from "../domain/result/PaymentApprovalResultType";
@@ -12,7 +8,7 @@ import { PaymentAuthKeyResult } from "../domain/result/PaymentAuthKeyResult";
 import { PaymentAuthKeyResultType } from "../domain/result/PaymentAuthKeyResultType";
 import { PaymentCancellationResult } from "../domain/result/PaymentCancellationResult";
 import { PaymentCancellationResultType } from "../domain/result/PaymentCancellationResultType";
-import { PaymentRequestRepository } from "../infra/repository/PaymentRequestRepository";
+import { PaymentRequestAspect } from "./aop/PaymentRequestAspect";
 import { AuthKeyRequestCommand } from "./command/AuthKeyRequestCommand";
 import { Command } from "./command/Command";
 import { CommandType } from "./command/CommandType";
@@ -21,152 +17,6 @@ import { PaymentCancellationCommand } from "./command/PaymentCancellationCommand
 import { InvalidCommandException } from "./exception/InvalidCommandException";
 import { PayPlusException } from "./exception/PayPlusException";
 import { IKcpAppService } from "./IKcpAppService";
-
-const PaymentRequestAspect = (target: Object, propertyKey: string, descriptor: PropertyDescriptor) => {
-    const originalValue = descriptor.value;
-
-    descriptor.value = async function(command: Command) {
-        const key = Invoker.getHashedKey(command);
-
-        const repository = Container.get(PaymentRequestRepository);
-
-        let found: PaymentRequestEntity = await Invoker.getPaymentRequestEntity(repository, key);
-        let result = Invoker.getSuccessfulResult(command, found);
-        if (result) {
-            console.info("\nCache Hit!\n");            
-            return result;
-        }
-
-        if (!found.results) {
-            found.results = [];
-        }
-console.info("LINE", 38);
-        result = await originalValue.apply(this, [command]);
-console.info("\n\nLIN\n resultentityE", 40, result);
-        found.results.push(result);
-        await repository.savePaymentRequest(found);
-console.info("LINE", 57);
-        return result;
-        //return Invoker.invoke(command, originalValue, this);
-    }
-};
-
-class Invoker {    
-    // static async invoke(command: Command, fn: any, context: any): Promise<any> {
-    //     const hashed = Invoker.getHashKey(command);
-
-    //     const repository = Container.get(TypeOrmPaymentRequestRepository);
-    //     let found: PaymentRequestEntity = await Invoker.getPaymentRequestEntity(repository, command, hashed);
-    //     let result = Invoker.getSuccessfulResult(command, found);
-        
-    //     if (result) {
-    //         return result;
-    //     }
-
-    //     if (!found.auth_key_results) {
-    //         found.auth_key_results = [];
-    //     }
-    //     if (!found.approval_results) {
-    //         found.approval_results = [];
-    //     }
-    //     if (!found.cancel_results) {
-    //         found.cancel_results = [];
-    //     }
-
-    //     const resultEntity = await fn.apply(context, [command]);
-    //     switch(command.type) {
-    //         case CommandType.REQUEST_AUTH_KEY: {
-    //             found.auth_key_results.push(resultEntity);
-    //             break;
-    //         }
-    //         case CommandType.PAYMENT_APPROVAL: {
-    //             found.approval_results.push(resultEntity);
-    //             break;
-    //         }
-    //         case CommandType.PAYMENT_CANCELLATION: {
-    //             found.cancel_results.push(resultEntity);
-    //             break;
-    //         }
-    //     }
-    //     await repository.savePaymentRequest(found);
-    //     return resultEntity;
-    // }
-
-    static getSuccessfulResult(command: Command, found: PaymentRequestEntity): any {
-        if (found.results) {
-            const result = found.results.find(r => r.code === PayPlusStatus.OK);
-            if (result) {
-                const keys = Object.keys(result);
-                for (const key of keys) {
-                    if (result[key] instanceof NumberValue) {
-                        result[key] = (result[key] as NumberValue).valueOf();
-                    }
-                }
-                console.info("Result Found....");
-                switch (command.type)  {
-                    case CommandType.REQUEST_AUTH_KEY: {
-                        return Object.assign(new PaymentAuthKeyResult(), result);
-                    }
-                    case CommandType.PAYMENT_APPROVAL: {
-                        return Object.assign(new PaymentApprovalResult(), result);
-                    }
-                    case CommandType.PAYMENT_CANCELLATION: {
-                        return Object.assign(new PaymentCancellationResult(), result);
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    static async getPaymentRequestEntity(repository: IPaymentRequestRepository, key: string): Promise<PaymentRequestEntity> {
-        let found: PaymentRequestEntity | null = await repository.getPaymentRequestById(key);
-        if (!found) {
-            const request = new PaymentRequestEntity();
-            request.id = key;
-            found = await repository.savePaymentRequest(request);
-            found.results = [];
-        }
-        return found;
-    }
-
-    static getHashedKey(command: Command): string {
-        switch (command.constructor) {
-            case AuthKeyRequestCommand: {
-                const cmd = command as AuthKeyRequestCommand;
-                return hash({
-                    command_type: cmd.type,
-                    mode: cmd.mode,
-                    card_number: cmd.card_number,
-                    card_expiry_date: cmd.card_expiry_date,
-                    card_tax_no: cmd.card_tax_no,
-                    card_password: cmd.card_password
-                });
-            }
-            case PaymentApprovalCommand: {
-                const cmd = command as PaymentApprovalCommand;
-                return hash({
-                    command_type: cmd.type,
-                    mode: cmd.mode,
-                    bill_key: cmd.batch_key,
-                    order_no: cmd.order_id,
-                    product_amount: cmd.goods_price
-                });
-            }
-            case PaymentCancellationCommand: {
-                const cmd = command as PaymentCancellationCommand;
-                return hash({
-                    command_type: cmd.type,
-                    mode: cmd.mode,
-                    tno: cmd.tno
-                });
-            }
-            default: {
-                throw new InvalidCommandException(`Unknown Command Type: ${command.constructor}`);
-            }
-        }
-    }
-}
 
 @Service()
 export class KcpAppService implements IKcpAppService {
