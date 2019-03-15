@@ -1,80 +1,63 @@
 import * as chai from "chai";
-import * as fs from "fs";
-import * as jwt from "jsonwebtoken";
-import * as path from "path";
+import { Application } from "express";
 import { Mode } from "../../api/common/config";
-import * as app from "../../index";
+import { App } from "../../app";
+import { Database } from "../../database";
 
 chai.use(require("chai-http"));
 
-const cert: Buffer = fs.readFileSync(path.resolve(__dirname, "../../resources/ridi-pay_to_ridi-kcp.key"));
-
-const today: Date = new Date();
-const lastYear: Date = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
-const nextYear: Date = new Date(today.getFullYear() + 1, today.getMonth(), today.getDate());
-
-const SHIHANCARD_MOCK_REQUEST = {
-    card_no: "4499140000000000",
-    card_expiry_date: "7912",
-    card_tax_no: "000101",
-    card_password: "00"
-};
-
-describe("Authorization Tests", () => {
-    const EXPIRED_JWT: string = jwt.sign(
-        {
-            iss: "ridi-pay",
-            aud: "ridi-kcp",
-            exp: Math.ceil(lastYear.getTime() / 1000)
-        },
-        cert,
-        {
-            algorithm: "RS256"
-        }
-    );
-
-    it("만료된 JWT 401 상태 반환", (done) => {
-        chai.request(app)
-            .post("/kcp/payments/auth-key")
-            .set("Authorization", `Bearer ${EXPIRED_JWT}`)
-            .send(SHIHANCARD_MOCK_REQUEST)
-            .end((_, res) => {
-                chai.expect(res).to.have.status(401);
-                chai.expect(res.body.is_success).to.be.false;
-                chai.expect(res.body.message).to.include("Failed to check authorization");
-                return done();
-            });
-    });
+const app: Application = App.init();
+        
+// run server        
+const port = process.env.APP_PORT || 3000;        
+app.listen(port, () => {
+    console.log(`listening on port ${port}`);
 });
 
-describe("Payments Tests", () => {
-    const TEST_JWT: string = jwt.sign(
-        {
-            iss: "ridi-pay",
-            aud: "ridi-kcp",
-            exp: Math.ceil(nextYear.getTime() / 1000)
+const given = {
+    credit_card: {// shinhan card mock
+        card_no: "4499140000000000",
+        card_expiry_date: "7912",
+        card_tax_no: "000101",
+        card_password: "00"
+    },
+    order: {
+        id: `t${new Date().getTime()}`,
+        product: {
+            name: "테스트 상품",
+            amount: 10000
         },
-        cert,
-        {
-            algorithm: "RS256"
+        user: {
+            name: "테스터",
+            email: "payment-test@ridi.com"
         }
-    );
+    }
+};
 
-    let TEST_AUTH_KEY: string;
-    let TEST_KCP_TNO: string;
+const stored = {
+    auth_key: null,
+    tno: null,
+};
 
-    const TEST_ORDER_NO: string = `TEST${new Date().getTime()}`;
-    const TEST_PRODUCT_AMOUNT: number = 10000;
+describe("payments controller test", async () => {
+    before("connect db", async () => {
+        // connect database
+        await Database.connect().then(() => {
+            console.info("DB connected");
+        }).catch(err => {
+            console.error(err);
+            process.exit(0);
+        });
+    });
 
     it("배치키 요청 201 상태 반환", (done) => {
         chai.request(app)
             .post("/kcp/payments/auth-key")
-            .set("Authorization", `Bearer ${TEST_JWT}`)
             .send({
-                card_no: SHIHANCARD_MOCK_REQUEST.card_no,
-                card_expiry_date: SHIHANCARD_MOCK_REQUEST.card_expiry_date,
-                card_tax_no: SHIHANCARD_MOCK_REQUEST.card_tax_no,
-                card_password: SHIHANCARD_MOCK_REQUEST.card_password,
+                card_no: given.credit_card.card_no,
+                card_expiry_date: given.credit_card.card_expiry_date,
+                card_tax_no: given.credit_card.card_tax_no,
+                card_password: given.credit_card.card_password,
                 mode: Mode.DEV
             })
             .end((_, res) => {
@@ -85,43 +68,42 @@ describe("Payments Tests", () => {
                 chai.expect(res.body.card_name).to.equal("신한카드");
                 chai.expect(res.body.batch_key).to.match(/[0-9A-Za-z]+/);
 
-                TEST_AUTH_KEY = res.body.batch_key;
+                stored.auth_key = res.body.batch_key;
                 return done();
             });
     });
 
-    it("결제 요청 200 상태 반환", (done) => {        
-        let PAYMENT_MOCK_REQUEST = {
-            bill_key: TEST_AUTH_KEY,
-            order_no: TEST_ORDER_NO,
-            product_name: "테스트 상품",
-            product_amount: TEST_PRODUCT_AMOUNT,
-            buyer_name: "테스터",
-            buyer_email: "payment-test@ridi.com",
+    it("결제 요청 200 상태 반환", (done) => {
+        let request = {
+            bill_key: stored.auth_key,
+            order_no: given.order.id,
+            product_name: given.order.product.name,
+            product_amount: given.order.product.amount,
+            buyer_name: given.order.user.name,
+            buyer_email: given.order.user.email,
             mode: Mode.DEV
         };
         
         chai.request(app)
             .post("/kcp/payments")
-            .set("Authorization", `Bearer ${TEST_JWT}`)
-            .send(PAYMENT_MOCK_REQUEST)
+            .send(request)
             .end((_, res) => {
                 chai.expect(res).to.have.status(200);     
                 chai.expect(res.body.code).to.equal("0000");
                 chai.expect(res.body.is_success).to.be.true;
                 chai.expect(res.body.pay_method).to.equal("PACA");
-                chai.expect(res.body.order_no).to.equal(TEST_ORDER_NO);
+                chai.expect(res.body.order_no).to.equal(given.order.id);
                 chai.expect(res.body.card_code).to.equal("CCLG");
                 chai.expect(res.body.card_name).to.equal("신한카드");
                 chai.expect(res.body.acqu_code).to.equal("CCLG");
                 chai.expect(res.body.acqu_name).to.equal("신한카드");
-                chai.expect(res.body.card_no).to.equal(SHIHANCARD_MOCK_REQUEST.card_no);
+                chai.expect(res.body.card_no).to.equal(given.credit_card.card_no);
                 chai.expect(res.body.mcht_taxno).to.match(/[0-9]+/);
                 chai.expect(res.body.mall_taxno).to.match(/[0-9]+/);
-                chai.expect(res.body.ca_order_id).to.equal(TEST_ORDER_NO);
+                chai.expect(res.body.ca_order_id).to.equal(given.order.id);
                 chai.expect(res.body.tno).to.match(/[0-9]+/);
-                chai.expect(res.body.amount).to.equal(PAYMENT_MOCK_REQUEST.product_amount);
-                chai.expect(res.body.card_amount).to.equal(PAYMENT_MOCK_REQUEST.product_amount);
+                chai.expect(res.body.amount).to.equal(request.product_amount);
+                chai.expect(res.body.card_amount).to.equal(request.product_amount);
                 chai.expect(res.body.coupon_amount).to.equal(0);
                 chai.expect(res.body.is_escrow).to.be.true;
                 chai.expect(res.body.van_code).to.equal("VNKC");
@@ -134,15 +116,14 @@ describe("Payments Tests", () => {
                 chai.expect(res.body.vat_amount).to.equal(910);
                 chai.expect(res.body.is_partial_cancel).to.be.true;
 
-                TEST_KCP_TNO = res.body.tno;
+                stored.tno = res.body.tno;
                 return done();
             });
     });
     
     it("결제 취소 200 상태 반환", (done) => {
         chai.request(app)
-            .del(`/kcp/payments/${TEST_KCP_TNO}`)
-            .set("Authorization", `Bearer ${TEST_JWT}`)
+            .del(`/kcp/payments/${stored.tno}`)
             .send({
                 reason: "결제 취소 테스트",
                 mode: Mode.DEV
@@ -152,17 +133,17 @@ describe("Payments Tests", () => {
                 chai.expect(res.body.code).to.equal("0000");
                 chai.expect(res.body.is_success).to.be.true;
                 chai.expect(res.body.pay_method).to.equal("PACA");
-                chai.expect(res.body.order_no).to.equal(TEST_ORDER_NO);
+                chai.expect(res.body.order_no).to.equal(given.order.id);
                 chai.expect(res.body.card_code).to.equal("CCLG");
                 chai.expect(res.body.card_name).to.equal("신한카드");
                 chai.expect(res.body.acqu_code).to.equal("CCLG");
                 chai.expect(res.body.acqu_name).to.equal("신한카드");
                 chai.expect(res.body.mcht_taxno).to.match(/[0-9]+/);
                 chai.expect(res.body.mall_taxno).to.match(/[0-9]+/);
-                chai.expect(res.body.ca_order_id).to.equal(TEST_ORDER_NO);
-                chai.expect(res.body.tno).to.equal(TEST_KCP_TNO);
-                chai.expect(res.body.amount).to.equal(TEST_PRODUCT_AMOUNT);
-                chai.expect(res.body.card_amount).to.equal(TEST_PRODUCT_AMOUNT);
+                chai.expect(res.body.ca_order_id).to.equal(given.order.id);
+                chai.expect(res.body.tno).to.equal(stored.tno);
+                chai.expect(res.body.amount).to.equal(given.order.product.amount);
+                chai.expect(res.body.card_amount).to.equal(given.order.product.amount);
                 chai.expect(res.body.coupon_amount).to.equal(0);
                 chai.expect(res.body.is_escrow).to.be.true;
                 chai.expect(res.body.cancel_gubun).to.equal("B");
@@ -175,4 +156,5 @@ describe("Payments Tests", () => {
                 return done();
             });
     });
-});
+}).timeout(10000);
+

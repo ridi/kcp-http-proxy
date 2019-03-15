@@ -1,19 +1,23 @@
-import * as dotenv from "dotenv";
+import { Application } from "express";
 import "reflect-metadata";
 import { App } from "./app";
 import { Database } from "./database";
-// load .env
-dotenv.config();
 
-const app = App.init();
-const PORT = process.env.PORT || 3000;
-const server = app.listen(PORT, () => {
-    console.log(`listening on port ${PORT}`);
-});
+(async () => {
+    const app: Application = App.init();
+    
+    // run server        
+    const port = process.env.APP_PORT || 3000;        
+    const server = app.listen(port, () => {
+        console.log(`listening on port ${port}`);
+    });
 
-Database.connect().then(() => {
-    console.info("DB connected");
-}).catch(err => {
-    console.error(err);
-    server.close();
-})
+    // connect database
+    await Database.connect().then(() => {
+        console.info("DB connected");
+        module.exports = app;
+    }).catch(err => {
+        console.error(err);
+        server.close();
+    });
+})();

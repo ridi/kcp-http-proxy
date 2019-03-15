@@ -1,3 +1,3 @@
 test:
-	docker-compose -f docker-compose.test.yml up
-	docker stop ridi_kcp_api | xargs docker rm
+	docker-compose -f docker-compose.test.yml up --exit-code-from application
+	docker-compose -f docker-compose.test.yml down

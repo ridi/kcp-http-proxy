@@ -4,6 +4,7 @@ import * as Logger from "bunyan";
 import * as createCloudWatchStream from "bunyan-cloudwatch";
 import { getFromContainer, MetadataStorage } from "class-validator";
 import { validationMetadatasToSchemas } from "class-validator-jsonschema";
+import * as dotenv from "dotenv";
 import { Application } from "express";
 import * as path from "path";
 import "reflect-metadata";
@@ -15,6 +16,8 @@ import { Config, Mode, TestConfig } from "./api/common/config";
 
 export class App {
     static init(): Application {
+        // load .env
+        dotenv.config();
         // enable di container for controller
         useContainer(Container);
         // logger and sentry
@@ -39,7 +42,8 @@ export class App {
         app.use(bodyParser.json());
         app.use(bodyParser.urlencoded({
             extended: false
-        }));
+        }));        
+
         return app;
     }
 
@@ -69,11 +73,13 @@ export class App {
         }));
 
         // Sentry
-        Sentry.init({
-            dsn: process.env.SENTRY_DSN,
-            environment: isProduction ? "prod": "test" 
-        });
         Container.set("sentry.loggable", isProduction);
+        if (isProduction) {
+            Sentry.init({
+                dsn: process.env.SENTRY_DSN,
+                environment: isProduction ? "prod": "test" 
+            });
+        }
     }
 
     /**

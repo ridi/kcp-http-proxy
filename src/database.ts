@@ -7,7 +7,7 @@ export class Database {
     static async connect(): Promise<void> {
         const client = new DynamoDB({
             region: process.env.AWS_REGION || "ap-northeast-2",
-            endpoint: process.env.AWS_DYNAMO_DB_ENDPOINT || "http://dynamo:8000"
+            endpoint: process.env.AWS_DYNAMO_DB_ENDPOINT || "http://dynamo:8000"            
         });
 
         const mapper = new DataMapper({
