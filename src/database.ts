@@ -16,7 +16,7 @@ export class Database {
         });
 
         await mapper.ensureTableExists(PaymentRequestEntity, { readCapacityUnits: 5, writeCapacityUnits: 5 }).then(() => {
-            console.info("Table created.");
+            console.debug("Table created.");
         });
 
         Container.set(DataMapper, mapper);

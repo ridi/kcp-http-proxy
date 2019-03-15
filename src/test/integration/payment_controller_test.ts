@@ -6,13 +6,9 @@ import { Database } from "../../database";
 
 chai.use(require("chai-http"));
 
-const app: Application = App.init();
-        
-// run server        
-const port = process.env.APP_PORT || 3000;        
-app.listen(port, () => {
-    console.log(`listening on port ${port}`);
-});
+const app: Application = App.init();        
+const port = process.env.APP_PORT || 3000;
+app.listen(port);
 
 const given = {
     credit_card: {// shinhan card mock
@@ -41,12 +37,11 @@ const stored = {
 
 describe("payments controller test", async () => {
     before("connect db", async () => {
-        // connect database
         await Database.connect().then(() => {
             console.info("DB connected");
         }).catch(err => {
             console.error(err);
-            process.exit(0);
+            throw err;
         });
     });
 
