@@ -37,7 +37,7 @@ services:
       - 3000:3000
     links:
       - dynamodb
-    command: npm run dev
+    command: npm run prod
     
 volumes:
   dynamodbdata:

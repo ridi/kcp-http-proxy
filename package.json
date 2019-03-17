@@ -8,8 +8,7 @@
     "build": "tsc && cp -a src/resources/. dist/resources/",
     "test": "ts-node ./src/test/run.ts",
     "dev": "ts-node ./src/index.ts",
-    "start": "nodemon ./dist/index.js",
-    "prod": "npm run build && npm run start"
+    "prod": "npm run build && nodemon ./dist/index.js"
   },
   "author": "RIDI Corp",
   "license": "ISC",
