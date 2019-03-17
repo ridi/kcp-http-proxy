@@ -49,7 +49,7 @@ export class KcpAppService implements IKcpAppService {
                 });
 
                 if (outputObject["res_cd"] !== PayPlusStatus.OK) {
-                    throw new PayPlusException(outputObject["res_cd"], outputObject["res_msg"] + ", command: " + JSON.stringify(command));
+                    throw new PayPlusException(outputObject["res_cd"], outputObject["res_msg"], command);
                 }
 
                 switch (command.type) {

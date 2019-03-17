@@ -4,6 +4,7 @@ import { InvalidRequestException } from "@app/presentation/request/InvalidReques
 import * as Logger from "bunyan";
 import { ExpressErrorMiddlewareInterface, HttpError, Middleware } from "routing-controllers";
 import { Inject } from "typedi";
+import { Command } from "@root/api/application/command/Command";
 
 @Middleware({ type: "after" })
 export class ErrorHandler implements ExpressErrorMiddlewareInterface {
@@ -34,6 +35,7 @@ export class ErrorHandler implements ExpressErrorMiddlewareInterface {
                 response.status(500).json({
                     code: (error as PayPlusException).code,
                     message: error.message,
+                    command: (error as PayPlusException).command,
                     is_success: false
                 });
                 break;
