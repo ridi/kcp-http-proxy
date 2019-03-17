@@ -37,7 +37,9 @@ services:
       - 3000:3000
     links:
       - dynamodb
-    command: npm run prod
+    command: >
+      bash -c "npm i pm2 -g &&
+               pm2-runtime --name ridi_kcp_api npm -- start"
     
 volumes:
   dynamodbdata:
