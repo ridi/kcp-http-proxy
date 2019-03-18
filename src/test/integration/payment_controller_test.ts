@@ -93,8 +93,8 @@ describe("payments controller test", async () => {
                 chai.expect(res.body.acqu_code).to.equal("CCLG");
                 chai.expect(res.body.acqu_name).to.equal("신한카드");
                 chai.expect(res.body.card_no).to.equal(given.credit_card.card_no);
-                chai.expect(res.body.mcht_taxno).to.match(/[0-9]+/);
-                chai.expect(res.body.mall_taxno).to.match(/[0-9]+/);
+                chai.expect(res.body.mcht_tax_no).to.match(/[0-9]+/);
+                chai.expect(res.body.mall_tax_no).to.match(/[0-9]+/);
                 chai.expect(res.body.ca_order_id).to.equal(given.order.id);
                 chai.expect(res.body.tno).to.match(/[0-9]+/);
                 chai.expect(res.body.amount).to.equal(request.product_amount);
@@ -133,8 +133,8 @@ describe("payments controller test", async () => {
                 chai.expect(res.body.card_name).to.equal("신한카드");
                 chai.expect(res.body.acqu_code).to.equal("CCLG");
                 chai.expect(res.body.acqu_name).to.equal("신한카드");
-                chai.expect(res.body.mcht_taxno).to.match(/[0-9]+/);
-                chai.expect(res.body.mall_taxno).to.match(/[0-9]+/);
+                chai.expect(res.body.mcht_tax_no).to.match(/[0-9]+/);
+                chai.expect(res.body.mall_tax_no).to.match(/[0-9]+/);
                 chai.expect(res.body.ca_order_id).to.equal(given.order.id);
                 chai.expect(res.body.tno).to.equal(stored.tno);
                 chai.expect(res.body.amount).to.equal(given.order.product.amount);
