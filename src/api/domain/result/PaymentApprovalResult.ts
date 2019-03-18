@@ -1,12 +1,11 @@
 import { PayPlusStatus } from "@app/common/constants";
-import { AbstractPaymentResult } from "@app/domain/result/AbstractPaymentResult";
 import { PaymentApprovalResultType } from "@app/domain/result/PaymentApprovalResultType";
-import { attribute } from "@aws/dynamodb-data-mapper-annotations";
+import { attribute, rangeKey } from "@aws/dynamodb-data-mapper-annotations";
 import { IsBoolean, IsNumber, IsString } from "class-validator";
 import { JSONSchema } from "class-validator-jsonschema";
 
 @JSONSchema({ description: "결제 요청 결과" })
-export class PaymentApprovalResult extends AbstractPaymentResult {
+export class PaymentApprovalResult {
     static parse(output: PaymentApprovalResultType): PaymentApprovalResult {
         const result: PaymentApprovalResult = new PaymentApprovalResult();
         result.code = output.res_cd;
@@ -21,8 +20,8 @@ export class PaymentApprovalResult extends AbstractPaymentResult {
         result.acqu_code = output.acqu_cd;
         result.acqu_name = output.acqu_name;
         result.card_no = output.card_no;
-        result.mcht_taxno = output.mcht_taxno;
-        result.mall_taxno = output.mall_taxno;
+        result.mcht_tax_no = output.mcht_taxno;
+        result.mall_tax_no = output.mall_taxno;
         result.ca_order_id = output.ca_order_id;
         result.tno = output.tno;
         result.amount = parseInt(output.amount || "0") as number;
@@ -36,7 +35,7 @@ export class PaymentApprovalResult extends AbstractPaymentResult {
         result.bizx_no = output.bizx_numb;
         result.quota = <number>parseInt(output.quota || "0");
         result.is_interest_free = (output.noinf || "N") === "Y";
-        result.pg_txid = output.pg_txid;
+        result.pg_tx_id = output.pg_txid;
         result.tax_flag = output.res_tax_flag;
         result.tax_amount = <number>parseInt(output.res_tax_mny || "0");
         result.tax_free_amount = <number>parseInt(output.res_free_mny || "0");
@@ -48,6 +47,21 @@ export class PaymentApprovalResult extends AbstractPaymentResult {
         result.join_code = output.join_cd;
         return result;
     }
+
+    @JSONSchema({ description: "KCP 결과 코드: 0000 (정상처리)" })
+    @IsString()
+    @attribute()
+    code: string;
+
+    @JSONSchema({ description: "KCP 결과 성공 여부" })
+    @IsBoolean()
+    @attribute()
+    is_success: boolean;
+
+    @JSONSchema({ description: "KCP 결과 메시지" })
+    @IsString()
+    @attribute()
+    message: string;
 
     @JSONSchema({ description: "영문 메시지" })
     @IsString()
@@ -97,12 +111,12 @@ export class PaymentApprovalResult extends AbstractPaymentResult {
     @JSONSchema({ description: "" })
     @IsString()
     @attribute()
-    mcht_taxno: string;
+    mcht_tax_no: string;
 
     @JSONSchema({ description: "가맹점 인증 번호" })
     @IsString()
     @attribute()
-    mall_taxno: string;
+    mall_tax_no: string;
 
     @JSONSchema({ description: "" })
     @IsString()
@@ -172,7 +186,7 @@ export class PaymentApprovalResult extends AbstractPaymentResult {
     @JSONSchema({ description: "" })
     @IsString()
     @attribute()
-    pg_txid: string;
+    pg_tx_id: string;
 
     @JSONSchema({ description: "가맹점에서 제공한 복합 과세 타입" })
     @IsString()
@@ -218,4 +232,7 @@ export class PaymentApprovalResult extends AbstractPaymentResult {
     @IsString()
     @attribute()
     join_code: string;
+
+    @rangeKey({ defaultProvider: () => new Date() })
+    created_at?: Date;
 }

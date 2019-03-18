@@ -1,12 +1,11 @@
 import { PayPlusStatus } from "@app/common/constants";
-import { AbstractPaymentResult } from "@app/domain/result/AbstractPaymentResult";
 import { PaymentAuthKeyResultType } from "@app/domain/result/PaymentAuthKeyResultType";
-import { attribute } from "@aws/dynamodb-data-mapper-annotations";
-import { IsString } from "class-validator";
+import { attribute, rangeKey } from "@aws/dynamodb-data-mapper-annotations";
+import { IsBoolean, IsString } from "class-validator";
 import { JSONSchema } from "class-validator-jsonschema";
 
 @JSONSchema({ description: "결제키 발급 요청 결과" })
-export class PaymentAuthKeyResult extends AbstractPaymentResult {
+export class PaymentAuthKeyResult {
     static parse(output: PaymentAuthKeyResultType): PaymentAuthKeyResult {
         const result = new PaymentAuthKeyResult();
         result.code = output.res_cd;
@@ -20,6 +19,21 @@ export class PaymentAuthKeyResult extends AbstractPaymentResult {
         result.card_name = output.card_name;
         return result;
     }
+
+    @JSONSchema({ description: "KCP 결과 코드: 0000 (정상처리)" })
+    @IsString()
+    @attribute()
+    code: string;
+
+    @JSONSchema({ description: "KCP 결과 성공 여부" })
+    @IsBoolean()
+    @attribute()
+    is_success: boolean;
+
+    @JSONSchema({ description: "KCP 결과 메시지" })
+    @IsString()
+    @attribute()
+    message: string;
 
     @JSONSchema({ description: "카드 발급사 코드" })
     @IsString()
@@ -55,4 +69,7 @@ export class PaymentAuthKeyResult extends AbstractPaymentResult {
     @IsString()
     @attribute()
     join_code: string;
+    
+    @rangeKey({ defaultProvider: () => new Date() })
+    created_at?: Date;
 }

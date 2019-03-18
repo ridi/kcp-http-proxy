@@ -19,7 +19,7 @@ export class AuthKeyRequest extends KcpRequest {
     })
     card_expiry_date: string;
 
-    @JSONSchema({ description: "카드인증번호 - 개인:생연월일 6자리, 법인:사업자번호 10자리", examples: ["790701", "1000000000"] })
+    @JSONSchema({ description: "카드인증번호 - 개인:생년월일 6자리, 법인:사업자번호 10자리", examples: ["790701", "1000000000"] })
     @Matches(/^(?=\d*$)(?:(\d{2})(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01])|.{10})$/, {
         message: "카드인증번호가 올바르지 않습니다. 카드인증번호는 생년월일6자리(개인) 혹은 사업자번호10자리(법인)입니다."
     })
