@@ -13,7 +13,7 @@ cf. 필요시 docker-compose.yml의 environment를 수정해서 사용
 ## HealthCheck
 ### `GET /kcp/health`
 #### Response
-- Content-Type: 
+- Content-Type: text/html
 - Statuc Code: **200 OK**
 
 ## Payments
@@ -114,10 +114,7 @@ cf. 필요시 docker-compose.yml의 environment를 수정해서 사용
 ### `DELETE /kcp/payments/{tno}`  
 결제 취소 요청
 #### Parameter
-
-|  |  |
-|----------|-------------|
-| tno | KCP 거래번호 |
+_ tno : KCP 거래번호
 
 #### Body  
 - Content-Type: application/json
