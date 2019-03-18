@@ -4,7 +4,7 @@ import { ExpressMiddlewareInterface, Middleware } from "routing-controllers";
 import { Inject } from "typedi";
 
 @Middleware({ type: "before" })
-export class RequestLoggingAspect implements ExpressMiddlewareInterface {    
+export class RequestLoggingMiddleware implements ExpressMiddlewareInterface {    
     @Inject("logger")
     logger: Logger;
 
