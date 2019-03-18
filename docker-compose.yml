@@ -26,7 +26,7 @@ services:
       KCP_TAX_DEDUCTION_SITE_CODE: test
       KCP_TAX_DEDUCTION_SITE_KEY: test
       KCP_TAX_DEDUCTION_GROUP_ID: test        
-      SENTRY_DSN: https://d460d631817d4b7e9d917706eea1f538@sentry.io/1307885
+      SENTRY_DSN: your_sentry_dsn
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
       AWS_REGION: ap-northeast-2
