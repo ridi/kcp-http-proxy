@@ -115,20 +115,11 @@ export class App {
         const storage = getMetadataArgsStorage();
         const spec = routingControllersToSpec(storage, routingControllersOptions, {
             components: {
-                schemas,            
-                securitySchemes: {
-                    bearerAuth: {
-                        description: "JWT Authorization",
-                        type: "http",
-                        scheme: "bearer",
-                        in: "header",
-                        bearerFormat: "JWT"
-                    }
-                }
+                schemas
             },
             info: {
                 description: "Generated with 'routing-controllers-openapi'",
-                title: "RIDI KCP Micro-service Rest API",
+                title: "RIDI KCP Microservice Rest API",
                 version: "1.0.0"
             }
         });
