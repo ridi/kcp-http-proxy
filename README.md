@@ -8,7 +8,7 @@ make test
 ```shell
 docker-compose up
 ```
-cf. 필요시 docker-compose.yml의 environment를 수정해서 사용
+cf. 필요시 docker-compose.yml의 environment를 수정해서 사용  
 Sentry Logging은 environment의 `APP_MODE=production`인 경우에 `Sentry DSN`이 지정되어 있으면 작동됩니다.
 
 ## Base URI
