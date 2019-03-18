@@ -118,7 +118,7 @@ Sentry Logging은 environment의 `APP_MODE=production`인 경우에 `SENTRY_DSN`
 ### `DELETE /kcp/payments/{tno}`  
 결제 취소 요청
 #### Parameter
-_ tno : KCP 거래번호
+- tno : KCP 거래번호
 
 #### Body  
 - Content-Type: application/json
