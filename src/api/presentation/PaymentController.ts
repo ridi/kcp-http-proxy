@@ -6,7 +6,7 @@ import { KcpAppService } from "@app/application/KcpAppService";
 import { PaymentApprovalResult } from "@app/domain/result/PaymentApprovalResult";
 import { PaymentAuthKeyResult } from "@app/domain/result/PaymentAuthKeyResult";
 import { PaymentCancellationResult } from "@app/domain/result/PaymentCancellationResult";
-import { AuthKeyRequest } from "@app/presentation/request/AuthKeyRequest";
+import { PaymentAuthKeyRequest } from "@root/api/presentation/request/PaymentAuthKeyRequest";
 import { PaymentApprovalRequest } from "@app/presentation/request/PaymentApprovalRequest";
 import { PaymentCancellationRequest } from "@app/presentation/request/PaymentCancellationRequest";
 import { RequestValidator } from "@app/presentation/request/RequestValidator";
@@ -26,7 +26,7 @@ export class PaymentController {
     @ResponseSchema(PaymentAuthKeyResult)
     @HttpCode(201)
     @Post("/payments/auth-key")
-    async requestAuthKey(@Body() req: AuthKeyRequest, @Res() res: Response): Promise<PaymentAuthKeyResult> {  
+    async requestAuthKey(@Body() req: PaymentAuthKeyRequest, @Res() res: Response): Promise<PaymentAuthKeyResult> {  
         await this.requestValidator.validate(req);
 
         const command = new AuthKeyRequestCommand(
