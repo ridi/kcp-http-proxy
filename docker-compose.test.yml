@@ -34,4 +34,5 @@ services:
       - 3000:3000
     links:
       - dynamodb
-    command: npm run test
+    command: >
+      bash -c "npm run build && npm run test"
