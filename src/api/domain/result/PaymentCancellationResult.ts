@@ -24,7 +24,7 @@ export class PaymentCancellationResult {
         result.amount = <number>parseInt(output.amount || "0");
         result.card_amount = <number>parseInt(output.card_mny || "0");
         result.coupon_amount = <number>parseInt(output.coupon_mny || "0");
-        result.is_escrow = (output.escw_yn || "N") === "N";
+        result.is_escrow = (output.escw_yn || "N") === "Y";
         result.cancel_gubun = output.canc_gubn;
         result.van_code = output.van_cd;
         result.approval_time = output.app_time;

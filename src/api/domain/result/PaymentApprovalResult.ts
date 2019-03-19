@@ -25,7 +25,7 @@ export class PaymentApprovalResult {
         result.amount = parseInt(output.amount || "0") as number;
         result.card_amount = <number>parseInt(output.card_mny || "0");
         result.coupon_amount = <number>parseInt(output.coupon_mny || "0");
-        result.is_escrow = (output.escw_yn || "N") === "N";
+        result.is_escrow = (output.escw_yn || "N") === "Y";
         result.van_code = output.van_cd;
         result.approval_time = output.app_time;
         result.van_approval_time = output.van_apptime;
