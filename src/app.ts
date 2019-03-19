@@ -119,7 +119,7 @@ export class App {
             },
             info: {
                 description: "Generated with 'routing-controllers-openapi'",
-                title: "RIDI KCP Microservice Rest API",
+                title: "RIDI KCP Http Proxy Rest API",
                 version: "1.0.0"
             }
         });

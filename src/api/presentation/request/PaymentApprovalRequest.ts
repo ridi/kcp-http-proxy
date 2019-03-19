@@ -1,5 +1,5 @@
 import { KcpRequest } from "@app/presentation/request/KcpRequest";
-import { IsEmail, IsNotEmpty, IsEmpty } from "class-validator";
+import { IsEmail, IsNotEmpty, IsEmpty, IsNumber, IsOptional } from "class-validator";
 import { JSONSchema } from "class-validator-jsonschema";
 
 @JSONSchema({
@@ -32,7 +32,8 @@ export class PaymentApprovalRequest extends KcpRequest {
     @IsEmail()
     buyer_email: string;
 
-    @JSONSchema({ description: "결제 상품 금액" })
-    @IsEmpty()
+    @JSONSchema({ description: "할부 개월수" })
+    @IsNumber()
+    @IsOptional()
     installment_months: number = 0;
 }

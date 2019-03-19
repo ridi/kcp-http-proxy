@@ -2,14 +2,14 @@ version: "3"
 
 services:
   dynamodb:
-    container_name: test_ridi_kcp_api_db
+    container_name: test_ridi_kcp_http_proxy_db
     image: amazon/dynamodb-local
     ports:
       - 8000:8000
     command: ["-jar", "DynamoDBLocal.jar", "-inMemory"]
 
   application:
-    container_name: test_ridi_kcp_api
+    container_name: test_ridi_kcp_http_proxy
     image: node:lts
     volumes:
       - ./:/app

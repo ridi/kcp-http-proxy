@@ -1,7 +1,6 @@
-import { PayPlusStatus } from "@app/common/constants";
 import { PaymentAuthKeyResultType } from "@app/domain/result/PaymentAuthKeyResultType";
 import { attribute, rangeKey } from "@aws/dynamodb-data-mapper-annotations";
-import { IsBoolean, IsString } from "class-validator";
+import { IsString } from "class-validator";
 import { JSONSchema } from "class-validator-jsonschema";
 
 @JSONSchema({ description: "결제키 발급 요청 결과" })
@@ -9,7 +8,6 @@ export class PaymentAuthKeyResult {
     static parse(output: PaymentAuthKeyResultType): PaymentAuthKeyResult {
         const result = new PaymentAuthKeyResult();
         result.code = output.res_cd;
-        result.is_success = result.code === PayPlusStatus.OK;
         result.message = output.res_msg;
         result.card_code = output.card_cd;
         result.van_tx_id = output.van_tx_id;
@@ -24,11 +22,6 @@ export class PaymentAuthKeyResult {
     @IsString()
     @attribute()
     code: string;
-
-    @JSONSchema({ description: "KCP 결과 성공 여부" })
-    @IsBoolean()
-    @attribute()
-    is_success: boolean;
 
     @JSONSchema({ description: "KCP 결과 메시지" })
     @IsString()

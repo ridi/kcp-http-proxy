@@ -1,7 +1,7 @@
 {
-  "name": "micro-service-kcp",
+  "name": "kcp-http-proxy",
   "version": "1.0.0",
-  "description": "RIDI KCP Micro-service Rest API",
+  "description": "RIDI KCP Http Proxy Rest API",
   "main": "index.js",
   "scripts": {
     "check": "tsc --p tsconfig.json",

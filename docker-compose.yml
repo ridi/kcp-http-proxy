@@ -2,7 +2,7 @@ version: "3"
 
 services:
   dynamodb:
-    container_name: ridi_kcp_api_db
+    container_name: ridi_kcp_http_proxy_db
     image: amazon/dynamodb-local
     ports:
       - 8000:8000
@@ -12,7 +12,7 @@ services:
     command: ["-jar", "DynamoDBLocal.jar", "-sharedDb", "-dbPath", "."]
 
   application:
-    container_name: ridi_kcp_api
+    container_name: ridi_kcp_http_proxy
     image: node:lts
     volumes:
       - ./:/app

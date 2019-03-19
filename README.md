@@ -1,4 +1,4 @@
-# RIDI KCP Microservice Rest API
+# RIDI KCP Http Proxy Rest API
 ## 테스트 실행하기
 ```shell
 make test
@@ -85,10 +85,10 @@ Sentry Logging은 environment의 `APP_MODE=production`인 경우에 `SENTRY_DSN`
 | order_no | 가맹점 주문 번호 | string |
 | card_code | 카드 발급사 코드 | string |
 | card_name | 카드 이름 | string |
-| acqu_code | 카드 매입사 코드 | string |
-| acqu_name | 카드 매입사 이름 | string |
+| acquirer_code | 카드 매입사 코드 | string |
+| acquirer_name | 카드 매입사 이름 | string |
 | card_no | 카드 번호 | string |
-| mcht_tax_no | | string |
+| merchant_tax_no | | string |
 | mall_tax_no | 가맹점 인증 번호 | string |
 | ca_order_id | | string |
 | tno | KCP 거래 번호 | string |
@@ -97,10 +97,10 @@ Sentry Logging은 environment의 `APP_MODE=production`인 경우에 `SENTRY_DSN`
 | coupon_amount | 쿠폰 결제 금액 | number |
 | is_escrow | 에스크로 사용 여부 | boolean |
 | van_code | VAN사 코드 | string |
-| app_time | 결제 승인 시각(yyyyMMddHHmmss) | string |
-| van_app_time | VAN사 결제 승인 시각(yyyyMMddHHmmss) | string |
-| app_no | 정상 결제 거래의 승인 번호<br>KCP와 카드사에서 공통으로 관리하는 번호 | string |
-| bizx_no | | string |
+| approval_time | 결제 승인 시각(yyyyMMddHHmmss) | string |
+| van_approval_time | VAN사 결제 승인 시각(yyyyMMddHHmmss) | string |
+| approval_no | 정상 결제 거래의 승인 번호<br>KCP와 카드사에서 공통으로 관리하는 번호 | string |
+| business_no | | string |
 | quota | 할부 개월(0: 일시불, 0~12) | number |
 | is_interest_free | 무이자 할부 결제 여부 | boolean |
 | pg_tx_id | | string |
@@ -144,10 +144,10 @@ Sentry Logging은 environment의 `APP_MODE=production`인 경우에 `SENTRY_DSN`
 | order_no | 가맹점 주문 번호 | string |
 | card_code | 카드 발급사 코드 | string |
 | card_name | 카드 이름 | string |
-| acqu_code | 카드 매입사 코드 | string |
-| acqu_name | 카드 매입사 이름 | string |
+| acquirer_code | 카드 매입사 코드 | string |
+| acquirer_name | 카드 매입사 이름 | string |
 | card_no | 카드 번호 | string |
-| mcht_tax_no | | string |
+| merchant_tax_no | | string |
 | mall_tax_no | 가맹점 인증 번호 | string |
 | ca_order_id | | string |
 | tno | KCP 거래번호 | string |
@@ -157,11 +157,11 @@ Sentry Logging은 environment의 `APP_MODE=production`인 경우에 `SENTRY_DSN`
 | is_escrow | 에스크로 사용 여부 | boolean |
 | cancel_gubun | 매입취소/승인취소 구분값 | string |
 | van_code | VAN사 코드 | string |
-| app_time | 결제 승인 시각(yyyyMMddHHmmss) | string |
-| van_app_time | VAN사 결제 승인 시각(yyyyMMddHHmmss) | string |
+| approval_time | 결제 승인 시각(yyyyMMddHHmmss) | string |
+| van_approval_time | VAN사 결제 승인 시각(yyyyMMddHHmmss) | string |
 | cancel_time | 결제 취소 시각(yyyyMMddHHmmss) | string |
-| app_no | 정상 결제 거래의 승인 번호<br>KCP와 카드사에서 공통으로 관리하는 번호 | string |
-| bizx_no | | string |
+| approval_no | 정상 결제 거래의 승인 번호<br>KCP와 카드사에서 공통으로 관리하는 번호 | string |
+| business_no | | string |
 | quota | 할부 개월(0: 일시불, 0~12) | number |
 | is_interest_free | 무이자 할부 결제 여부 | boolean |
 | pg_tx_id | | string |

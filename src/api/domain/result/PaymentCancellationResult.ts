@@ -1,4 +1,3 @@
-import { PayPlusStatus } from "@app/common/constants";
 import { PaymentCancellationResultType } from "@app/domain/result/PaymentCancellationResultType";
 import { attribute, rangeKey } from "@aws/dynamodb-data-mapper-annotations";
 import { IsBoolean, IsNumber, IsString } from "class-validator";
@@ -9,7 +8,6 @@ export class PaymentCancellationResult {
     static parse(output: PaymentCancellationResultType): PaymentCancellationResult {
         const result: PaymentCancellationResult = new PaymentCancellationResult();
         result.code = output.res_cd;
-        result.is_success = result.code === PayPlusStatus.OK;
         result.message = output.res_msg;
         result.en_message = output.res_en_msg;
         result.trace_no = output.trace_no;
@@ -17,9 +15,9 @@ export class PaymentCancellationResult {
         result.order_no = output.order_no;
         result.card_code = output.card_cd;
         result.card_name = output.card_name;
-        result.acqu_code = output.acqu_cd;
-        result.acqu_name = output.acqu_name;
-        result.mcht_tax_no = output.mcht_taxno;
+        result.acquirer_code = output.acqu_cd;
+        result.acquirer_name = output.acqu_name;
+        result.merchant_tax_no = output.mcht_taxno;
         result.mall_tax_no = output.mall_taxno;
         result.ca_order_id = output.ca_order_id;
         result.tno = output.tno;
@@ -29,11 +27,11 @@ export class PaymentCancellationResult {
         result.is_escrow = (output.escw_yn || "N") === "N";
         result.cancel_gubun = output.canc_gubn;
         result.van_code = output.van_cd;
-        result.app_time = output.app_time;
-        result.van_app_time = output.van_apptime;
+        result.approval_time = output.app_time;
+        result.van_approval_time = output.van_apptime;
         result.cancel_time = output.canc_time;
-        result.app_no = output.app_no;
-        result.bizx_no = output.bizx_numb;
+        result.approval_no = output.app_no;
+        result.business_no = output.bizx_numb;
         result.quota = <number>parseInt(output.quota || "0");
         result.is_interest_free = (output.noinf || "N") === "Y";
         result.pg_tx_id = output.pg_txid;
@@ -44,11 +42,6 @@ export class PaymentCancellationResult {
     @IsString()
     @attribute()
     code: string;
-
-    @JSONSchema({ description: "KCP 결과 성공 여부" })
-    @IsBoolean()
-    @attribute()
-    is_success: boolean;
 
     @JSONSchema({ description: "KCP 결과 메시지" })
     @IsString()
@@ -88,12 +81,12 @@ export class PaymentCancellationResult {
     @JSONSchema({ description: "카드 매입사 코드" })
     @IsString()
     @attribute()
-    acqu_code: string;
+    acquirer_code: string;
 
     @JSONSchema({ description: "카드 매입사 이름", format: "한글" })
     @IsString()
     @attribute()
-    acqu_name: string;
+    acquirer_name: string;
 
     @JSONSchema({ description: "카드 번호" })
     @IsString()
@@ -103,9 +96,9 @@ export class PaymentCancellationResult {
     @JSONSchema({ description: "" })
     @IsString()
     @attribute()
-    mcht_tax_no: string;
+    merchant_tax_no: string;
 
-    @JSONSchema({ description: "가맹점 주문 번호??" })
+    @JSONSchema({ description: "가맹점 인증 번호" })
     @IsString()
     @attribute()
     mall_tax_no: string;
@@ -153,12 +146,12 @@ export class PaymentCancellationResult {
     @JSONSchema({ description: "결제 승인 시각(공통)", format: "yyyyMMddHHmmss" })
     @IsString()
     @attribute()
-    app_time: string;
+    approval_time: string;
 
     @JSONSchema({ description: "VAN사 결제 승인 시각" })
     @IsString()
     @attribute()
-    van_app_time: string;
+    van_approval_time: string;
 
     @JSONSchema({ description: "결제 취소 시각", format: "yyyyMMddHHmmss" })
     @IsString()
@@ -168,12 +161,12 @@ export class PaymentCancellationResult {
     @JSONSchema({ description: "정상 결제 거래의 승인 번호, KCP와 카드사에서 공통적으로 관리하는 번호" })
     @IsString()
     @attribute()
-    app_no: string;
+    approval_no: string;
 
     @JSONSchema({ description: "" })
     @IsString()
     @attribute()
-    bizx_no: string;
+    business_no: string;
 
     @JSONSchema({ description: "할부 개월(0: 일시불)", format: "0~12" })
     @IsNumber()
