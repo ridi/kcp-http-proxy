@@ -11,8 +11,7 @@ export class PaymentApprovalCommand extends Command {
     readonly buyer_tel1: string;
     readonly buyer_tel2: string;
     readonly buyer_email: string;
-
-    readonly installment_months: number = 0;//할부 개월수
+    readonly installment_months: number;//할부 개월수
 
     constructor(
         mode: Mode,
@@ -24,6 +23,7 @@ export class PaymentApprovalCommand extends Command {
         buyerEmail: string,
         buyerTel1: string,
         buyerTel2: string,
+        installmentMonths: number
     ) {
         super(mode, CommandType.PAYMENT_APPROVAL);
         this.batch_key = batchKey;
@@ -34,5 +34,6 @@ export class PaymentApprovalCommand extends Command {
         this.buyer_email = buyerEmail;
         this.buyer_tel1 = buyerTel1;
         this.buyer_tel2 = buyerTel2;
+        this.installment_months = installmentMonths;
     }
 }

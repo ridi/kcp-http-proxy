@@ -56,7 +56,8 @@ export class PaymentController {
             req.buyer_name,
             req.buyer_email,
             '',
-            ''
+            '',
+            req.installment_months
         );
 
         const result: PaymentApprovalResult = await this.kcpService.approvePayment(command);

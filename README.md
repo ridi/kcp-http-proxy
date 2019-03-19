@@ -68,6 +68,7 @@ Sentry Logging은 environment의 `APP_MODE=production`인 경우에 `SENTRY_DSN`
 | product_amount | 결제 상품 금액 | number |
 | buyer_name | 상품 구매자 이름 | string |
 | buyer_email | 상품 구매자 이메일 주소 | string |
+| installment_months? | 할부개월수(optional) | number |
 
 #### Response
 - Content-Type: application/json
