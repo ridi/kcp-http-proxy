@@ -23,7 +23,7 @@ export class App {
         useContainer(Container);
 
         Container.set('app.root', path.resolve(__dirname));
-        Container.set('profile', Profile.from((process.env.profile || 'dev'));
+        Container.set('profile', Profile.from(process.env.PROFILE || 'dev'));
         App.configureLogger();
         App.configureKcpEnvironment();
 
@@ -54,8 +54,8 @@ export class App {
         const logStream: any = profile.equals(Profile.Production) 
         ? {
             stream: createCloudWatchStream({
-                logGroupName: process.env.aws_log_group || '',
-                logStreamName: process.env.aws_log_stream_name || ''
+                logGroupName: process.env.AWS_LOG_GROUP || '',
+                logStreamName: process.env.AWS_LOG_STREAM_NAME || ''
             }), 
             type: 'raw',
             level: 'info'
@@ -66,7 +66,7 @@ export class App {
             level: 'debug' 
         };
         Container.set('logger', Logger.createLogger({
-            name: process.env.aws_log_stream_name || 'default',
+            name: process.env.AWS_LOG_STREAM_NAME || 'default',
             streams: [ logStream ]
         }));
 
@@ -74,7 +74,7 @@ export class App {
         Container.set('sentry.loggable', profile.equals(Profile.Production));
         if (Container.get('sentry.loggable')) {
             Sentry.init({
-                dsn: process.env.sentry_dsn,
+                dsn: process.env.SENTRY_DSN,
                 environment: profile.toString()
             });
         }

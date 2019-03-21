@@ -1,32 +1,35 @@
-import { Config } from "@root/common/config";
-import { Ascii } from "@root/common/constants";
-import { exec, ExecException } from "child_process";
-import * as iconv from "iconv-lite";
-import { Container, Service } from "typedi";
-import { AbstractCommand } from "../commands/AbstractCommand";
+import { AbstractCommand } from '@root/application/commands/AbstractCommand';
+import { PaymentApprovalCommand } from '@root/application/commands/PaymentApprovalCommand';
+import { PaymentAuthKeyCommand } from '@root/application/commands/PaymentAuthKeyCommand';
+import { PaymentCancellationCommand } from '@root/application/commands/PaymentCancellationCommand';
+import { Config } from '@root/common/config';
+import { Ascii } from '@root/common/constants';
+import { exec, ExecException } from 'child_process';
+import * as iconv from 'iconv-lite';
+import { Service } from 'typedi';
 
 @Service()
 export class KcpComandActuator {
     private config: Config;
 
     actuate(command: AbstractCommand): Promise<string> {
-        this.config = Container.get(`config.kcp.${command.mode}`);
-        switch (command.type) {
-            case CommandType.REQUEST_AUTH_KEY: {
-                return this.requestBatchKey((command as PaymentAuthKeyRequestCommand));
+        this.config = command.config;
+        switch (command.constructor) {
+            case PaymentAuthKeyCommand: {
+                return this.requestBatchKey((command as PaymentAuthKeyCommand));
             }
-            case CommandType.PAYMENT_APPROVAL: {
+            case PaymentApprovalCommand: {
                 return this.batchOrder((command as PaymentApprovalCommand));
             }
-            case CommandType.PAYMENT_CANCELLATION: {
+            case PaymentCancellationCommand: {
                 return this.cancelTransaction((command as PaymentCancellationCommand));
             }
             default:
-                throw 'Unknown Kcp Command Type';
+                throw 'Unknown Kcp Command';
         }
     }
 
-    private requestBatchKey(command: PaymentAuthKeyRequestCommand): Promise<string> {
+    private requestBatchKey(command: PaymentAuthKeyCommand): Promise<string> {
         const payx_data = [
             `payx_data=`,
             `${Ascii.RecordSeparator}card=card_mny=`,
@@ -54,7 +57,7 @@ export class KcpComandActuator {
             `escw_mod=${this.config.code.escrowUse.No}`,
             `${Ascii.RecordSeparator}card=card_mny=${command.goods_price}`,
             `card_tx_type=${this.config.code.request.txApproval.cardTxType}`,
-            `quota=${command.installment_months.toString().padStart(2, "0")}`,
+            `quota=${command.installment_months.toString().padStart(2, '0')}`,
             `bt_group_id=${this.config.groupId}`,
             `bt_batch_key=${command.batch_key}`,
             `${Ascii.RecordSeparator}`
@@ -117,7 +120,7 @@ export class KcpComandActuator {
         const command = `${this.config.modulePath} -h ${commandArgument.flatten(',')}`;
 
         return new Promise((resolve, reject) => {
-            exec(command, { encoding: "euckr" }, (error: ExecException, stdout: Buffer, stderr) => {
+            exec(command, { encoding: 'euckr' }, (error: ExecException, stdout: Buffer, stderr) => {
                 if (error) {
                     reject(error);
                     return;

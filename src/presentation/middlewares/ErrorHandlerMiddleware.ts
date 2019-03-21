@@ -1,38 +1,39 @@
-import { InvalidCommandException, PayPlusException } from "@root/exception/exceptions";
-import { InvalidRequestException } from "@root/exception/InvalidRequestError";
-import * as Logger from "bunyan";
-import { ExpressErrorMiddlewareInterface, HttpError, Middleware } from "routing-controllers";
-import { Inject } from "typedi";
 
+import { InvalidCommandError } from '@root/errors/InvalidCommandError';
+import { InvalidRequestError } from '@root/errors/InvalidRequestError';
+import { PayPlusError } from '@root/errors/PayPlusError';
+import * as Logger from 'bunyan';
+import { ExpressErrorMiddlewareInterface, HttpError, Middleware } from 'routing-controllers';
+import { Inject } from 'typedi';
 
-@Middleware({ type: "after" })
+@Middleware({ type: 'after' })
 export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
-    @Inject("logger")
+    @Inject('logger')
     logger: Logger;
 
     error(error: any, request: any, response: any, next: (err?: any) => any): void {
         this.logger.error(error);
 
         switch (error.constructor) {            
-            case InvalidRequestException: {
+            case InvalidRequestError: {
                 response.status(400).json({
-                    code: "400",
-                    message: (error as InvalidRequestException).errors
+                    code: '400',
+                    message: (error as InvalidRequestError).errors
                 });
                 break;
             }
-            case InvalidCommandException: {
+            case InvalidCommandError: {
                 response.status(400).json({
-                    code: "400",
+                    code: '400',
                     message: error.message
                 });
                 break;
             }
-            case PayPlusException: {
+            case PayPlusError: {
                 response.status(500).json({
-                    code: (error as PayPlusException).code,
+                    code: (error as PayPlusError).code,
                     message: error.message,
-                    command: (error as PayPlusException).command
+                    command: (error as PayPlusError).command
                 });
                 break;
             }
@@ -40,14 +41,14 @@ export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
                 const httpCode: number = (error as HttpError).httpCode || 500;
                 response.status(httpCode).json({
                     code: httpCode.toString(),
-                    message: error.message ? (error.message.startsWith("Command failed") ? "Command failed." : error.message) : "Internal Server Error"
+                    message: error.message ? (error.message.startsWith('Command failed') ? 'Command failed.' : error.message) : 'Internal Server Error'
                 });
                 break;
             }
             default: {
                 response.status(500).json({
-                    code: "500",
-                    message: error.message ? (error.message.startsWith("Command failed") ? "Command failed." : error.message) : "Internal Server Error"
+                    code: '500',
+                    message: error.message ? (error.message.startsWith('Command failed') ? 'Command failed.' : error.message) : 'Internal Server Error'
                 });
                 break;
             }

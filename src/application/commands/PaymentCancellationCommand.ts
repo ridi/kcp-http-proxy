@@ -1,5 +1,5 @@
-import { AbstractCommand } from "@root/application/commands/AbstractCommand";
-import { Config } from "@root/common/config";
+import { AbstractCommand } from '@root/application/commands/AbstractCommand';
+import { Config } from '@root/common/config';
 
 export class PaymentCancellationCommand extends AbstractCommand {
     readonly tno: string;//KCP측 주문번호

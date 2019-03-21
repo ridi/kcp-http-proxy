@@ -1,25 +1,24 @@
-import { AuthKeyRequestCommand } from "@root/application/command/AuthKeyRequestCommand";
-import { Command } from "@root/application/command/Command";
-import { CommandType } from "@root/application/command/CommandType";
-import { PaymentApprovalCommand } from "@root/application/command/PaymentApprovalCommand";
-import { PaymentCancellationCommand } from "@root/application/command/PaymentCancellationCommand";
-import { InvalidCommandException } from "@root/application/exception/InvalidCommandException";
-import { PayPlusStatus } from "@root/common/constants";
-import { PaymentRequestEntity } from "@root/domain/entity/PaymentRequestEntity";
-import { PaymentRequestRepository } from "@root/domain/entity/PaymentRequestRepository";
-import * as hash from "object-hash";
-import { Container } from "typedi";
+import { AbstractCommand } from '@root/application/commands/AbstractCommand';
+import { PaymentApprovalCommand } from '@root/application/commands/PaymentApprovalCommand';
+import { PaymentAuthKeyCommand } from '@root/application/commands/PaymentAuthKeyCommand';
+import { PaymentCancellationCommand } from '@root/application/commands/PaymentCancellationCommand';
+import { PaymentRequestEntity } from '@root/application/domain/PaymentRequestEntity';
+import { PayPlusStatus } from '@root/common/constants';
+import { InvalidCommandError } from '@root/errors/InvalidCommandError';
+import { PaymentRequestRepository } from '@root/repositories/PaymentRequestRepository';
+import * as hash from 'object-hash';
+import { Container } from 'typedi';
 
 export const PaymentRequestAspect = (target: Object, propertyKey: string, descriptor: PropertyDescriptor) => {
     const originalValue = descriptor.value;
 
-    descriptor.value = async function(command: Command) {
+    descriptor.value = async function(command: AbstractCommand) {
         return await PaymentRequestInvoker.invoke(command, originalValue, this);
     }
 };
 
 class PaymentRequestInvoker {
-    static async invoke(command: Command, fn: any, context: any): Promise<any> {
+    static async invoke(command: AbstractCommand, fn: any, context: any): Promise<any> {
         const hashId = this.hashId(command);
 
         const repository = Container.get(PaymentRequestRepository);
@@ -34,14 +33,14 @@ class PaymentRequestInvoker {
         result = await fn.apply(context, [command]);
         
         let results = [];
-        switch (command.type) {
-            case CommandType.REQUEST_AUTH_KEY:
+        switch (command.constructor) {
+            case PaymentAuthKeyCommand:
                 results = found.auth_key_results;
                 break;
-            case CommandType.PAYMENT_APPROVAL:
+            case PaymentApprovalCommand:
                 results = found.approval_results;
                 break;
-            case CommandType.PAYMENT_CANCELLATION:
+            case PaymentCancellationCommand:
                 results = found.cancellation_results;
                 break;
         }
@@ -51,16 +50,16 @@ class PaymentRequestInvoker {
         return result;
     }
 
-    static findSuccessfulResult(command: Command, found: PaymentRequestEntity): any {
+    static findSuccessfulResult(command: AbstractCommand, found: PaymentRequestEntity): any {
         let results = [];
-        switch (command.type) {
-            case CommandType.REQUEST_AUTH_KEY:
+        switch (command.constructor) {
+            case PaymentAuthKeyCommand:
                 results = found.auth_key_results;
                 break;
-            case CommandType.PAYMENT_APPROVAL:
+            case PaymentApprovalCommand:
                 results = found.approval_results;
                 break;
-            case CommandType.PAYMENT_CANCELLATION:
+            case PaymentCancellationCommand:
                 results = found.cancellation_results;
                 break;
         }
@@ -88,13 +87,12 @@ class PaymentRequestInvoker {
         return found;
     }
 
-    static hashId(command: Command): string {
+    static hashId(command: AbstractCommand): string {
         switch (command.constructor) {
-            case AuthKeyRequestCommand: {
-                const cmd = command as AuthKeyRequestCommand;
+            case PaymentAuthKeyCommand: {
+                const cmd = command as PaymentAuthKeyCommand;
                 return hash({
-                    command_type: cmd.type,
-                    mode: cmd.mode,
+                    site_code: cmd.config.siteCode,
                     card_number: cmd.card_number,
                     card_expiry_date: cmd.card_expiry_date,
                     card_tax_no: cmd.card_tax_no,
@@ -104,8 +102,7 @@ class PaymentRequestInvoker {
             case PaymentApprovalCommand: {
                 const cmd = command as PaymentApprovalCommand;
                 return hash({
-                    command_type: cmd.type,
-                    mode: cmd.mode,
+                    site_code: cmd.config.siteCode,
                     bill_key: cmd.batch_key,
                     order_no: cmd.order_id,
                     product_amount: cmd.goods_price
@@ -114,13 +111,12 @@ class PaymentRequestInvoker {
             case PaymentCancellationCommand: {
                 const cmd = command as PaymentCancellationCommand;
                 return hash({
-                    command_type: cmd.type,
-                    mode: cmd.mode,
+                    site_code: cmd.config.siteCode,
                     tno: cmd.tno
                 });
             }
             default: {
-                throw new InvalidCommandException(`Unknown Command Type: ${command.constructor}`);
+                throw new InvalidCommandError(`Unknown Command: ${command.constructor}`);
             }
         }
     }

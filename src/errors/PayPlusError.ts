@@ -1,13 +1,13 @@
-import { Command } from "@root/application/commands";
+import { AbstractCommand } from '@root/application/commands/AbstractCommand';
 
 export class PayPlusError extends Error {
     readonly code: string;
     
     readonly is_success: boolean = false;
 
-    readonly command: Command;
+    readonly command: AbstractCommand;
 
-    constructor(res_cd: string = "", res_msg: string, command: Command) {
+    constructor(res_cd: string = '', res_msg: string, command: AbstractCommand) {
         super(res_msg);        
         this.code = res_cd;
         this.command = command;

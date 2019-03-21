@@ -1,6 +1,6 @@
-import { attribute, rangeKey } from "@aws/dynamodb-data-mapper-annotations";
-import { IsString } from "class-validator";
-import { JSONSchema } from "class-validator-jsonschema";
+import { attribute, rangeKey } from '@aws/dynamodb-data-mapper-annotations';
+import { IsString } from 'class-validator';
+import { JSONSchema } from 'class-validator-jsonschema';
 
 export type PaymentAuthKeyResultType = {
     res_cd: string,
@@ -13,7 +13,7 @@ export type PaymentAuthKeyResultType = {
     join_cd: string,
     card_name: string
 };
-@JSONSchema({ description: "결제키 발급 요청 결과" })
+@JSONSchema({ description: '결제키 발급 요청 결과' })
 export class PaymentAuthKeyResult {
     static parse(output: PaymentAuthKeyResultType): PaymentAuthKeyResult {
         const result = new PaymentAuthKeyResult();
@@ -28,47 +28,47 @@ export class PaymentAuthKeyResult {
         return result;
     }
 
-    @JSONSchema({ description: "KCP 결과 코드: 0000 (정상처리)" })
+    @JSONSchema({ description: 'KCP 결과 코드: 0000 (정상처리)' })
     @IsString()
     @attribute()
     code: string;
 
-    @JSONSchema({ description: "KCP 결과 메시지" })
+    @JSONSchema({ description: 'KCP 결과 메시지' })
     @IsString()
     @attribute()
     message: string;
 
-    @JSONSchema({ description: "카드 발급사 코드" })
+    @JSONSchema({ description: '카드 발급사 코드' })
     @IsString()
     @attribute()
     card_code: string;
     
-    @JSONSchema({ description: "카드 발급사 이름", format: "한글" })
+    @JSONSchema({ description: '카드 발급사 이름', format: '한글' })
     @IsString()
     @attribute()
     card_name: string;
 
-    @JSONSchema({ description: "카드 발급사 은행 코드" })
+    @JSONSchema({ description: '카드 발급사 은행 코드' })
     @IsString()
     @attribute()
     card_bank_code: string;
     
-    @JSONSchema({ description: "VAN사 거래 번호" })
+    @JSONSchema({ description: 'VAN사 거래 번호' })
     @IsString()
     @attribute()
     van_tx_id: string;
 
-    @JSONSchema({ description: "" })
+    @JSONSchema({ description: '' })
     @IsString()
     @attribute()
     card_bin_type_01: string;
 
-    @JSONSchema({ description: "결제 요청 Key(Batch/Billing Key)" })
+    @JSONSchema({ description: '결제 요청 Key(Batch/Billing Key)' })
     @IsString()
     @attribute()
     batch_key: string;
 
-    @JSONSchema({ description: "" })
+    @JSONSchema({ description: '' })
     @IsString()
     @attribute()
     join_code: string;

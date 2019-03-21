@@ -1,4 +1,4 @@
-import { Container } from "typedi";
+import { Container } from 'typedi';
 
 export class Config {
     readonly code = {
@@ -24,7 +24,7 @@ export class Config {
             },
         },
         currency: {//승인금액통화
-            KRW: "410"
+            KRW: '410'
         },
         escrowUse: {//에스크로 사용 여부
             No: 'N'
@@ -47,16 +47,16 @@ export class Config {
     readonly siteCode: string;//상점 코드
     readonly siteKey: string;//상점 키
     readonly groupId: string;//상점 그룹 ID
-    readonly isTaxDeductible;
+    readonly isTaxDeductible: boolean;// 문화비 소득 공제 여부
 
     constructor(siteCode: string, siteKey: string, groupId: string, isTaxDeductible: boolean = false) {
         if (!siteCode || !siteKey || !groupId) {
-            throw new Error("siteCode, siteKey and groupId cannot be null or empty");
+            throw new Error('siteCode, siteKey and groupId cannot be null or empty');
         }
         this.siteCode = siteCode;
         this.siteKey = siteKey;
         this.groupId = groupId;
-        this.gwUrl = this.siteCode === "BA001" ? 'testpaygw.kcp.co.kr': 'paygw.kcp.co.kr';
+        this.gwUrl = this.siteCode === 'BA001' ? 'testpaygw.kcp.co.kr': 'paygw.kcp.co.kr';
         this.isTaxDeductible = isTaxDeductible;
     }
 };

@@ -1,10 +1,10 @@
-import { embed } from "@aws/dynamodb-data-mapper";
-import { attribute, hashKey, table } from "@aws/dynamodb-data-mapper-annotations";
-import { PaymentApprovalResult } from "@root/application/models/PaymentApprovalResult";
-import { PaymentAuthKeyResult } from "@root/application/models/PaymentAuthKeyResult";
-import { PaymentCancellationResult } from "@root/application/models/PaymentCancellationResult";
+import { embed } from '@aws/dynamodb-data-mapper';
+import { attribute, hashKey, table } from '@aws/dynamodb-data-mapper-annotations';
+import { PaymentApprovalResult } from '@root/application/domain/PaymentApprovalResult';
+import { PaymentAuthKeyResult } from '@root/application/domain/PaymentAuthKeyResult';
+import { PaymentCancellationResult } from '@root/application/domain/PaymentCancellationResult';
 
-@table("payment_requests")
+@table('payment_requests')
 export class PaymentRequestEntity {
     @hashKey()
     id: string;

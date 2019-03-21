@@ -1,6 +1,6 @@
-import { DataMapper, ItemNotFoundException } from "@aws/dynamodb-data-mapper";
-import { PaymentRequestEntity } from "@root/domain/entity/PaymentRequestEntity";
-import { Inject, Service } from "typedi";
+import { DataMapper, ItemNotFoundException } from '@aws/dynamodb-data-mapper';
+import { PaymentRequestEntity } from '@root/application/domain/PaymentRequestEntity';
+import { Inject, Service } from 'typedi';
 
 @Service()
 export class PaymentRequestRepository {
@@ -25,6 +25,6 @@ export class PaymentRequestRepository {
             return saved;
         }
 
-        throw "Failed to persist";
+        throw 'Failed to persist';
     }
 }

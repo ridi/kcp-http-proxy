@@ -1,4 +1,4 @@
-version: "3"
+version: '3'
 
 services:
   dynamodb:
@@ -9,7 +9,7 @@ services:
     volumes:
       - dynamodbdata:/home/dynamodblocal
     working_dir: /home/dynamodblocal
-    command: ["-jar", "DynamoDBLocal.jar", "-sharedDb", "-dbPath", "."]
+    command: ['-jar', 'DynamoDBLocal.jar', '-sharedDb', '-dbPath', '.']
 
   application:
     container_name: ridi_kcp_http_proxy
@@ -18,8 +18,8 @@ services:
       - ./:/app
     working_dir: /app
     environment:
-      APP_MODE: development
-      APP_PORT: 3000
+      PROFILE: dev
+      PORT: 3000
       KCP_SITE_CODE: test
       KCP_SITE_KEY: test
       KCP_GROUP_ID: test
@@ -38,8 +38,8 @@ services:
     links:
       - dynamodb
     command: >
-      bash -c "npm i pm2 -g &&
-               pm2-runtime --name ridi_kcp_api npm -- start"
+      bash -c 'npm i pm2 -g &&
+               pm2-runtime --name ridi_kcp_api npm -- start'
     
 volumes:
   dynamodbdata:

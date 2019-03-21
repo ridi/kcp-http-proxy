@@ -1,14 +1,14 @@
 
-import { Response } from "express";
-import { Get, JsonController, Res, ContentType } from "routing-controllers";
+import { Response } from 'express';
+import { Get, JsonController, Res, ContentType } from 'routing-controllers';
 
-@JsonController("/health")
+@JsonController('/health')
 export class HealthCheckController {
-    @Get("")
-    @ContentType("text/html")
+    @Get('')
+    @ContentType('text/html')
     index(@Res() res: Response) {
         //TODO check database connection
         //TODO check kcp connection
-        return res.status(200).send("ok");
+        return res.status(200).send('ok');
     }
 }

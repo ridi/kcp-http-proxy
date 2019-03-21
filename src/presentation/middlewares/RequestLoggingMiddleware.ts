@@ -1,11 +1,11 @@
-import * as Logger from "bunyan";
-import { Request } from "express";
-import { ExpressMiddlewareInterface, Middleware } from "routing-controllers";
-import { Inject } from "typedi";
+import * as Logger from 'bunyan';
+import { Request } from 'express';
+import { ExpressMiddlewareInterface, Middleware } from 'routing-controllers';
+import { Inject } from 'typedi';
 
-@Middleware({ type: "before" })
+@Middleware({ type: 'before' })
 export class RequestLoggingMiddleware implements ExpressMiddlewareInterface {    
-    @Inject("logger")
+    @Inject('logger')
     logger: Logger;
 
     use(request: any, response: any, next: (err?: any) => any) {

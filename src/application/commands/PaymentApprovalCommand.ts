@@ -1,5 +1,5 @@
-import { AbstractCommand } from "@root/application/commands/AbstractCommand";
-import { Config } from "@root/common/config";
+import { AbstractCommand } from '@root/application/commands/AbstractCommand';
+import { Config } from '@root/common/config';
 
 export class PaymentApprovalCommand extends AbstractCommand {
     readonly batch_key: string;//발급받은 배치키    

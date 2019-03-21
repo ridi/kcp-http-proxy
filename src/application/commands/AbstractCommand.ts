@@ -1,7 +1,9 @@
-export abstract class AbstractCommand {
-    readonly is_tax_deductible: boolean;
+import { Config } from '@root/common/config';
 
-    protected constructor(is_tax_deductible: boolean) {
-        this.is_tax_deductible = is_tax_deductible;
+export abstract class AbstractCommand {
+    readonly config: Config;
+
+    protected constructor(config: Config) {
+        this.config = config;
     }
 };

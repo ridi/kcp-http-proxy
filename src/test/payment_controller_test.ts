@@ -1,31 +1,32 @@
-import * as chai from "chai";
-import { Application } from "express";
-import { Mode } from "../../common/config";
-import { App } from "../../app";
-import { Database } from "../../database";
+import * as chai from 'chai';
+import { Application } from 'express';
+import { App } from '@root/app';
+import { Database } from '@root/database';
 
-chai.use(require("chai-http"));
-
+chai.use(require('chai-http'));
+console.info('server....');
 const app: Application = App.init();        
-const port = process.env.approval_PORT || 3000;
+const port = process.env.port || 3000;
 app.listen(port);
+
+console.info('server up...');
 
 const given = {
     credit_card: {// shinhan card mock
-        card_no: "4499140000000000",
-        card_expiry_date: "7912",
-        card_tax_no: "000101",
-        card_password: "00"
+        card_no: '4499140000000000',
+        card_expiry_date: '7912',
+        card_tax_no: '000101',
+        card_password: '00'
     },
     order: {
         id: `t${new Date().getTime()}`,
         product: {
-            name: "테스트 상품",
+            name: '테스트 상품',
             amount: 10000
         },
         user: {
-            name: "테스터",
-            email: "payment-test@ridi.com"
+            name: '테스터',
+            email: 'payment-test@ridi.com'
         }
     }
 };
@@ -35,31 +36,30 @@ const stored = {
     tno: null,
 };
 
-describe("payments controller test", async () => {
-    before("connect db", async () => {
+describe('payments controller test', async () => {
+    before('connect db', async () => {
         await Database.connect().then(() => {
-            console.info("DB connected");
+            console.info('DB connected');
         }).catch(err => {
-            console.error(err);
+            console.error('Here error coccurs....', err);
             throw err;
         });
     });
 
-    it("배치키 요청 201 상태 반환", (done) => {
+    it('배치키 요청 201 상태 반환', (done) => {
         chai.request(app)
-            .post("/kcp/payments/auth-key")
+            .post('/kcp/payments/auth-key')
             .send({
                 card_no: given.credit_card.card_no,
                 card_expiry_date: given.credit_card.card_expiry_date,
                 card_tax_no: given.credit_card.card_tax_no,
-                card_password: given.credit_card.card_password,
-                mode: Mode.DEV
+                card_password: given.credit_card.card_password
             })
             .end((_, res) => {
                 chai.expect(res).to.have.status(201);
-                chai.expect(res.body.code).to.equal("0000");
-                chai.expect(res.body.card_code).to.equal("CCLG");
-                chai.expect(res.body.card_name).to.equal("신한카드");
+                chai.expect(res.body.code).to.equal('0000');
+                chai.expect(res.body.card_code).to.equal('CCLG');
+                chai.expect(res.body.card_name).to.equal('신한카드');
                 chai.expect(res.body.batch_key).to.match(/[0-9A-Za-z]+/);
 
                 stored.auth_key = res.body.batch_key;
@@ -67,7 +67,7 @@ describe("payments controller test", async () => {
             });
     });
 
-    it("결제 요청 200 상태 반환", (done) => {
+    it('결제 요청 200 상태 반환', (done) => {
         let request = {
             bill_key: stored.auth_key,
             order_no: given.order.id,
@@ -75,22 +75,21 @@ describe("payments controller test", async () => {
             product_amount: given.order.product.amount,
             buyer_name: given.order.user.name,
             buyer_email: given.order.user.email,
-            installment_months: 0,
-            mode: Mode.DEV
+            installment_months: 0
         };
         
         chai.request(app)
-            .post("/kcp/payments")
+            .post('/kcp/payments')
             .send(request)
             .end((_, res) => {
                 chai.expect(res).to.have.status(200);     
-                chai.expect(res.body.code).to.equal("0000");
-                chai.expect(res.body.pay_method).to.equal("PACA");
+                chai.expect(res.body.code).to.equal('0000');
+                chai.expect(res.body.pay_method).to.equal('PACA');
                 chai.expect(res.body.order_no).to.equal(given.order.id);
-                chai.expect(res.body.card_code).to.equal("CCLG");
-                chai.expect(res.body.card_name).to.equal("신한카드");
-                chai.expect(res.body.acquirer_code).to.equal("CCLG");
-                chai.expect(res.body.acquirer_name).to.equal("신한카드");
+                chai.expect(res.body.card_code).to.equal('CCLG');
+                chai.expect(res.body.card_name).to.equal('신한카드');
+                chai.expect(res.body.acquirer_code).to.equal('CCLG');
+                chai.expect(res.body.acquirer_name).to.equal('신한카드');
                 chai.expect(res.body.card_no).to.equal(given.credit_card.card_no);
                 chai.expect(res.body.merchant_tax_no).to.match(/[0-9]+/);
                 chai.expect(res.body.mall_tax_no).to.match(/[0-9]+/);
@@ -100,11 +99,11 @@ describe("payments controller test", async () => {
                 chai.expect(res.body.card_amount).to.equal(request.product_amount);
                 chai.expect(res.body.coupon_amount).to.equal(0);
                 chai.expect(res.body.is_escrow).to.be.true;
-                chai.expect(res.body.van_code).to.equal("VNKC");
+                chai.expect(res.body.van_code).to.equal('VNKC');
                 chai.expect(res.body.approval_time).to.match(/[0-9]{14}/);
                 chai.expect(res.body.van_approval_time).to.match(/[0-9]{14}/);
                 chai.expect(res.body.approval_no).to.match(/[0-9]+/);
-                chai.expect(res.body.tax_flag).to.equal("TG03");
+                chai.expect(res.body.tax_flag).to.equal('TG03');
                 chai.expect(res.body.tax_amount).to.equal(9090);
                 chai.expect(res.body.tax_free_amount).to.equal(0);
                 chai.expect(res.body.vat_amount).to.equal(910);
@@ -115,22 +114,21 @@ describe("payments controller test", async () => {
             });
     });
     
-    it("결제 취소 200 상태 반환", (done) => {
+    it('결제 취소 200 상태 반환', (done) => {
         chai.request(app)
             .del(`/kcp/payments/${stored.tno}`)
             .send({
-                reason: "결제 취소 테스트",
-                mode: Mode.DEV
+                reason: '결제 취소 테스트'
             })
             .end((_, res) => {
                 chai.expect(res).to.have.status(200);
-                chai.expect(res.body.code).to.equal("0000");
-                chai.expect(res.body.pay_method).to.equal("PACA");
+                chai.expect(res.body.code).to.equal('0000');
+                chai.expect(res.body.pay_method).to.equal('PACA');
                 chai.expect(res.body.order_no).to.equal(given.order.id);
-                chai.expect(res.body.card_code).to.equal("CCLG");
-                chai.expect(res.body.card_name).to.equal("신한카드");
-                chai.expect(res.body.acquirer_code).to.equal("CCLG");
-                chai.expect(res.body.acquirer_name).to.equal("신한카드");
+                chai.expect(res.body.card_code).to.equal('CCLG');
+                chai.expect(res.body.card_name).to.equal('신한카드');
+                chai.expect(res.body.acquirer_code).to.equal('CCLG');
+                chai.expect(res.body.acquirer_name).to.equal('신한카드');
                 chai.expect(res.body.merchant_tax_no).to.match(/[0-9]+/);
                 chai.expect(res.body.mall_tax_no).to.match(/[0-9]+/);
                 chai.expect(res.body.ca_order_id).to.equal(given.order.id);
@@ -139,8 +137,8 @@ describe("payments controller test", async () => {
                 chai.expect(res.body.card_amount).to.equal(given.order.product.amount);
                 chai.expect(res.body.coupon_amount).to.equal(0);
                 chai.expect(res.body.is_escrow).to.be.true;
-                chai.expect(res.body.cancel_gubun).to.equal("B");
-                chai.expect(res.body.van_code).to.equal("VNKC");
+                chai.expect(res.body.cancel_gubun).to.equal('B');
+                chai.expect(res.body.van_code).to.equal('VNKC');
                 chai.expect(res.body.approval_time).to.match(/[0-9]{14}/);
                 chai.expect(res.body.van_approval_time).to.match(/[0-9]{14}/);
                 chai.expect(res.body.cancel_time).to.match(/[0-9]{14}/);
@@ -150,4 +148,3 @@ describe("payments controller test", async () => {
             });
     });
 }).timeout(10000);
-

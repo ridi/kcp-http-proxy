@@ -6,7 +6,7 @@
   "scripts": {
     "check": "tsc --p tsconfig.json",
     "build": "tsc && cp -a src/resources/. dist/resources/",
-    "test": "ts-node ./src/test/run.ts",
+    "test": "ts-node ./src/test.ts",
     "dev": "ts-node ./src/index.ts",
     "start": "npm run build && node ./dist/index.js"
   },

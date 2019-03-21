@@ -1,5 +1,5 @@
-import { AbstractCommand } from "@root/application/commands/AbstractCommand";
-import { Config } from "@root/common/config";
+import { AbstractCommand } from '@root/application/commands/AbstractCommand';
+import { Config } from '@root/common/config';
 
 export class PaymentAuthKeyCommand extends AbstractCommand {
     readonly card_number: string;// 카드번호 공백없이 숫자만
