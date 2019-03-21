@@ -1,6 +1,6 @@
 import * as chai from "chai";
 import { Application } from "express";
-import { Mode } from "../../api/common/config";
+import { Mode } from "../../common/config";
 import { App } from "../../app";
 import { Database } from "../../database";
 
