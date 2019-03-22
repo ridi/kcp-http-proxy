@@ -6,7 +6,7 @@ import { PaymentBatchKeyCommand } from '@root/domain/commands/PaymentBatchKeyCom
 import { PaymentCancellationCommand } from '@root/domain/commands/PaymentCancellationCommand';
 import { PaymentRequest } from '@root/domain/entities/PaymentRequest';
 import { InvalidRequestError } from '@root/errors/InvalidRequestError';
-import { PaymentRequestRepository } from '@root/repositories/PaymentRequestRepository';
+import { PaymentRequestRepository } from '@root/domain/entities/PaymentRequestRepository';
 import * as hash from 'object-hash';
 import { Container } from 'typedi';
 
