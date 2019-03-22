@@ -1,0 +1,19 @@
+langugage: node_js
+node_js:
+  - "11"
+
+sudo: required
+
+services:
+  - docker
+
+addons:
+  apt:
+    packages:
+      - docker-ce
+
+stages:
+  - test
+  - build
+  - deploy
+  - docs
