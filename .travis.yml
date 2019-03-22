@@ -1,6 +1,6 @@
 langugage: node_js
 node_js:
-  - "11"
+  - "stable"
 
 sudo: required
 
@@ -17,3 +17,5 @@ stages:
   - build
   - deploy
   - docs
+
+jobs:
