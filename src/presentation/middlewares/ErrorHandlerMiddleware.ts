@@ -1,5 +1,4 @@
 
-import { InvalidCommandError } from '@root/errors/InvalidCommandError';
 import { InvalidRequestError } from '@root/errors/InvalidRequestError';
 import { PayPlusError } from '@root/errors/PayPlusError';
 import * as Logger from 'bunyan';
@@ -17,14 +16,6 @@ export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
         switch (error.constructor) {            
             case InvalidRequestError: {
                 response.status(400).json({
-                    code: '400',
-                    message: (error as InvalidRequestError).errors
-                });
-                break;
-            }
-            case InvalidCommandError: {
-                response.status(400).json({
-                    code: '400',
                     message: error.message
                 });
                 break;
@@ -32,23 +23,28 @@ export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
             case PayPlusError: {
                 response.status(500).json({
                     code: (error as PayPlusError).code,
-                    message: error.message,
-                    command: (error as PayPlusError).command
+                    message: error.message
                 });
                 break;
             }
             case HttpError: {
                 const httpCode: number = (error as HttpError).httpCode || 500;
+                let message = error.message;
+                if (error.message.startsWith('Command failed')) {
+                    message = 'KCP Error';
+                }
                 response.status(httpCode).json({
-                    code: httpCode.toString(),
-                    message: error.message ? (error.message.startsWith('Command failed') ? 'Command failed.' : error.message) : 'Internal Server Error'
+                    message: message
                 });
                 break;
             }
             default: {
+                let message = 'Internal Server Error';
+                if (error.message.startsWith('Command failed')) {
+                    message = 'KCP Error';
+                }
                 response.status(500).json({
-                    code: '500',
-                    message: error.message ? (error.message.startsWith('Command failed') ? 'Command failed.' : error.message) : 'Internal Server Error'
+                    message: message
                 });
                 break;
             }

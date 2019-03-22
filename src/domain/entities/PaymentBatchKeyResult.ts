@@ -2,7 +2,7 @@ import { attribute, rangeKey } from '@aws/dynamodb-data-mapper-annotations';
 import { IsString } from 'class-validator';
 import { JSONSchema } from 'class-validator-jsonschema';
 
-export type PaymentAuthKeyResultType = {
+export type PaymentBatchKeyResultType = {
     res_cd: string,
     res_msg: string,
     card_cd: string,
@@ -14,9 +14,9 @@ export type PaymentAuthKeyResultType = {
     card_name: string
 };
 @JSONSchema({ description: '결제키 발급 요청 결과' })
-export class PaymentAuthKeyResult {
-    static parse(output: PaymentAuthKeyResultType): PaymentAuthKeyResult {
-        const result = new PaymentAuthKeyResult();
+export class PaymentBatchKeyResult {
+    static parse(output: PaymentBatchKeyResultType): PaymentBatchKeyResult {
+        const result = new PaymentBatchKeyResult();
         result.code = output.res_cd;
         result.message = output.res_msg;
         result.card_code = output.card_cd;

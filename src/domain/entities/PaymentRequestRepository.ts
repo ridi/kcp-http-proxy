@@ -1,5 +1,5 @@
 import { DataMapper, ItemNotFoundException } from '@aws/dynamodb-data-mapper';
-import { PaymentRequestEntity } from '@root/application/domain/PaymentRequestEntity';
+import { PaymentRequest } from '@root/domain/entities/PaymentRequest';
 import { Inject, Service } from 'typedi';
 
 @Service()
@@ -7,8 +7,8 @@ export class PaymentRequestRepository {
     @Inject(type => DataMapper)
     mapper: DataMapper;
     
-    async getPaymentRequestById(id: string): Promise<PaymentRequestEntity | null> {
-        return this.mapper.get(Object.assign(new PaymentRequestEntity, { id: id })).then(fetched => {                
+    async getPaymentRequestById(id: string): Promise<PaymentRequest | null> {
+        return this.mapper.get(Object.assign(new PaymentRequest, { id: id })).then(fetched => {                
                 return fetched;
             }).catch(err => {
                 if (err.name == ItemNotFoundException.name) {
@@ -18,13 +18,13 @@ export class PaymentRequestRepository {
             });
     }
     
-    async savePaymentRequest(request: PaymentRequestEntity): Promise<PaymentRequestEntity | null> {
+    async savePaymentRequest(request: PaymentRequest): Promise<PaymentRequest | null> {
         request.updated_at = new Date();
-        const saved = await this.mapper.put(Object.assign(new PaymentRequestEntity, request));
+        const saved = await this.mapper.put(Object.assign(new PaymentRequest, request));
         if (saved) {
             return saved;
         }
 
-        throw 'Failed to persist';
+        throw new Error('Failed to persist');
     }
 }

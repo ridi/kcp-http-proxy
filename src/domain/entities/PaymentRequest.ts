@@ -1,11 +1,11 @@
 import { embed } from '@aws/dynamodb-data-mapper';
 import { attribute, hashKey, table } from '@aws/dynamodb-data-mapper-annotations';
-import { PaymentApprovalResult } from '@root/application/domain/PaymentApprovalResult';
-import { PaymentAuthKeyResult } from '@root/application/domain/PaymentAuthKeyResult';
-import { PaymentCancellationResult } from '@root/application/domain/PaymentCancellationResult';
+import { PaymentApprovalResult } from '@root/domain/entities/PaymentApprovalResult';
+import { PaymentBatchKeyResult } from '@root/domain/entities/PaymentBatchKeyResult';
+import { PaymentCancellationResult } from '@root/domain/entities/PaymentCancellationResult';
 
 @table('payment_requests')
-export class PaymentRequestEntity {
+export class PaymentRequest {
     @hashKey()
     id: string;
     
@@ -18,8 +18,8 @@ export class PaymentRequestEntity {
     @attribute()
     updated_at: Date;
 
-    @attribute({ memberType: embed(PaymentAuthKeyResult) })
-    auth_key_results?: Array<PaymentAuthKeyResult>;
+    @attribute({ memberType: embed(PaymentBatchKeyResult) })
+    batch_key_results?: Array<PaymentBatchKeyResult>;
 
     @attribute({ memberType: embed(PaymentApprovalResult) })
     approval_results?: Array<PaymentApprovalResult>;

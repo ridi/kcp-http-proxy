@@ -1,4 +1,5 @@
-import { Config, KCP_CONFIGURATIONS } from '@root/common/config';
+import { KcpConfig, KcpSite } from '@root/common/config';
+import { Profile, Profiles } from '@root/common/constants';
 import * as Sentry from '@sentry/node';
 import * as bodyParser from 'body-parser';
 import * as Logger from 'bunyan';
@@ -13,23 +14,23 @@ import { createExpressServer, getMetadataArgsStorage, useContainer } from 'routi
 import { routingControllersToSpec } from 'routing-controllers-openapi';
 import * as swaggerUi from 'swagger-ui-express';
 import { Container } from 'typedi';
-import { Profile } from './common/constants';
 
 export class App {
     static init(): Application {
+        const profile = Profiles.from(process.env.PROFILE || 'dev');
         // load .env
         dotenv.config();
 
         useContainer(Container);
 
         Container.set('app.root', path.resolve(__dirname));
-        Container.set('profile', Profile.from(process.env.PROFILE || 'dev'));
-        App.configureLogger();
-        App.configureKcpEnvironment();
+        Container.set('profile', profile);
+        
+        App.configureLogger(profile);
+        App.configureKcpEnvironment(profile);
 
         // create server
         const routingControllersOptions = {
-            routePrefix: '/kcp',
             defaultErrorHandler: false,
             controllers: [ __dirname + '/presentation/controllers/*Controller.*' ],    
             middlewares: [ __dirname + '/presentation/middlewares/*Middleware.*' ]
@@ -48,10 +49,9 @@ export class App {
     /**
      * set logger and sentry
      */
-    private static configureLogger(): void {
-        const profile = Container.get('profile') as Profile;
+    private static configureLogger(profile: Profile): void {
         // Logger with AWS cloudwatch appednder TODO ECS 컨테이너의 Logging Driver를 awslogs로 설정
-        const logStream: any = profile.equals(Profile.Production) 
+        const logStream: any = profile === Profile.Production
         ? {
             stream: createCloudWatchStream({
                 logGroupName: process.env.AWS_LOG_GROUP || '',
@@ -71,7 +71,7 @@ export class App {
         }));
 
         // Sentry
-        Container.set('sentry.loggable', profile.equals(Profile.Production));
+        Container.set('sentry.loggable', profile === Profile.Production);
         if (Container.get('sentry.loggable')) {
             Sentry.init({
                 dsn: process.env.SENTRY_DSN,
@@ -83,26 +83,29 @@ export class App {
     /**
      * set kcp configuration by mode
      */
-    private static configureKcpEnvironment(): void {
-        KCP_CONFIGURATIONS.dev = {
-            normal: new Config('BA001', '2T5.LgLrH--wbufUOvCqSNT__', 'BA0011000348'),
-            tax: new Config('BA001', '2T5.LgLrH--wbufUOvCqSNT__', 'BA0011000348')
-        };
-        if (process.env.KCP_SITE_CODE) {
-            KCP_CONFIGURATIONS.prod.normal = new Config(
-                process.env.KCP_SITE_CODE || '',
-                process.env.KCP_SITE_KEY || '',
-                process.env.KCP_GROUP_ID|| '',
-                false
-            );
-        }
-        if (process.env.KCP_TAX_DEDUCTION_SITE_CODE) {
-            KCP_CONFIGURATIONS.prod.tax = new Config(
-                process.env.KCP_TAX_DEDUCTION_SITE_CODE || '',
-                process.env.KCP_TAX_DEDUCTION_SITE_KEY || '',
-                process.env.KCP_TAX_DEDUCTION_SITE_GROUP_ID|| '',
-                true
-            );
+    private static configureKcpEnvironment(profile: Profile): void {
+        if (profile === Profile.Production) {
+            const kcpConfig = new KcpConfig({
+                code: process.env.KCP_SITE_CODE,
+                key: process.env.KCP_SITE_KEY,
+                groupId: process.env.KCP_GROUP_ID,
+                gwUrl: 'paygw.kcp.co.kr'
+            }, {
+                code: process.env.KCP_TAX_DEDUCTION_SITE_CODE,
+                key: process.env.KCP_TAX_DEDUCTION_SITE_KEY,
+                groupId: process.env.KCP_TAX_DEDUCTION_SITE_GROUP_ID,
+                gwUrl: 'paygw.kcp.co.kr'
+            });
+            Container.set(KcpConfig, kcpConfig);
+        } else {
+            const site: KcpSite = {
+                code: 'BA001',
+                key: '2T5.LgLrH--wbufUOvCqSNT__',
+                groupId: 'BA0011000348',
+                gwUrl: 'testpaygw.kcp.co.kr'
+            };
+            const kcpConfig = new KcpConfig(site, site);
+            Container.set(KcpConfig, kcpConfig);
         }
     }
 

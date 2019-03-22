@@ -1,4 +1,4 @@
-import { AbstractKcpRequest } from '@root/presentation/requests/AbstractKcpRequest';
+import { AbstractKcpRequest } from '@root/application/requests/AbstractKcpRequest';
 import { IsEmail, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 import { JSONSchema } from 'class-validator-jsonschema';
 
@@ -9,7 +9,7 @@ import { JSONSchema } from 'class-validator-jsonschema';
 export class PaymentApprovalRequest extends AbstractKcpRequest {
     @JSONSchema({ description: '빌링(인증/배치)키' })
     @IsNotEmpty({ message: '빌링키는 필수값입니다.'})
-    bill_key: string;
+    batch_key: string;
 
     @JSONSchema({ description: '가맹점 주문번호' })
     @IsNotEmpty({ message: '거래번호는 필수값입니다.' })

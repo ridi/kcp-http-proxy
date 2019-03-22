@@ -1,22 +1,23 @@
-import { AbstractCommand } from '@root/application/commands/AbstractCommand';
-import { PaymentApprovalCommand } from '@root/application/commands/PaymentApprovalCommand';
-import { PaymentAuthKeyCommand } from '@root/application/commands/PaymentAuthKeyCommand';
-import { PaymentCancellationCommand } from '@root/application/commands/PaymentCancellationCommand';
-import { Config } from '@root/common/config';
+import { KcpConfig, KcpSite } from '@root/common/config';
 import { Ascii } from '@root/common/constants';
+import { AbstractKcpCommand } from '@root/domain/commands/AbstractKcpCommand';
+import { PaymentApprovalCommand } from '@root/domain/commands/PaymentApprovalCommand';
+import { PaymentBatchKeyCommand } from '@root/domain/commands/PaymentBatchKeyCommand';
+import { PaymentCancellationCommand } from '@root/domain/commands/PaymentCancellationCommand';
+import { InvalidRequestError } from '@root/errors/InvalidRequestError';
 import { exec, ExecException } from 'child_process';
 import * as iconv from 'iconv-lite';
-import { Service } from 'typedi';
+import { Inject, Service } from 'typedi';
 
 @Service()
 export class KcpComandActuator {
-    private config: Config;
+    @Inject(type => KcpConfig)
+    config: KcpConfig;
 
-    actuate(command: AbstractCommand): Promise<string> {
-        this.config = command.config;
+    actuate(command: AbstractKcpCommand): Promise<string> {
         switch (command.constructor) {
-            case PaymentAuthKeyCommand: {
-                return this.requestBatchKey((command as PaymentAuthKeyCommand));
+            case PaymentBatchKeyCommand: {
+                return this.requestBatchKey((command as PaymentBatchKeyCommand));
             }
             case PaymentApprovalCommand: {
                 return this.batchOrder((command as PaymentApprovalCommand));
@@ -24,22 +25,26 @@ export class KcpComandActuator {
             case PaymentCancellationCommand: {
                 return this.cancelTransaction((command as PaymentCancellationCommand));
             }
-            default:
-                throw 'Unknown Kcp Command';
+            default: {
+                console.error('Unknown Command', command);
+                throw new InvalidRequestError();
+            }
         }
     }
 
-    private requestBatchKey(command: PaymentAuthKeyCommand): Promise<string> {
+    private requestBatchKey(command: PaymentBatchKeyCommand): Promise<string> {
+        const site = this.config.site(command.isTaxDeductible);
+
         const payx_data = [
             `payx_data=`,
             `${Ascii.RecordSeparator}card=card_mny=`,
             `card_tx_type=${this.config.code.request.batchKey.cardTxType}`,
-            `card_no=${command.card_number}`,
-            `card_expiry=${command.card_expiry_date}`,
-            `card_taxno=${command.card_tax_no}`,
-            `card_pwd=${command.card_password}`,
+            `card_no=${command.cardNumber}`,
+            `card_expiry=${command.cardExpiryDate}`,
+            `card_taxno=${command.cardTaxNumber}`,
+            `card_pwd=${command.cardPassword}`,
             `${Ascii.RecordSeparator}auth=sign_txtype=${this.config.code.request.batchKey.signTxType}`,
-            `group_id=${this.config.groupId}`,
+            `group_id=${site.groupId}`,
             `${Ascii.RecordSeparator}`
         ].join(Ascii.UnitSeparator);
         
@@ -47,43 +52,47 @@ export class KcpComandActuator {
             payx_data: payx_data
         };
 
-        return this.executePayPlusClient(this.config.code.request.batchKey.txCode, pp_cli_arg);
+        return this.executePayPlusClient(site, this.config.code.request.batchKey.txCode, pp_cli_arg);
     }
 
     private batchOrder(command: PaymentApprovalCommand): Promise<string> {
+        const site = this.config.site(command.isTaxDeductible);
+        
         const payx_data = [
-            `payx_data=common=amount=${command.goods_price}`,
+            `payx_data=common=amount=${command.productAmount}`,
             `currency=${this.config.code.currency.KRW}`,
             `escw_mod=${this.config.code.escrowUse.No}`,
-            `${Ascii.RecordSeparator}card=card_mny=${command.goods_price}`,
+            `${Ascii.RecordSeparator}card=card_mny=${command.productAmount}`,
             `card_tx_type=${this.config.code.request.txApproval.cardTxType}`,
-            `quota=${command.installment_months.toString().padStart(2, '0')}`,
-            `bt_group_id=${this.config.groupId}`,
-            `bt_batch_key=${command.batch_key}`,
+            `quota=${command.installmentMonths.toString().padStart(2, '0')}`,
+            `bt_group_id=${site.groupId}`,
+            `bt_batch_key=${command.batchKey}`,
             `${Ascii.RecordSeparator}`
         ].join(Ascii.UnitSeparator);
 
         const ordr_data = [
-            `ordr_data=ordr_idxx=${command.order_id}`,
-            `good_name=${command.goods_name}`,
-            `good_mny=${command.goods_price}`,
-            `buyr_name=${command.buyer_name}`,
-            `buyr_tel1=${command.buyer_tel1}`,
-            `buyr_tel2=${command.buyer_tel2}`,
-            `buyr_mail=${command.buyer_email}`,
+            `ordr_data=ordr_idxx=${command.orderNo}`,
+            `good_name=${command.productName}`,
+            `good_mny=${command.productAmount}`,
+            `buyr_name=${command.buyerName}`,
+            `buyr_tel1=${command.buyerTel1}`,
+            `buyr_tel2=${command.buyerTel2}`,
+            `buyr_mail=${command.buyerEmail}`,
             ''
         ].join(Ascii.UnitSeparator);
 
         const pp_cli_arg = {
-            ordr_idx: command.order_id,
+            ordr_idx: command.orderNo,
             payx_data: payx_data,
             ordr_data: ordr_data
         };
 
-        return this.executePayPlusClient(this.config.code.request.txApproval.txCode, pp_cli_arg);
+        return this.executePayPlusClient(site, this.config.code.request.txApproval.txCode, pp_cli_arg);
     }
 
     private cancelTransaction(command: PaymentCancellationCommand): Promise<string> {
+        const site = this.config.site(command.isTaxDeductible);
+
         const data = [
             `mod_data=tno=${command.tno}`,
             `mod_type=${this.config.code.request.txCancellation.modType.full}`,
@@ -95,18 +104,18 @@ export class KcpComandActuator {
             modx_data: data
         };
         
-        return this.executePayPlusClient(this.config.code.request.txCancellation.txCode, pp_cli_arg);
+        return this.executePayPlusClient(site, this.config.code.request.txCancellation.txCode, pp_cli_arg);
     }
 
-    private executePayPlusClient(txCode: string, ppCliArg: object): Promise<string> {
+    private executePayPlusClient(site: KcpSite, txCode: string, ppCliArg: object): Promise<string> {        
         const commandArgument: CommandArgument = Object.assign(
             new CommandArgument(),
             {
                 home: this.config.modulePath,
-                site_cd: this.config.siteCode,
-                site_key: this.config.siteKey,
+                site_cd: site.code,
+                site_key: site.key,
                 tx_cd: txCode,
-                pa_url: this.config.gwUrl,
+                pa_url: site.gwUrl,
                 pa_port: 8090
             },            
             ppCliArg,

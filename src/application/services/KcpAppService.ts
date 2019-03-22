@@ -1,15 +1,18 @@
 
-import { AbstractCommand } from '@root/application/commands/AbstractCommand';
-import { PaymentApprovalCommand } from '@root/application/commands/PaymentApprovalCommand';
-import { PaymentAuthKeyCommand } from '@root/application/commands/PaymentAuthKeyCommand';
-import { PaymentCancellationCommand } from '@root/application/commands/PaymentCancellationCommand';
-import { PaymentApprovalResult, PaymentApprovalResultType } from '@root/application/domain/PaymentApprovalResult';
-import { PaymentAuthKeyResult, PaymentAuthKeyResultType } from '@root/application/domain/PaymentAuthKeyResult';
-import { PaymentCancellationResult, PaymentCancellationResultType } from '@root/application/domain/PaymentCancellationResult';
-import { KcpComandActuator } from '@root/application/kcp/KcpCommandActuator';
+import { PaymentApprovalRequest } from '@root/application/requests/PaymentApprovalRequest';
+import { PaymentBatchKeyRequest } from '@root/application/requests/PaymentBatchKeyRequest';
+import { PaymentCancellationRequest } from '@root/application/requests/PaymentCancellationRequest';
 import { PaymentRequestAspect } from '@root/application/services/PaymentRequestAspect';
 import { Ascii, PayPlusStatus } from '@root/common/constants';
-import { InvalidCommandError } from '@root/errors/InvalidCommandError';
+import { AbstractKcpCommand } from '@root/domain/commands/AbstractKcpCommand';
+import { PaymentApprovalCommand } from '@root/domain/commands/PaymentApprovalCommand';
+import { PaymentBatchKeyCommand } from '@root/domain/commands/PaymentBatchKeyCommand';
+import { PaymentCancellationCommand } from '@root/domain/commands/PaymentCancellationCommand';
+import { KcpComandActuator } from '@root/domain/kcp/KcpCommandActuator';
+import { PaymentApprovalResult, PaymentApprovalResultType } from '@root/domain/entities/PaymentApprovalResult';
+import { PaymentBatchKeyResult, PaymentBatchKeyResultType } from '@root/domain/entities/PaymentBatchKeyResult';
+import { PaymentCancellationResult, PaymentCancellationResultType } from '@root/domain/entities/PaymentCancellationResult';
+import { InvalidRequestError } from '@root/errors/InvalidRequestError';
 import { PayPlusError } from '@root/errors/PayPlusError';
 import * as Sentry from '@sentry/node';
 import { Inject, Service } from 'typedi';
@@ -22,20 +25,40 @@ export class KcpAppService {
     @Inject('sentry.loggable')
     sentryLoggable: boolean;
 
-    async requestAuthKey(command: PaymentAuthKeyCommand): Promise<PaymentAuthKeyResult> {
-        return await this.executeCommand(command) as PaymentAuthKeyResult;
+    async requestAuthKey(req: PaymentBatchKeyRequest): Promise<PaymentBatchKeyResult> {
+        const command = new PaymentBatchKeyCommand(
+            req.is_tax_deductible,
+            req.card_no,
+            req.card_expiry_date,
+            req.card_tax_no,
+            req.card_password
+        );
+        return await this.executeCommand(command) as PaymentBatchKeyResult;
     }
 
-    async approvePayment(command: PaymentApprovalCommand): Promise<PaymentApprovalResult> {
+    async approvePayment(req: PaymentApprovalRequest): Promise<PaymentApprovalResult> {
+        const command = new PaymentApprovalCommand(
+            req.is_tax_deductible,
+            req.batch_key,
+            req.order_no,
+            req.product_name,
+            req.product_amount,
+            req.buyer_name,
+            req.buyer_email,
+            '',
+            '',
+            req.installment_months
+        );
         return await this.executeCommand(command) as PaymentApprovalResult;
     }
 
-    async cancelPayment(command: PaymentCancellationCommand): Promise<PaymentCancellationResult> {
+    async cancelPayment(req: PaymentCancellationRequest): Promise<PaymentCancellationResult> {
+        const command = new PaymentCancellationCommand(req.is_tax_deductible, req.tno, req.reason);
         return await this.executeCommand(command) as PaymentCancellationResult;
     }
 
     @PaymentRequestAspect
-    private async executeCommand(command: AbstractCommand): Promise<PaymentAuthKeyResult | PaymentApprovalResult | PaymentCancellationResult> {
+    private async executeCommand(command: AbstractKcpCommand): Promise<PaymentBatchKeyResult | PaymentApprovalResult | PaymentCancellationResult> {
         return this.commandActuator.actuate(command)
             .then(output => {
                 const outputObject = {};
@@ -45,12 +68,12 @@ export class KcpAppService {
                 });
 
                 if (outputObject['res_cd'] !== PayPlusStatus.OK) {
-                    throw new PayPlusError(outputObject['res_cd'], outputObject['res_msg'], command);
+                    throw new PayPlusError(outputObject['res_cd'], outputObject['res_msg']);
                 }
 
                 switch (command.constructor) {
-                    case PaymentAuthKeyCommand: {
-                        return PaymentAuthKeyResult.parse(outputObject as PaymentAuthKeyResultType);
+                    case PaymentBatchKeyCommand: {
+                        return PaymentBatchKeyResult.parse(outputObject as PaymentBatchKeyResultType);
                     }
                     case PaymentApprovalCommand: {
                         return PaymentApprovalResult.parse(outputObject as PaymentApprovalResultType);
@@ -59,7 +82,8 @@ export class KcpAppService {
                         return PaymentCancellationResult.parse(outputObject as PaymentCancellationResultType);
                     }
                     default: {
-                        throw new InvalidCommandError(`Unknown Command Type: ${command.constructor.name}`);
+                        console.error('Unknown Command', command);                        
+                        throw new InvalidRequestError();
                     }
                 }
             }).catch(error => {

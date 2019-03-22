@@ -6,7 +6,7 @@ import { Database } from '@root/database';
 chai.use(require('chai-http'));
 console.info('server....');
 const app: Application = App.init();        
-const port = process.env.port || 3000;
+const port = process.env.PORT || 3000;
 app.listen(port);
 
 console.info('server up...');

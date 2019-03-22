@@ -1,6 +1,6 @@
 import { Container } from 'typedi';
 
-export class Config {
+export class KcpConfig {
     readonly code = {
         request: {
             //배치키(인증키) 발급 요청 코드
@@ -43,31 +43,42 @@ export class Config {
     
     readonly modulePath: string = `${Container.get('app.root')}/resources/pp_cli`; 
     readonly gwPort: string = '8090';// KCP 결제 서버 포트
-    readonly gwUrl: string;//KCP 결제 서버 주소
-    readonly siteCode: string;//상점 코드
-    readonly siteKey: string;//상점 키
-    readonly groupId: string;//상점 그룹 ID
-    readonly isTaxDeductible: boolean;// 문화비 소득 공제 여부
+    
+    private sites: Map<string, KcpSite>;
+    
+    constructor(site: KcpSite, taxDeductionSite: KcpSite) {
+        this.validate([site, taxDeductionSite]);
 
-    constructor(siteCode: string, siteKey: string, groupId: string, isTaxDeductible: boolean = false) {
-        if (!siteCode || !siteKey || !groupId) {
-            throw new Error('siteCode, siteKey and groupId cannot be null or empty');
+        this.sites = new Map<string, KcpSite>([
+            [KcpSiteMode.Normal, site],
+            [KcpSiteMode.TaxDeduction, taxDeductionSite]
+        ]);
+    }
+
+    private validate(sites: KcpSite[]): void {
+        for (const site of sites) {
+            if (!site.code || !site.key || !site.groupId) {
+                throw new Error('Invalid KCP Site Configuration');
+            }
         }
-        this.siteCode = siteCode;
-        this.siteKey = siteKey;
-        this.groupId = groupId;
-        this.gwUrl = this.siteCode === 'BA001' ? 'testpaygw.kcp.co.kr': 'paygw.kcp.co.kr';
-        this.isTaxDeductible = isTaxDeductible;
+    }
+
+    site(isTaxDeductible: boolean = false): KcpSite {
+        if (isTaxDeductible) {
+            return this.sites.get(KcpSiteMode.TaxDeduction);
+        }
+        return this.sites.get(KcpSiteMode.Normal);
     }
 };
 
-export const KCP_CONFIGURATIONS = {
-    dev: {//for test
-        normal: null,
-        tax: null,
-    },
-    prod: {
-        normal: null,
-        tax: null
-    }
-};
+enum KcpSiteMode {
+    Normal = 'n',
+    TaxDeduction = 't'
+}
+
+export type KcpSite = {
+    code: string,//상점 코드
+    key: string,//상점 키
+    groupId: string,//상점 그룹 ID
+    gwUrl?: string//KCP 결제 서버 주소
+}

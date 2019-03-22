@@ -1,4 +1,4 @@
-import { AbstractKcpRequest } from '@root/presentation/requests/AbstractKcpRequest';
+import { AbstractKcpRequest } from '@root/application/requests/AbstractKcpRequest';
 import { IsNotEmpty } from 'class-validator';
 import { JSONSchema } from 'class-validator-jsonschema';
 

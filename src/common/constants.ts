@@ -7,36 +7,23 @@ export const PayPlusStatus = {
     OK: '0000'
 };
 
-export class Profile {
-    private static INSTANCES: Map<string, Profile> = new Map([
-        ['prod', new Profile('prod')],
-        ['dev', new Profile('dev')],
-        ['test', new Profile('test')]
-    ]);
+export enum Profile {
+    Production = 'prod',
+    Development = 'dev',
+    Test = 'test'
+};
 
-    static from(v: string): Profile {
-        if (this.INSTANCES.get(v)) {
-            return this.INSTANCES.get(v) as Profile;
+export class Profiles {
+    static from(value: string): Profile {
+        switch (value) {
+            case Profile.Production:
+                return Profile.Production;
+            case Profile.Development:
+                return Profile.Development;
+            case Profile.Test:
+                return Profile.Test;
+            default:
+                return Profile.Development;
         }
-        const profile = new Profile(v);
-        this.INSTANCES.set(v, profile);
-        return profile;
-    }
-    static Production = Profile.INSTANCES.get('prod') as Profile;
-    static Development = Profile.INSTANCES.get('dev') as Profile;
-    static Test = Profile.INSTANCES.get('test') as Profile;
-
-    private __value: string;
-
-    private constructor(v: string) {
-        this.__value = v;
-    }
-
-    toString(): string {
-        return this.__value;
-    }
-
-    equals(profile: Profile): boolean {
-        return this.__value === profile.__value;
     }
 }

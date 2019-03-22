@@ -1,17 +1,11 @@
-import { PaymentApprovalCommand } from '@root/application/commands/PaymentApprovalCommand';
-import { PaymentAuthKeyCommand } from '@root/application/commands/PaymentAuthKeyCommand';
-import { PaymentCancellationCommand } from '@root/application/commands/PaymentCancellationCommand';
-import { PaymentApprovalResult } from '@root/application/domain/PaymentApprovalResult';
-import { PaymentAuthKeyResult } from '@root/application/domain/PaymentAuthKeyResult';
-import { PaymentCancellationResult } from '@root/application/domain/PaymentCancellationResult';
+import { PaymentApprovalResult } from '@root/domain/entities/PaymentApprovalResult';
+import { PaymentBatchKeyResult } from '@root/domain/entities/PaymentBatchKeyResult';
+import { KcpRequestValidator } from '@root/application/requests/KcpRequestValidator';
+import { PaymentApprovalRequest } from '@root/application/requests/PaymentApprovalRequest';
+import { PaymentBatchKeyRequest } from '@root/application/requests/PaymentBatchKeyRequest';
+import { PaymentCancellationRequest } from '@root/application/requests/PaymentCancellationRequest';
 import { KcpAppService } from '@root/application/services/KcpAppService';
-import { Config, KCP_CONFIGURATIONS } from '@root/common/config';
-import { Profile } from '@root/common/constants';
-import { AbstractKcpRequest } from '@root/presentation/requests/AbstractKcpRequest';
-import { KcpRequestValidator } from '@root/presentation/requests/KcpRequestValidator';
-import { PaymentApprovalRequest } from '@root/presentation/requests/PaymentApprovalRequest';
-import { PaymentAuthKeyRequest } from '@root/presentation/requests/PaymentAuthKeyRequest';
-import { PaymentCancellationRequest } from '@root/presentation/requests/PaymentCancellationRequest';
+import { PaymentCancellationResult } from '@root/domain/entities/PaymentCancellationResult';
 import { Response } from 'express';
 import { Body, Delete, HttpCode, JsonController, Param, Post, Res } from 'routing-controllers';
 import { ResponseSchema } from 'routing-controllers-openapi';
@@ -25,26 +19,13 @@ export class PaymentController {
     @Inject()
     requestValidator: KcpRequestValidator;
 
-    @Inject('profile')
-    profile: Profile;
-
-    @ResponseSchema(PaymentAuthKeyResult)
+    @ResponseSchema(PaymentBatchKeyResult)
     @HttpCode(201)
-    @Post('/payments/auth-key')
-    async requestAuthKey(@Body() req: PaymentAuthKeyRequest, @Res() res: Response): Promise<PaymentAuthKeyResult> {  
-        req.config = this.getConfigByProfile(req);
-
+    @Post('/payments/batch-key')
+    async requestBatchKey(@Body() req: PaymentBatchKeyRequest, @Res() res: Response): Promise<PaymentBatchKeyResult> {
         await this.requestValidator.validate(req);
 
-        const command = new PaymentAuthKeyCommand(
-            req.config,
-            req.card_no,
-            req.card_expiry_date,
-            req.card_tax_no,
-            req.card_password
-        );
-
-        const result: PaymentAuthKeyResult = await this.kcpService.requestAuthKey(command);
+        const result: PaymentBatchKeyResult = await this.kcpService.requestAuthKey(req);
         return result;
     }
     
@@ -52,24 +33,9 @@ export class PaymentController {
     @HttpCode(200)
     @Post('/payments')
     async approvePayment(@Body() req: PaymentApprovalRequest, @Res() res: Response): Promise<PaymentApprovalResult> {
-        req.config = this.getConfigByProfile(req);
-
         await this.requestValidator.validate(req);
-        
-        const command = new PaymentApprovalCommand(
-            req.config,
-            req.bill_key,
-            req.order_no,
-            req.product_name,
-            req.product_amount,
-            req.buyer_name,
-            req.buyer_email,
-            '',
-            '',
-            req.installment_months
-        );
 
-        const result: PaymentApprovalResult = await this.kcpService.approvePayment(command);
+        const result: PaymentApprovalResult = await this.kcpService.approvePayment(req);
         return result;
     }
 
@@ -78,19 +44,10 @@ export class PaymentController {
     @Delete('/payments/:kcp_tno')
     async cancelPayment(@Param('kcp_tno') kcp_tno: string, @Body() req: PaymentCancellationRequest, @Res() res: Response): Promise<PaymentCancellationResult> {
         req.tno = kcp_tno;
-        req.config = this.getConfigByProfile(req);
 
         await this.requestValidator.validate(req);
 
-        const command = new PaymentCancellationCommand(req.config, req.tno, req.reason)
-
-        const result: PaymentCancellationResult = await this.kcpService.cancelPayment(command);
+        const result: PaymentCancellationResult = await this.kcpService.cancelPayment(req);
         return result;
-    }
-
-    private getConfigByProfile(req: AbstractKcpRequest): Config {
-        return this.profile.equals(Profile.Production) 
-            ? (req.is_tax_deductible ? KCP_CONFIGURATIONS.prod.tax : KCP_CONFIGURATIONS.prod.normal)
-            : KCP_CONFIGURATIONS.dev.normal;
     }
 }

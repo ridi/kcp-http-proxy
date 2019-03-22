@@ -1,10 +1,11 @@
-import { AbstractCommand } from '@root/application/commands/AbstractCommand';
-import { PaymentApprovalCommand } from '@root/application/commands/PaymentApprovalCommand';
-import { PaymentAuthKeyCommand } from '@root/application/commands/PaymentAuthKeyCommand';
-import { PaymentCancellationCommand } from '@root/application/commands/PaymentCancellationCommand';
-import { PaymentRequestEntity } from '@root/application/domain/PaymentRequestEntity';
+import { KcpConfig, KcpSite } from '@root/common/config';
 import { PayPlusStatus } from '@root/common/constants';
-import { InvalidCommandError } from '@root/errors/InvalidCommandError';
+import { AbstractKcpCommand } from '@root/domain/commands/AbstractKcpCommand';
+import { PaymentApprovalCommand } from '@root/domain/commands/PaymentApprovalCommand';
+import { PaymentBatchKeyCommand } from '@root/domain/commands/PaymentBatchKeyCommand';
+import { PaymentCancellationCommand } from '@root/domain/commands/PaymentCancellationCommand';
+import { PaymentRequest } from '@root/domain/entities/PaymentRequest';
+import { InvalidRequestError } from '@root/errors/InvalidRequestError';
 import { PaymentRequestRepository } from '@root/repositories/PaymentRequestRepository';
 import * as hash from 'object-hash';
 import { Container } from 'typedi';
@@ -12,18 +13,18 @@ import { Container } from 'typedi';
 export const PaymentRequestAspect = (target: Object, propertyKey: string, descriptor: PropertyDescriptor) => {
     const originalValue = descriptor.value;
 
-    descriptor.value = async function(command: AbstractCommand) {
+    descriptor.value = async function(command: AbstractKcpCommand) {
         return await PaymentRequestInvoker.invoke(command, originalValue, this);
     }
 };
 
 class PaymentRequestInvoker {
-    static async invoke(command: AbstractCommand, fn: any, context: any): Promise<any> {
+    static async invoke(command: AbstractKcpCommand, fn: any, context: any): Promise<any> {
         const hashId = this.hashId(command);
 
         const repository = Container.get(PaymentRequestRepository);
 
-        let found: PaymentRequestEntity = await this.getPaymentRequestEntity(repository, hashId);
+        let found: PaymentRequest = await this.getPaymentRequestEntity(repository, hashId);
         let result = this.findSuccessfulResult(command, found);
         if (result) {
             delete result.created_at;
@@ -34,8 +35,8 @@ class PaymentRequestInvoker {
         
         let results = [];
         switch (command.constructor) {
-            case PaymentAuthKeyCommand:
-                results = found.auth_key_results;
+            case PaymentBatchKeyCommand:
+                results = found.batch_key_results;
                 break;
             case PaymentApprovalCommand:
                 results = found.approval_results;
@@ -50,11 +51,11 @@ class PaymentRequestInvoker {
         return result;
     }
 
-    static findSuccessfulResult(command: AbstractCommand, found: PaymentRequestEntity): any {
+    static findSuccessfulResult(command: AbstractKcpCommand, found: PaymentRequest): any {
         let results = [];
         switch (command.constructor) {
-            case PaymentAuthKeyCommand:
-                results = found.auth_key_results;
+            case PaymentBatchKeyCommand:
+                results = found.batch_key_results;
                 break;
             case PaymentApprovalCommand:
                 results = found.approval_results;
@@ -67,16 +68,15 @@ class PaymentRequestInvoker {
         return results.find(r => r.code === PayPlusStatus.OK) || null;
     }
 
-    static async getPaymentRequestEntity(repository: PaymentRequestRepository, id: string): Promise<PaymentRequestEntity> {
-        let found: PaymentRequestEntity | null = await repository.getPaymentRequestById(id);
+    static async getPaymentRequestEntity(repository: PaymentRequestRepository, id: string): Promise<PaymentRequest> {
+        let found: PaymentRequest | null = await repository.getPaymentRequestById(id);
         if (!found) {
-            const request = new PaymentRequestEntity();
+            const request = new PaymentRequest();
             request.id = id;
             found = await repository.savePaymentRequest(request);
-            
         }
-        if (!found.auth_key_results) {
-            found.auth_key_results = [];
+        if (!found.batch_key_results) {
+            found.batch_key_results = [];
         }
         if (!found.approval_results) {
             found.approval_results = [];
@@ -87,36 +87,40 @@ class PaymentRequestInvoker {
         return found;
     }
 
-    static hashId(command: AbstractCommand): string {
+    static hashId(command: AbstractKcpCommand): string {
+        const config: KcpConfig = Container.get(KcpConfig);
+        const site: KcpSite = config.site(command.isTaxDeductible);
+
         switch (command.constructor) {
-            case PaymentAuthKeyCommand: {
-                const cmd = command as PaymentAuthKeyCommand;
+            case PaymentBatchKeyCommand: {
+                const cmd = command as PaymentBatchKeyCommand;
                 return hash({
-                    site_code: cmd.config.siteCode,
-                    card_number: cmd.card_number,
-                    card_expiry_date: cmd.card_expiry_date,
-                    card_tax_no: cmd.card_tax_no,
-                    card_password: cmd.card_password
+                    siteCode: site.code,
+                    cardNumber: cmd.cardNumber,
+                    cardExpiryDate: cmd.cardExpiryDate,
+                    cardTaxNumber: cmd.cardTaxNumber,
+                    cardPassword: cmd.cardPassword
                 });
             }
             case PaymentApprovalCommand: {
                 const cmd = command as PaymentApprovalCommand;
                 return hash({
-                    site_code: cmd.config.siteCode,
-                    bill_key: cmd.batch_key,
-                    order_no: cmd.order_id,
-                    product_amount: cmd.goods_price
+                    siteCode: site.code,
+                    batchKey: cmd.batchKey,
+                    orderNo: cmd.orderNo,
+                    productAmount: cmd.productAmount
                 });
             }
             case PaymentCancellationCommand: {
                 const cmd = command as PaymentCancellationCommand;
                 return hash({
-                    site_code: cmd.config.siteCode,
+                    siteCode: site.code,
                     tno: cmd.tno
                 });
             }
             default: {
-                throw new InvalidCommandError(`Unknown Command: ${command.constructor}`);
+                console.error('Unknown Command', command);
+                throw new InvalidRequestError();
             }
         }
     }

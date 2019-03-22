@@ -1,4 +1,3 @@
-import { Config } from '@root/common/config';
 import { IsBoolean, IsOptional } from 'class-validator';
 import { JSONSchema } from 'class-validator-jsonschema';
 
@@ -7,6 +6,4 @@ export abstract class AbstractKcpRequest {
     @IsBoolean()
     @IsOptional()
     is_tax_deductible?: boolean = false;
-
-    config: Config;
 }

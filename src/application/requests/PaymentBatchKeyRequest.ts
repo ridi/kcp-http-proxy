@@ -1,12 +1,12 @@
+import { AbstractKcpRequest } from '@root/application/requests/AbstractKcpRequest';
 import { Matches } from 'class-validator';
 import { JSONSchema } from 'class-validator-jsonschema';
-import { AbstractKcpRequest } from '@root/presentation/requests/AbstractKcpRequest';
 
 @JSONSchema({
     description: '결제를 위한 카드 인증(배치)키 요청',
     required: [ 'card_no', 'card_expiry_date', 'card_tax_no', 'card_password' ]
 })
-export class PaymentAuthKeyRequest extends AbstractKcpRequest {
+export class PaymentBatchKeyRequest extends AbstractKcpRequest {
     @JSONSchema({ description: '카드번호 16자리', example: '1234567855550000' })
     @Matches(/^\d{16}$/, {
         message: '카드번호가 올바르지 않습니다. 카드번호는 공백없이 숫자만 가능합니다.'
