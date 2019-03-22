@@ -11,7 +11,7 @@ export class ResponseLoggingMiddleware implements ExpressMiddlewareInterface {
     use(request: any, response: any, next: (err?: any) => any) {
         const req = request as Request;
 
-        this.logger.info(`${req.method} ${req.url}`, response);
+        this.logger.info(`${req.method} ${req.url}`, request, response);
 
         next();
     }
