@@ -22,9 +22,9 @@ services:
       KCP_SITE_CODE: test
       KCP_SITE_KEY: test
       KCP_GROUP_ID: test
-      kcp_tax_deduction_site_code: test
-      kcp_tax_deduction_site_key: test
-      kcp_tax_deduction_group_id: test        
+      KCP_TAX_DEDUCTION_SITE_CODE: test
+      KCP_TAX_DEDUCTION_SITE_KEY: test
+      KCP_TAX_DEDUCTION_GROUP_ID: test        
       SENTRY_DSN: your_sentry_dsn
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
