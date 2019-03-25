@@ -2,7 +2,12 @@ langugage: node_js
 node_js:
   - "stable"
 
-sudo: required
+install:
+  - npm ci
+
+cache:
+  directories:
+    - "$HOME/.npm"
 
 services:
   - docker

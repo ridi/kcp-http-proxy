@@ -39,7 +39,8 @@ services:
       - dynamodb
     command: >
       bash -c 'npm i pm2 -g &&
-               pm2-runtime --name ridi_kcp_api npm -- start'
+               nmp ci &&
+               pm2-runtime --name kcp-http-proxy npm -- start'
     
 volumes:
   dynamodbdata:

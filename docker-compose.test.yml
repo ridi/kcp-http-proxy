@@ -7,7 +7,7 @@ services:
     ports:
       - 8000:8000
     networks:
-      - test_ridi_kcp_http_proxy
+      - test-kcp-http-proxy
     command: ['-jar', 'DynamoDBLocal.jar', '-inMemory']
 
   application:
@@ -37,10 +37,11 @@ services:
     depends_on:
       - dynamodb
     networks:
-      - test_ridi_kcp_http_proxy
+      - test-kcp-http-proxy
     command: >
-      bash -c 'npm run build && npm run test'
+      bash -c 'npm ci &&
+               npm run test'
 
 networks:
-  test_ridi_kcp_http_proxy:
+  test-kcp-http-proxy:
     driver: bridge
