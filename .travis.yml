@@ -34,5 +34,12 @@ jobs:
         - docker exec -it -w /app test bash -c "npm ci"
       script:
         - docker exec -it -w /app test bash -c "npm test"
+
+
+
+
+
       after_success:
         - bash <(curl -s https://codecov.io/bash)
+
+    - stage: docs

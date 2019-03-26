@@ -130,9 +130,9 @@ export class App {
             info: {
                 description: 'Generated with \"routing-controllers-openapi\"',
                 title: 'RIDI KCP Http Proxy Rest API',
-                version: '1.0.0'
+                version: '0.0.1'
             }
         });
-        app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(spec));
+        app.use('/docs', swaggerUi.serve, swaggerUi.setup(spec));
     }
 }

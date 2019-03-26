@@ -1,15 +1,16 @@
-import { PaymentApprovalResult } from '@root/domain/entities/PaymentApprovalResult';
-import { PaymentBatchKeyResult } from '@root/domain/entities/PaymentBatchKeyResult';
 import { KcpRequestValidator } from '@root/application/requests/KcpRequestValidator';
 import { PaymentApprovalRequest } from '@root/application/requests/PaymentApprovalRequest';
 import { PaymentBatchKeyRequest } from '@root/application/requests/PaymentBatchKeyRequest';
 import { PaymentCancellationRequest } from '@root/application/requests/PaymentCancellationRequest';
 import { KcpAppService } from '@root/application/services/KcpAppService';
+import { PaymentApprovalResult } from '@root/domain/entities/PaymentApprovalResult';
+import { PaymentBatchKeyResult } from '@root/domain/entities/PaymentBatchKeyResult';
 import { PaymentCancellationResult } from '@root/domain/entities/PaymentCancellationResult';
 import { Response } from 'express';
-import { Body, Delete, HttpCode, JsonController, Param, Post, Res } from 'routing-controllers';
+import { Body, Delete, HttpCode, JsonController, Param, Post, Res, UseBefore } from 'routing-controllers';
 import { ResponseSchema } from 'routing-controllers-openapi';
 import { Inject } from 'typedi';
+import { RequestLoggingMiddleware } from '../middlewares/RequestLoggingMiddleware';
 
 @JsonController()
 export class PaymentController {
@@ -20,6 +21,7 @@ export class PaymentController {
     requestValidator: KcpRequestValidator;
 
     @ResponseSchema(PaymentBatchKeyResult)
+    @UseBefore(RequestLoggingMiddleware)
     @HttpCode(201)
     @Post('/payments/batch-key')
     async requestBatchKey(@Body() req: PaymentBatchKeyRequest, @Res() res: Response): Promise<PaymentBatchKeyResult> {
@@ -30,6 +32,7 @@ export class PaymentController {
     }
     
     @ResponseSchema(PaymentApprovalResult)
+    @UseBefore(RequestLoggingMiddleware)
     @HttpCode(200)
     @Post('/payments')
     async approvePayment(@Body() req: PaymentApprovalRequest, @Res() res: Response): Promise<PaymentApprovalResult> {
@@ -40,6 +43,7 @@ export class PaymentController {
     }
 
     @ResponseSchema(PaymentCancellationResult)
+    @UseBefore(RequestLoggingMiddleware)
     @HttpCode(200)
     @Delete('/payments/:kcp_tno')
     async cancelPayment(@Param('kcp_tno') kcp_tno: string, @Body() req: PaymentCancellationRequest, @Res() res: Response): Promise<PaymentCancellationResult> {

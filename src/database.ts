@@ -1,5 +1,5 @@
 import { DataMapper } from '@aws/dynamodb-data-mapper';
-import { PaymentRequest } from '@root/domain/entities/PaymentRequest';
+import { PaymentApprovalRequestEntity } from '@root/domain/entities/PaymentApprovalRequestEntity';
 import { DynamoDB } from 'aws-sdk';
 import { Container } from 'typedi';
 
@@ -15,7 +15,7 @@ export class Database {
             tableNamePrefix: 't_'
         });
 
-        await mapper.ensureTableExists(PaymentRequest, { readCapacityUnits: 5, writeCapacityUnits: 5 }).then(() => {
+        await mapper.ensureTableExists(PaymentApprovalRequestEntity, { readCapacityUnits: 5, writeCapacityUnits: 5 }).then(() => {
             console.debug('Table created.');
         });
 

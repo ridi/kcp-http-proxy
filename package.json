@@ -1,14 +1,14 @@
 {
   "name": "kcp-http-proxy",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "RIDI KCP Http Proxy Rest API",
   "main": "index.js",
   "scripts": {
     "check": "tsc --p tsconfig.json",
     "build": "tsc",
     "test": "PROFILE=test AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test mocha -r ts-node/register src/test/*test.ts",
-    "dev": "ts-node ./src/index.ts",
-    "start": "npm run build && node ./dist/index.js"
+    "dev": "ts-node src/index.ts",
+    "start": "npm run build && node dist/index.js"
   },
   "author": "RIDI Corp",
   "license": "ISC",

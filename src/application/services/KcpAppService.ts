@@ -1,24 +1,29 @@
-
 import { PaymentApprovalRequest } from '@root/application/requests/PaymentApprovalRequest';
 import { PaymentBatchKeyRequest } from '@root/application/requests/PaymentBatchKeyRequest';
 import { PaymentCancellationRequest } from '@root/application/requests/PaymentCancellationRequest';
-import { PaymentRequestAspect } from '@root/application/services/PaymentRequestAspect';
+import { KcpConfig, KcpSite } from '@root/common/config';
 import { Ascii, PayPlusStatus } from '@root/common/constants';
 import { AbstractKcpCommand } from '@root/domain/commands/AbstractKcpCommand';
 import { PaymentApprovalCommand } from '@root/domain/commands/PaymentApprovalCommand';
 import { PaymentBatchKeyCommand } from '@root/domain/commands/PaymentBatchKeyCommand';
 import { PaymentCancellationCommand } from '@root/domain/commands/PaymentCancellationCommand';
-import { KcpComandActuator } from '@root/domain/kcp/KcpCommandActuator';
+import { PaymentApprovalRequestEntity } from '@root/domain/entities/PaymentApprovalRequestEntity';
+import { PaymentApprovalRequestRepository } from '@root/domain/entities/PaymentApprovalRequestRepository';
 import { PaymentApprovalResult, PaymentApprovalResultType } from '@root/domain/entities/PaymentApprovalResult';
 import { PaymentBatchKeyResult, PaymentBatchKeyResultType } from '@root/domain/entities/PaymentBatchKeyResult';
 import { PaymentCancellationResult, PaymentCancellationResultType } from '@root/domain/entities/PaymentCancellationResult';
+import { KcpComandActuator } from '@root/domain/kcp/KcpCommandActuator';
 import { InvalidRequestError } from '@root/errors/InvalidRequestError';
 import { PayPlusError } from '@root/errors/PayPlusError';
 import * as Sentry from '@sentry/node';
-import { Inject, Service } from 'typedi';
+import * as hash from 'object-hash';
+import Container, { Inject, Service } from 'typedi';
 
 @Service()
 export class KcpAppService {
+    @Inject()
+    approvalRepository: PaymentApprovalRequestRepository;
+
     @Inject()
     commandActuator: KcpComandActuator;
 
@@ -49,7 +54,20 @@ export class KcpAppService {
             '',
             req.installment_months
         );
-        return await this.executeCommand(command) as PaymentApprovalResult;
+
+        // caching result
+        let { found, result } = await this.getSuccessfulPaymentApprovalResult(command);
+        if (result) {
+            return result;
+        }
+        
+        // execute pp_cli
+        result = await this.executeCommand(command) as PaymentApprovalResult;
+
+        // persist result
+        found.results.push(result);
+        await this.approvalRepository.savePaymentApprovalRequest(found);
+        return result;
     }
 
     async cancelPayment(req: PaymentCancellationRequest): Promise<PaymentCancellationResult> {
@@ -57,7 +75,6 @@ export class KcpAppService {
         return await this.executeCommand(command) as PaymentCancellationResult;
     }
 
-    @PaymentRequestAspect
     private async executeCommand(command: AbstractKcpCommand): Promise<PaymentBatchKeyResult | PaymentApprovalResult | PaymentCancellationResult> {
         return this.commandActuator.actuate(command)
             .then(output => {
@@ -92,5 +109,35 @@ export class KcpAppService {
                 }
                 throw error;
             });
+    }
+
+    private async getSuccessfulPaymentApprovalResult(command: PaymentApprovalCommand): Promise<any> {
+        const config: KcpConfig = Container.get(KcpConfig);
+        const site: KcpSite = config.site(command.isTaxDeductible);
+        const hashId = hash({
+            siteCode: site.code,
+            batchKey: command.batchKey,
+            orderNo: command.orderNo,
+            productAmount: command.productAmount
+        }); 
+        const found: PaymentApprovalRequestEntity = await this.getPaymentApprovalRequestEntity(hashId);
+        const result = found.results.find(r => r.code === PayPlusStatus.OK) || null;
+        if (result) {
+            delete result.created_at;
+        }
+        return { found, result };
+    }
+
+    private async getPaymentApprovalRequestEntity(id: string): Promise<PaymentApprovalRequestEntity> {
+        let found: PaymentApprovalRequestEntity | null = await this.approvalRepository.getPaymentApprovalRequestById(id);
+        if (!found) {
+            const request = new PaymentApprovalRequestEntity();
+            request.id = id;
+            found = await this.approvalRepository.savePaymentApprovalRequest(request);
+        }
+        if (!found.results) {
+            found.results = [];
+        }
+        return found;
     }
 }
