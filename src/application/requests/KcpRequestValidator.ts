@@ -14,10 +14,8 @@ export class KcpRequestValidator {
                     for (const error of errors) {
                         resolvedErrors[error.property] = Object.entries(error.constraints).map(([_, val]) => val).join('/n');
                     }
-                    
-                    console.error('Invalid Request', request, resolvedErrors);
 
-                    return Promise.reject(new InvalidRequestError());
+                    return Promise.reject(new InvalidRequestError(JSON.stringify(resolvedErrors)));
                 }
                 return Promise.resolve('pass');
             });

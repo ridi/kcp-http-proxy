@@ -48,7 +48,7 @@ describe('payments controller test', async () => {
 
     it('배치키 요청 201 상태 반환', (done) => {
         chai.request(app)
-            .post('/kcp/payments/auth-key')
+            .post('/payments/batch-key')
             .send({
                 card_no: given.credit_card.card_no,
                 card_expiry_date: given.credit_card.card_expiry_date,
@@ -79,7 +79,7 @@ describe('payments controller test', async () => {
         };
         
         chai.request(app)
-            .post('/kcp/payments')
+            .post('/payments')
             .send(request)
             .end((_, res) => {
                 chai.expect(res).to.have.status(200);     
@@ -116,7 +116,7 @@ describe('payments controller test', async () => {
     
     it('결제 취소 200 상태 반환', (done) => {
         chai.request(app)
-            .del(`/kcp/payments/${stored.tno}`)
+            .del(`/payments/${stored.tno}`)
             .send({
                 reason: '결제 취소 테스트'
             })
