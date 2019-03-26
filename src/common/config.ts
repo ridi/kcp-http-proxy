@@ -41,7 +41,7 @@ export class KcpConfig {
         }
     };
     
-    readonly modulePath: string = `${Container.get('app.root')}/resources/pp_cli`; 
+    readonly modulePath: string = `${Container.get('app.root')}/../resources/pp_cli`; 
     readonly gwPort: string = '8090';// KCP 결제 서버 포트
     
     private sites: Map<string, KcpSite>;
