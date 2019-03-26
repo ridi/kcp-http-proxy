@@ -5,8 +5,7 @@
         "moduleResolution": "node",
         "baseUrl": ".",
         "paths": {
-            "@root/*": [ "src/*" ],
-            "@app/*": [ "src/api/*" ]
+            "@root/*": [ "src/*" ]
         },
         "outDir": "dist",
         "resolveJsonModule": true,

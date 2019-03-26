@@ -1,3 +1,6 @@
+const moduleAlias = require('module-alias');
+moduleAlias.addAlias('@root', __dirname + '/../../src');
+
 import { App } from '@root/app';
 import { Database } from '@root/database';
 import * as chai from 'chai';

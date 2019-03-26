@@ -6,15 +6,14 @@
   "scripts": {
     "check": "tsc --p tsconfig.json",
     "build": "tsc",
-    "test": "PROFILE=test AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test ts-node ./src/test.ts",
+    "test": "PROFILE=test AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test mocha -r ts-node/register src/test/*test.ts",
     "dev": "ts-node ./src/index.ts",
     "start": "npm run build && node ./dist/index.js"
   },
   "author": "RIDI Corp",
   "license": "ISC",
   "_moduleAliases": {
-    "@root": "dist",
-    "@app": "dist/api"
+    "@root": "dist"
   },
   "devDependencies": {
     "@types/body-parser": "^1.17.0",

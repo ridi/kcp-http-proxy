@@ -33,6 +33,6 @@ jobs:
         - docker run -itd -v $(pwd):/app --name test --link dynamodb:dynamodb -p 3000:3000 node:lts
         - docker exec -it -w /app test bash -c "npm ci"
       script:
-        - docker exec -it -w /app test bash -c "npm run build && npm test"
+        - docker exec -it -w /app test bash -c "npm test"
       after_success:
         - bash <(curl -s https://codecov.io/bash)
