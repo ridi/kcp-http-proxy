@@ -6,7 +6,7 @@
   "scripts": {
     "check": "tsc --p tsconfig.json",
     "build": "tsc && cp -a src/resources/. dist/resources/",
-    "test": "PROFIlE=test AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test ts-node ./src/test.ts",
+    "test": "PROFILE=test AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test ts-node ./src/test.ts",
     "dev": "ts-node ./src/index.ts",
     "start": "npm run build && node ./dist/index.js"
   },

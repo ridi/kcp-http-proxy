@@ -1,7 +1,7 @@
-import * as chai from 'chai';
-import { Application } from 'express';
 import { App } from '@root/app';
 import { Database } from '@root/database';
+import * as chai from 'chai';
+import { Application } from 'express';
 
 chai.use(require('chai-http'));
 console.info('server....');
@@ -32,7 +32,7 @@ const given = {
 };
 
 const stored = {
-    auth_key: null,
+    batch_key: null,
     tno: null,
 };
 
@@ -62,25 +62,23 @@ describe('payments controller test', async () => {
                 chai.expect(res.body.card_name).to.equal('신한카드');
                 chai.expect(res.body.batch_key).to.match(/[0-9A-Za-z]+/);
 
-                stored.auth_key = res.body.batch_key;
+                stored.batch_key = res.body.batch_key;
                 return done();
             });
     });
 
     it('결제 요청 200 상태 반환', (done) => {
-        let request = {
-            bill_key: stored.auth_key,
-            order_no: given.order.id,
-            product_name: given.order.product.name,
-            product_amount: given.order.product.amount,
-            buyer_name: given.order.user.name,
-            buyer_email: given.order.user.email,
-            installment_months: 0
-        };
-        
         chai.request(app)
             .post('/payments')
-            .send(request)
+            .send({
+                batch_key: stored.batch_key,
+                order_no: given.order.id,
+                product_name: given.order.product.name,
+                product_amount: given.order.product.amount,
+                buyer_name: given.order.user.name,
+                buyer_email: given.order.user.email,
+                installment_months: 0
+            })
             .end((_, res) => {
                 chai.expect(res).to.have.status(200);     
                 chai.expect(res.body.code).to.equal('0000');
@@ -95,10 +93,10 @@ describe('payments controller test', async () => {
                 chai.expect(res.body.mall_tax_no).to.match(/[0-9]+/);
                 chai.expect(res.body.ca_order_id).to.equal(given.order.id);
                 chai.expect(res.body.tno).to.match(/[0-9]+/);
-                chai.expect(res.body.amount).to.equal(request.product_amount);
-                chai.expect(res.body.card_amount).to.equal(request.product_amount);
+                chai.expect(res.body.amount).to.equal(given.order.product.amount);
+                chai.expect(res.body.card_amount).to.equal(given.order.product.amount);
                 chai.expect(res.body.coupon_amount).to.equal(0);
-                chai.expect(res.body.is_escrow).to.be.true;
+                chai.expect(res.body.is_escrow).to.be.false;
                 chai.expect(res.body.van_code).to.equal('VNKC');
                 chai.expect(res.body.approval_time).to.match(/[0-9]{14}/);
                 chai.expect(res.body.van_approval_time).to.match(/[0-9]{14}/);
@@ -108,8 +106,30 @@ describe('payments controller test', async () => {
                 chai.expect(res.body.tax_free_amount).to.equal(0);
                 chai.expect(res.body.vat_amount).to.equal(910);
                 chai.expect(res.body.is_partial_cancel).to.be.true;
-
+        
                 stored.tno = res.body.tno;
+                return done();
+            });
+    });
+
+    it('중복 결제 요청 200 상태 반환', (done) => {
+        chai.request(app)
+            .post('/payments')
+            .send({
+                batch_key: stored.batch_key,
+                order_no: given.order.id,
+                product_name: given.order.product.name,
+                product_amount: given.order.product.amount,
+                buyer_name: given.order.user.name,
+                buyer_email: given.order.user.email,
+                installment_months: 0
+            })
+            .end((_, res) => {
+                chai.expect(res).to.have.status(200);     
+                chai.expect(res.body.code).to.equal('0000');    
+                chai.expect(res.body.order_no).to.equal(given.order.id);  
+                chai.expect(res.body.amount).to.equal(given.order.product.amount);          
+                chai.expect(res.body.tno).to.equal(stored.tno);// 기결제 tno와 같아야 함
                 return done();
             });
     });
@@ -136,7 +156,7 @@ describe('payments controller test', async () => {
                 chai.expect(res.body.amount).to.equal(given.order.product.amount);
                 chai.expect(res.body.card_amount).to.equal(given.order.product.amount);
                 chai.expect(res.body.coupon_amount).to.equal(0);
-                chai.expect(res.body.is_escrow).to.be.true;
+                chai.expect(res.body.is_escrow).to.be.false;
                 chai.expect(res.body.cancel_gubun).to.equal('B');
                 chai.expect(res.body.van_code).to.equal('VNKC');
                 chai.expect(res.body.approval_time).to.match(/[0-9]{14}/);

@@ -4,11 +4,11 @@ import { JSONSchema } from 'class-validator-jsonschema';
 
 @JSONSchema({
     description: '결제 요청',
-    required: [ 'bill_key', 'order_no', 'product_name', 'product_amount', 'buyer_name', 'buyer_email' ]
+    required: [ 'batch_key', 'order_no', 'product_name', 'product_amount', 'buyer_name', 'buyer_email' ]
 })
 export class PaymentApprovalRequest extends AbstractKcpRequest {
-    @JSONSchema({ description: '빌링(인증/배치)키' })
-    @IsNotEmpty({ message: '빌링키는 필수값입니다.'})
+    @JSONSchema({ description: '배치키' })
+    @IsNotEmpty({ message: '배치키는 필수값입니다.'})
     batch_key: string;
 
     @JSONSchema({ description: '가맹점 주문번호' })
