@@ -1,18 +1,17 @@
 const moduleAlias = require('module-alias');
 moduleAlias.addAlias('@root', __dirname + '/../../src');
 
+import 'mocha';
 import { App } from '@root/app';
 import { Database } from '@root/database';
 import * as chai from 'chai';
 import { Application } from 'express';
 
 chai.use(require('chai-http'));
-console.info('server....');
+
 const app: Application = App.init();        
 const port = process.env.PORT || 3000;
 app.listen(port);
-
-console.info('server up...');
 
 const given = {
     credit_card: {// shinhan card mock
@@ -36,7 +35,7 @@ const given = {
 
 const stored = {
     batch_key: null,
-    tno: null,
+    approved: null
 };
 
 describe('payments controller test', async () => {
@@ -110,7 +109,7 @@ describe('payments controller test', async () => {
                 chai.expect(res.body.vat_amount).to.equal(910);
                 chai.expect(res.body.is_partial_cancel).to.be.true;
         
-                stored.tno = res.body.tno;
+                stored.approved = res.body;
                 return done();
             });
     });
@@ -128,18 +127,18 @@ describe('payments controller test', async () => {
                 installment_months: 0
             })
             .end((_, res) => {
-                chai.expect(res).to.have.status(200);     
-                chai.expect(res.body.code).to.equal('0000');    
-                chai.expect(res.body.order_no).to.equal(given.order.id);  
-                chai.expect(res.body.amount).to.equal(given.order.product.amount);          
-                chai.expect(res.body.tno).to.equal(stored.tno);// 기결제 tno와 같아야 함
+                chai.expect(res).to.have.status(200);
+                // 기결제와 동일한지 idempotence 확인
+                for (const key in stored.approved) {
+                    chai.expect(res.body[key]).to.equal(stored.approved[key]);
+                }
                 return done();
             });
     });
     
     it('결제 취소 200 상태 반환', (done) => {
         chai.request(app)
-            .del(`/payments/${stored.tno}`)
+            .del(`/payments/${stored.approved.tno}`)
             .send({
                 reason: '결제 취소 테스트'
             })
@@ -155,7 +154,7 @@ describe('payments controller test', async () => {
                 chai.expect(res.body.merchant_tax_no).to.match(/[0-9]+/);
                 chai.expect(res.body.mall_tax_no).to.match(/[0-9]+/);
                 chai.expect(res.body.ca_order_id).to.equal(given.order.id);
-                chai.expect(res.body.tno).to.equal(stored.tno);
+                chai.expect(res.body.tno).to.equal(stored.approved['tno']);
                 chai.expect(res.body.amount).to.equal(given.order.product.amount);
                 chai.expect(res.body.card_amount).to.equal(given.order.product.amount);
                 chai.expect(res.body.coupon_amount).to.equal(0);
