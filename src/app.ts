@@ -2,8 +2,6 @@ import { KcpConfig, KcpSite } from '@root/common/config';
 import { Profile, Profiles } from '@root/common/constants';
 import * as Sentry from '@sentry/node';
 import * as bodyParser from 'body-parser';
-import * as Logger from 'bunyan';
-import * as createCloudWatchStream from 'bunyan-cloudwatch';
 import { getFromContainer, MetadataStorage } from 'class-validator';
 import { validationMetadatasToSchemas } from 'class-validator-jsonschema';
 import * as dotenv from 'dotenv';
@@ -26,7 +24,7 @@ export class App {
         Container.set('app.root', path.resolve(__dirname));
         Container.set('profile', profile);
         
-        App.configureLogger(profile);
+        App.configureSentryLogger(profile);
         App.configureKcpEnvironment(profile);
 
         // create server
@@ -47,30 +45,9 @@ export class App {
     }
 
     /**
-     * set logger and sentry
+     * set sentry logging
      */
-    private static configureLogger(profile: Profile): void {
-        // Logger with AWS cloudwatch appednder TODO ECS 컨테이너의 Logging Driver를 awslogs로 설정
-        const logStream: any = profile === Profile.Production
-        ? {
-            stream: createCloudWatchStream({
-                logGroupName: process.env.AWS_LOG_GROUP || '',
-                logStreamName: process.env.AWS_LOG_STREAM_NAME || ''
-            }), 
-            type: 'raw',
-            level: 'info'
-        }
-        : {
-            stream: process.stderr,
-            type: 'stream',
-            level: 'debug' 
-        };
-        Container.set('logger', Logger.createLogger({
-            name: process.env.AWS_LOG_STREAM_NAME || 'default',
-            streams: [ logStream ]
-        }));
-
-        // Sentry
+    private static configureSentryLogger(profile: Profile): void {
         Container.set('sentry.loggable', profile === Profile.Production);
         if (Container.get('sentry.loggable')) {
             Sentry.init({

@@ -17,7 +17,6 @@
   },
   "devDependencies": {
     "@types/body-parser": "^1.17.0",
-    "@types/bunyan": "^1.8.5",
     "@types/chai": "^4.1.7",
     "@types/chai-http": "^3.0.5",
     "@types/dotenv": "^6.1.0",
@@ -43,8 +42,6 @@
     "@sentry/node": "^4.6.3",
     "aws-sdk": "^2.421.0",
     "body-parse": "^0.1.0",
-    "bunyan": "^1.8.12",
-    "bunyan-cloudwatch": "^2.2.0",
     "class-validator": "^0.9.1",
     "class-validator-jsonschema": "^1.2.0",
     "dotenv": "^6.2.0",
