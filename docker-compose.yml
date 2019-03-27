@@ -29,9 +29,7 @@ services:
       SENTRY_DSN: your_sentry_dsn
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
-      AWS_REGION: ap-northeast-2
-      AWS_LOG_GROUP: test.ridi-kcp.api
-      AWS_LOG_STREAM_NAME: app
+      AWS_REGION: ap-northeast-2      
       AWS_DYNAMO_DB_ENDPOINT: http://dynamodb:8000
     ports:
       - 3000:3000
