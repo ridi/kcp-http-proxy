@@ -4,10 +4,9 @@
   "description": "RIDI KCP Http Proxy Rest API",
   "main": "index.js",
   "scripts": {
-    "check": "tsc --p tsconfig.json",
+    "docs": "ts-node src/docs.ts",
     "build": "tsc",
     "test": "PROFILE=test AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test ts-node src/test.ts",
-    "dev": "ts-node src/index.ts",
     "start": "npm run build && node dist/index.js"
   },
   "author": "RIDI Corp",
@@ -28,9 +27,12 @@
     "@types/object-hash": "^1.2.0",
     "@types/raven": "^2.5.3",
     "@types/swagger-ui-express": "^3.0.0",
+    "api-spec-converter": "^2.7.32",
     "chai": "^4.2.0",
     "chai-http": "^4.2.1",
+    "handlebars": "^4.1.1",
     "mocha": "^6.0.2",
+    "swagger-typescript-codegen": "^1.9.7",
     "ts-node": "^8.0.3",
     "typescript": "^3.3.4000"
   },
@@ -52,7 +54,6 @@
     "reflect-metadata": "^0.1.13",
     "routing-controllers": "^0.7.7",
     "routing-controllers-openapi": "^1.6.0",
-    "swagger-ui-express": "^4.0.2",
     "typedi": "^0.8.0"
   }
 }
