@@ -119,7 +119,7 @@ export class KcpAppService {
             batchKey: command.batchKey,
             orderNo: command.orderNo,
             productAmount: command.productAmount
-        }); 
+        });
         const found: PaymentApprovalRequestEntity = await this.getPaymentApprovalRequestEntity(hashId);
         const result = found.results.find(r => r.code === PayPlusStatus.OK) || null;
         if (result) {

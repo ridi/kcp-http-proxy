@@ -1,5 +1,5 @@
 import { embed } from '@aws/dynamodb-data-mapper';
-import { attribute, hashKey, table } from '@aws/dynamodb-data-mapper-annotations';
+import { attribute, hashKey, table, versionAttribute } from '@aws/dynamodb-data-mapper-annotations';
 import { PaymentApprovalResult } from '@root/domain/entities/PaymentApprovalResult';
 
 @table('payment_approval_requests')
@@ -8,14 +8,17 @@ export class PaymentApprovalRequestEntity {
     id: string;
     
     @attribute()
-    site_code: string;
+    siteCode: string;
 
     @attribute({ defaultProvider: () => new Date() })
-    created_at: Date;
+    createdAt: Date;
 
     @attribute()
-    updated_at: Date;
+    updatedAt: Date;
 
     @attribute({ memberType: embed(PaymentApprovalResult) })
     results?: Array<PaymentApprovalResult>;
+
+    @versionAttribute()
+    version: number;
 }

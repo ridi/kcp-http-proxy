@@ -15,9 +15,10 @@ import { Container } from 'typedi';
 
 export class App {
     static init(): Application {
-        const profile = Profiles.from(process.env.PROFILE || 'dev');
         // load .env
         dotenv.config();
+
+        const profile = Profiles.from(process.env.PROFILE || 'dev');        
 
         useContainer(Container);
 
@@ -58,7 +59,7 @@ export class App {
     }
 
     /**
-     * set kcp configuration by mode
+     * set kcp configuration
      */
     private static configureKcpEnvironment(profile: Profile): void {
         if (profile === Profile.Production) {

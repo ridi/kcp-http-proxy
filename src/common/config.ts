@@ -58,6 +58,7 @@ export class KcpConfig {
     private validate(sites: KcpSite[]): void {
         for (const site of sites) {
             if (!site.code || !site.key || !site.groupId) {
+                console.error('KcpSite', site);
                 throw new Error('Invalid KCP Site Configuration');
             }
         }

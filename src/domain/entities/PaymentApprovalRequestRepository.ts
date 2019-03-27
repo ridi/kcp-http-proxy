@@ -11,15 +11,15 @@ export class PaymentApprovalRequestRepository {
         return this.mapper.get(Object.assign(new PaymentApprovalRequestEntity, { id: id })).then(fetched => {                
                 return fetched;
             }).catch(err => {
-                if (err.name == ItemNotFoundException.name) {
+                if (err.name === ItemNotFoundException.name) {
                     return null;
                 }
                 throw err;
             });
     }
     
-    async savePaymentApprovalRequest(request: PaymentApprovalRequestEntity): Promise<PaymentApprovalRequestEntity | null> {
-        request.updated_at = new Date();
+    async savePaymentApprovalRequest(request: PaymentApprovalRequestEntity): Promise<PaymentApprovalRequestEntity> {
+        request.updatedAt = new Date();
         const saved = await this.mapper.put(Object.assign(new PaymentApprovalRequestEntity, request));
         if (saved) {
             return saved;

@@ -1,17 +1,16 @@
-const moduleAlias = require('module-alias');
-moduleAlias.addAlias('@root', __dirname + '/../../src');
-
-import 'mocha';
 import { App } from '@root/app';
 import { Database } from '@root/database';
 import * as chai from 'chai';
 import { Application } from 'express';
 
-chai.use(require('chai-http'));
+const app: Application = App.init();
 
-const app: Application = App.init();        
 const port = process.env.PORT || 3000;
-app.listen(port);
+app.listen(port, () => {
+    console.info('Server running....');
+});
+
+chai.use(require('chai-http'));
 
 const given = {
     credit_card: {// shinhan card mock

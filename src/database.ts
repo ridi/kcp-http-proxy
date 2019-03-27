@@ -4,14 +4,14 @@ import { DynamoDB } from 'aws-sdk';
 import { Container } from 'typedi';
 
 export class Database {
-    static async connect(): Promise<void> {
-        const client = new DynamoDB({
-            region: process.env.AWS_REGION || 'ap-northeast-2',
-            endpoint: process.env.AWS_DYNAMO_DB_ENDPOINT || 'http://dynamodb:8000'            
-        });
+    static client = new DynamoDB({
+        region: process.env.AWS_REGION || 'ap-northeast-2',
+        endpoint: process.env.AWS_DYNAMO_DB_ENDPOINT || 'http://dynamodb:8000'            
+    });
 
+    static async connect(): Promise<void> {
         const mapper = new DataMapper({
-            client: client,
+            client: Database.client,
             tableNamePrefix: 't_'
         });
 
