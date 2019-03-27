@@ -1,0 +1,45 @@
+langugage: node_js
+node_js:
+  - "stable"
+
+install:
+  - npm ci
+
+cache:
+  directories:
+    - "$HOME/.npm"
+
+services:
+  - docker
+
+addons:
+  apt:
+    packages:
+      - docker-ce
+
+stages:
+  - test
+  - build
+  - deploy
+  - docs
+
+jobs:
+  include:
+    - stage: test
+      name: test
+      if: tag IS NOT present
+      install:
+        - docker run -d --name dynamodb -p 8000:8000 amazon/dynamodb-local
+        - docker run -itd -v $(pwd):/app --name test --link dynamodb:dynamodb -p 3000:3000 node:lts
+        - docker exec -it -w /app test bash -c "npm install"
+      script:
+        - docker exec -it -w /app test bash -c "npm test"
+
+
+
+
+
+      after_success:
+        - bash <(curl -s https://codecov.io/bash)
+
+    - stage: docs

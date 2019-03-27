@@ -1,4 +1,4 @@
-version: "3"
+version: '3'
 
 services:
   dynamodb:
@@ -6,7 +6,9 @@ services:
     image: amazon/dynamodb-local
     ports:
       - 8000:8000
-    command: ["-jar", "DynamoDBLocal.jar", "-inMemory"]
+    networks:
+      - test-kcp-http-proxy
+    command: ['-jar', 'DynamoDBLocal.jar', '-inMemory']
 
   application:
     container_name: test_ridi_kcp_http_proxy
@@ -15,8 +17,8 @@ services:
       - ./:/app
     working_dir: /app
     environment:
-      APP_MODE: development
-      APP_PORT: 3000
+      PROFILE: dev
+      PORT: 3000
       KCP_SITE_CODE: test
       KCP_SITE_KEY: test
       KCP_GROUP_ID: test
@@ -26,13 +28,18 @@ services:
       SENTRY_DSN: your_sentry_dsn
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
-      AWS_REGION: ap-northeast-2
-      AWS_LOG_GROUP: test.ridi-kcp.api
-      AWS_LOG_STREAM_NAME: app
+      AWS_REGION: ap-northeast-2      
       AWS_DYNAMO_DB_ENDPOINT: http://dynamodb:8000
     ports:
       - 3000:3000
-    links:
+    depends_on:
       - dynamodb
+    networks:
+      - test-kcp-http-proxy
     command: >
-      bash -c "npm run build && npm run test"
+      bash -c 'npm ci &&
+               npm run test'
+
+networks:
+  test-kcp-http-proxy:
+    driver: bridge

@@ -1,102 +1,90 @@
-import { Config, Mode, TestConfig } from "@app/common/config";
-import * as Sentry from "@sentry/node";
-import * as bodyParser from "body-parser";
-import * as Logger from "bunyan";
-import * as createCloudWatchStream from "bunyan-cloudwatch";
-import { getFromContainer, MetadataStorage } from "class-validator";
-import { validationMetadatasToSchemas } from "class-validator-jsonschema";
-import * as dotenv from "dotenv";
-import { Application } from "express";
-import * as path from "path";
-import "reflect-metadata";
-import { createExpressServer, getMetadataArgsStorage, useContainer } from "routing-controllers";
-import { routingControllersToSpec } from "routing-controllers-openapi";
-import * as swaggerUi from "swagger-ui-express";
-import { Container } from "typedi";
+import { KcpConfig, KcpSite } from '@root/common/config';
+import { Profile, Profiles } from '@root/common/constants';
+import * as Sentry from '@sentry/node';
+import * as bodyParser from 'body-parser';
+import { getFromContainer, MetadataStorage } from 'class-validator';
+import { validationMetadatasToSchemas } from 'class-validator-jsonschema';
+import * as dotenv from 'dotenv';
+import { Application } from 'express';
+import * as path from 'path';
+import 'reflect-metadata';
+import { createExpressServer, getMetadataArgsStorage, useContainer } from 'routing-controllers';
+import { routingControllersToSpec } from 'routing-controllers-openapi';
+import * as swaggerUi from 'swagger-ui-express';
+import { Container } from 'typedi';
 
 export class App {
     static init(): Application {
         // load .env
         dotenv.config();
-        // enable di container for controller
+
+        const profile = Profiles.from(process.env.PROFILE || 'dev');        
+
         useContainer(Container);
-        // logger and sentry
-        App.configureLogger();
-        // set app root path
+
         Container.set('app.root', path.resolve(__dirname));
-        // controllers
+        Container.set('profile', profile);
+        
+        App.configureSentryLogger(profile);
+        App.configureKcpEnvironment(profile);
+
+        // create server
         const routingControllersOptions = {
-            routePrefix: "/kcp",
             defaultErrorHandler: false,
-            controllers: [ __dirname + "/api/presentation/*Controller.*" ],    
-            middlewares: [ __dirname + "/api/presentation/middleware/*.*" ]
+            controllers: [ __dirname + '/presentation/controllers/*Controller.*' ],    
+            middlewares: [ __dirname + '/presentation/middlewares/*Middleware.*' ]
         };
         const app: Application = createExpressServer(routingControllersOptions);
-        // kcp configs
-        App.configureKcpEnvironment();
-        
-        // swagger ui
-        App.configureSwaggerDocs(app, routingControllersOptions);
-
-        // to allow json
         app.use(bodyParser.json());
         app.use(bodyParser.urlencoded({
             extended: false
-        }));        
+        }));
+
+        App.configureSwaggerDocs(app, routingControllersOptions);
 
         return app;
     }
 
     /**
-     * set logger and sentry
+     * set sentry logging
      */
-    private static configureLogger(): void {
-        const isProduction: boolean = process.env.APP_MODE === "production";
-        // Logger with AWS cloudwatch appednder
-        const logStream: any = isProduction 
-        ? {
-            stream: createCloudWatchStream({
-                logGroupName: process.env.AWS_LOG_GROUP || "",
-                logStreamName: process.env.AWS_LOG_STREAM_NAME || ""
-            }), 
-            type: "raw",
-            level: "info"
-        }
-        : {
-            stream: process.stderr,
-            type: "stream",
-            level: "debug" 
-        };
-        Container.set('logger', Logger.createLogger({
-            name: process.env.AWS_LOG_STREAM_NAME || "default",
-            streams: [ logStream ]
-        }));
-
-        // Sentry
-        Container.set("sentry.loggable", isProduction);
-        if (isProduction) {
+    private static configureSentryLogger(profile: Profile): void {
+        Container.set('sentry.loggable', profile === Profile.Production);
+        if (Container.get('sentry.loggable')) {
             Sentry.init({
                 dsn: process.env.SENTRY_DSN,
-                environment: isProduction ? "prod": "test" 
+                environment: profile.toString()
             });
         }
     }
 
     /**
-     * set kcp configuration by mode
+     * set kcp configuration
      */
-    private static configureKcpEnvironment(): void {
-        Container.set(`config.kcp.${Mode.DEV}`, new TestConfig());
-        Container.set(`config.kcp.${Mode.PROD}`, new Config(
-            process.env.KCP_SITE_CODE || "",
-            process.env.KCP_SITE_KEY || "",
-            process.env.KCP_GROUP_ID || ""
-        ));
-        Container.set(`config.kcp.${Mode.PROD_TAX}`, new Config(
-            process.env.KCP_TAX_DEDUCTION_SITE_CODE || "",
-            process.env.KCP_TAX_DEDUCTION_SITE_KEY || "",
-            process.env.KCP_TAX_DEDUCTION_GROUP_ID || ""
-        ));
+    private static configureKcpEnvironment(profile: Profile): void {
+        if (profile === Profile.Production) {
+            const kcpConfig = new KcpConfig({
+                code: process.env.KCP_SITE_CODE,
+                key: process.env.KCP_SITE_KEY,
+                groupId: process.env.KCP_GROUP_ID,
+                gwUrl: 'paygw.kcp.co.kr'
+            }, {
+                code: process.env.KCP_TAX_DEDUCTION_SITE_CODE,
+                key: process.env.KCP_TAX_DEDUCTION_SITE_KEY,
+                groupId: process.env.KCP_TAX_DEDUCTION_SITE_GROUP_ID,
+                gwUrl: 'paygw.kcp.co.kr'
+            });
+            Container.set(KcpConfig, kcpConfig);
+        } else {
+            const site: KcpSite = {
+                code: 'BA001',
+                key: '2T5.LgLrH--wbufUOvCqSNT__',
+                groupId: 'BA0011000348',
+                gwUrl: 'testpaygw.kcp.co.kr'
+            };
+            const kcpConfig = new KcpConfig(site, site);
+            Container.set(KcpConfig, kcpConfig);
+        }
     }
 
     /**
@@ -109,7 +97,7 @@ export class App {
         const metadata = (getFromContainer(MetadataStorage) as any).validationMetadatas;
                 
         const schemas = validationMetadatasToSchemas(metadata, {
-            refPointerPrefix: "#/components/schemas"
+            refPointerPrefix: '#/components/schemas'
         });
 
         const storage = getMetadataArgsStorage();
@@ -118,11 +106,11 @@ export class App {
                 schemas
             },
             info: {
-                description: "Generated with 'routing-controllers-openapi'",
-                title: "RIDI KCP Http Proxy Rest API",
-                version: "1.0.0"
+                description: 'Generated with \"routing-controllers-openapi\"',
+                title: 'RIDI KCP Http Proxy Rest API',
+                version: '0.0.1'
             }
         });
-        app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(spec));
+        app.use('/docs', swaggerUi.serve, swaggerUi.setup(spec));
     }
 }
