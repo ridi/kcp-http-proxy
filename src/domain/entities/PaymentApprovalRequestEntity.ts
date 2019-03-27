@@ -2,7 +2,9 @@ import { embed } from '@aws/dynamodb-data-mapper';
 import { attribute, hashKey, table, versionAttribute } from '@aws/dynamodb-data-mapper-annotations';
 import { PaymentApprovalResult } from '@root/domain/entities/PaymentApprovalResult';
 
-@table('payment_approval_requests')
+export const TABLE_NAME = 't_payment_approval_requests';
+
+@table(TABLE_NAME)
 export class PaymentApprovalRequestEntity {
     @hashKey()
     id: string;

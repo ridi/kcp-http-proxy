@@ -27,7 +27,7 @@ export class PaymentController {
     async requestBatchKey(@Body() req: PaymentBatchKeyRequest, @Res() res: Response): Promise<PaymentBatchKeyResult> {
         await this.requestValidator.validate(req);
 
-        const result: PaymentBatchKeyResult = await this.kcpService.requestAuthKey(req);
+        const result: PaymentBatchKeyResult = await this.kcpService.requestBatchKey(req);
         return result;
     }
     

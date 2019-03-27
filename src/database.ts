@@ -11,8 +11,7 @@ export class Database {
 
     static async connect(): Promise<void> {
         const mapper = new DataMapper({
-            client: Database.client,
-            tableNamePrefix: 't_'
+            client: Database.client
         });
 
         await mapper.ensureTableExists(PaymentApprovalRequestEntity, { readCapacityUnits: 5, writeCapacityUnits: 5 }).then(() => {

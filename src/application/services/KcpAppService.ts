@@ -30,7 +30,7 @@ export class KcpAppService {
     @Inject('sentry.loggable')
     sentryLoggable: boolean;
 
-    async requestAuthKey(req: PaymentBatchKeyRequest): Promise<PaymentBatchKeyResult> {
+    async requestBatchKey(req: PaymentBatchKeyRequest): Promise<PaymentBatchKeyResult> {
         const command = new PaymentBatchKeyCommand(
             req.is_tax_deductible,
             req.card_no,
