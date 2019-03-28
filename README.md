@@ -13,6 +13,10 @@ cf. Sentry Logging works on Production Environment
 ## Base URI
 //api.kcp.ridi.io (unsettled)
 
-
 ## API Document
+### Create Document
+```shell
+make docs
+```
+### Link
 [Document Link](https://ridi.github.io/kcp-http-proxy/)
