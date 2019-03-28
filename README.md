@@ -15,3 +15,4 @@ cf. Sentry Logging works on Production Environment
 
 
 ## API Document
+[Document Link](https://ridi.github.io/kcp-http-proxy/)
