@@ -1,48 +1,50 @@
+import * as moduleAlias from 'module-alias';
+moduleAlias.addAlias('@root', __dirname + '/..');
+
 import { App } from '@root/app';
 import { Database } from '@root/database';
 import * as chai from 'chai';
 import { Application } from 'express';
 
-const app: Application = App.init();
-
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-    console.info('Server running....');
-});
-
 chai.use(require('chai-http'));
 
-const given = {
-    credit_card: {// shinhan card mock
-        card_no: '4499140000000000',
-        card_expiry_date: '7912',
-        card_tax_no: '000101',
-        card_password: '00'
-    },
-    order: {
-        id: `t${new Date().getTime()}`,
-        product: {
-            name: '테스트 상품',
-            amount: 10000
-        },
-        user: {
-            name: '테스터',
-            email: 'payment-test@ridi.com'
-        }
-    }
-};
-
-const stored = {
-    batch_key: null,
-    approved: null
-};
-
 describe('payments controller test', async () => {
-    before('connect db', async () => {
+    const app: Application = App.init();
+    const port = process.env.PORT || 3000;
+    const server = app.listen(port, () => {
+        console.info('Server is running...');
+    });
+
+    const given = {
+        credit_card: {// shinhan card mock
+            card_no: '4499140000000000',
+            card_expiry_date: '7912',
+            card_tax_no: '000101',
+            card_password: '00'
+        },
+        order: {
+            id: `t${new Date().getTime()}`,
+            product: {
+                name: '테스트 상품',
+                amount: 10000
+            },
+            user: {
+                name: '테스터',
+                email: 'payment-test@ridi.com'
+            }
+        }
+    };
+    
+    const stored = {
+        batch_key: null,
+        approved: null
+    };
+
+    before('Connect Database', async () => {
         await Database.connect().then(() => {
-            console.info('DB connected');
+            console.info('Database is connected');
         }).catch(err => {
-            console.error('Here error coccurs....', err);
+            console.error('Failed to connnect database', err);
             throw err;
         });
     });
@@ -167,5 +169,12 @@ describe('payments controller test', async () => {
 
                 return done();
             });
+    });
+
+    after(() => {
+        if (server) {
+            console.info('Closing Server...');
+            server.close();
+        }
     });
 }).timeout(10000);

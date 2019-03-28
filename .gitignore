@@ -18,6 +18,11 @@ node_modules/
 .env
 .env.test
 
+# nyc
+.nyc_output
+coverage/
+coverage.lcov
+
 ### VisualStudioCode ###
 .vscode/*
 !.vscode/settings.json

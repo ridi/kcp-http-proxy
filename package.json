@@ -2,17 +2,35 @@
   "name": "kcp-http-proxy",
   "version": "0.0.1",
   "description": "RIDI KCP Http Proxy Rest API",
+  "author": "RIDI Corp",
+  "license": "ISC",
   "main": "index.js",
   "scripts": {
     "docs": "ts-node src/docs.ts",
     "build": "tsc",
-    "test": "PROFILE=test AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test ts-node src/test.ts",
+    "test": "PROFILE=test AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test nyc mocha --opts src/test/mocha.opts",
+    "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "start": "npm run build && node dist/index.js"
   },
-  "author": "RIDI Corp",
-  "license": "ISC",
   "_moduleAliases": {
     "@root": "dist"
+  },
+  "nyc": {
+    "include": [
+      "src/**/*.ts"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "reporter": [
+      "text-summary",
+      "html"
+    ],
+    "sourceMap": true,
+    "instrument": true
   },
   "devDependencies": {
     "@types/body-parser": "^1.17.0",
@@ -26,12 +44,12 @@
     "@types/node": "^11.12.0",
     "@types/object-hash": "^1.2.0",
     "@types/raven": "^2.5.3",
-    "@types/swagger-ui-express": "^3.0.0",
-    "api-spec-converter": "^2.7.32",
     "chai": "^4.2.0",
     "chai-http": "^4.2.1",
     "handlebars": "^4.1.1",
     "mocha": "^6.0.2",
+    "nyc": "^13.3.0",
+    "source-map-support": "^0.5.11",
     "swagger-typescript-codegen": "^1.9.7",
     "ts-node": "^8.0.3",
     "typescript": "^3.3.4000"

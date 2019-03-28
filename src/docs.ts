@@ -1,16 +1,15 @@
-require('module-alias/register');
+import * as moduleAlias from 'module-alias';
+moduleAlias.addAlias('@root', __dirname);
+
+import { App } from '@root/app';
 import { getFromContainer, MetadataStorage } from 'class-validator';
 import { validationMetadatasToSchemas } from 'class-validator-jsonschema';
 import * as fs from 'fs';
 import * as Handlebars from 'handlebars';
-import * as moduleAlias from 'module-alias';
 import * as path from 'path';
 import 'reflect-metadata';
 import { getMetadataArgsStorage } from 'routing-controllers';
 import { routingControllersToSpec } from 'routing-controllers-openapi';
-import { App } from './app';
-
-moduleAlias.addAlias('@root', __dirname);
 
 App.init();
 

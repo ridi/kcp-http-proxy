@@ -3,3 +3,5 @@ test:
 	docker stop test_ridi_kcp_http_proxy test_ridi_kcp_http_proxy_db | xargs docker rm
 docs:
 	npm run docs
+deploy-build:
+deploy:
