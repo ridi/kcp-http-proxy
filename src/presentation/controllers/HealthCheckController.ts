@@ -10,6 +10,7 @@ import { ListTablesOutput } from 'aws-sdk/clients/dynamodb';
 import { PromiseResult } from 'aws-sdk/lib/request';
 import { ContentType, Get, HttpCode, JsonController } from 'routing-controllers';
 import { Inject } from 'typedi';
+import { ResponseSchema } from 'routing-controllers-openapi';
 
 @JsonController('/health')
 export class HealthCheckController {
@@ -47,6 +48,7 @@ export class HealthCheckController {
         }
     }
 
+    @ResponseSchema('OK')
     @ContentType('text/plain')
     @HttpCode(200)
     @Get('')
