@@ -6,11 +6,11 @@ import { KcpAppService } from '@root/application/services/KcpAppService';
 import { PaymentApprovalResult } from '@root/domain/entities/PaymentApprovalResult';
 import { PaymentBatchKeyResult } from '@root/domain/entities/PaymentBatchKeyResult';
 import { PaymentCancellationResult } from '@root/domain/entities/PaymentCancellationResult';
+import { RequestLoggingMiddleware } from '@root/presentation/middlewares/RequestLoggingMiddleware';
 import { Response } from 'express';
 import { Body, Delete, HttpCode, JsonController, Param, Post, Res, UseBefore } from 'routing-controllers';
-import { ResponseSchema } from 'routing-controllers-openapi';
+import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
 import { Inject } from 'typedi';
-import { RequestLoggingMiddleware } from '../middlewares/RequestLoggingMiddleware';
 
 @JsonController()
 export class PaymentController {
@@ -20,6 +20,32 @@ export class PaymentController {
     @Inject()
     private requestValidator: KcpRequestValidator;
 
+    @OpenAPI({ responses: {
+        400: {
+            content: {
+                'application/json': {
+                    schema: { $ref: '#/components/schemas/MessageResponse' },
+                    example: { message: '카드번호가 올바르지 않습니다. 카드번호는 공백없이 숫자만 가능합니다.' },
+                },
+            },
+        },
+        500: {
+            content: {
+                'application/json': {
+                    schema: { $ref: '#/components/schemas/MessageResponse' },
+                    example: { message: 'KCP Process Failed' },
+                },
+            },
+        },
+        503: {
+            content: {
+                'application/json': {
+                    schema: { $ref: '#/components/schemas/MessageResponse' },
+                    example: { message: 'KCP Connection Error' },
+                },
+            },
+        },
+    }})
     @ResponseSchema(PaymentBatchKeyResult)
     @UseBefore(RequestLoggingMiddleware)
     @HttpCode(201)
@@ -31,6 +57,32 @@ export class PaymentController {
         return result;
     }
 
+    @OpenAPI({ responses: {
+        400: {
+            content: {
+                'application/json': {
+                    schema: { $ref: '#/components/schemas/MessageResponse' },
+                    example: { message: '배치키는 필수값입니다.' },
+                },
+            },
+        },
+        500: {
+            content: {
+                'application/json': {
+                    schema: { $ref: '#/components/schemas/MessageResponse' },
+                    example: { message: 'KCP Process Failed' },
+                },
+            },
+        },
+        503: {
+            content: {
+                'application/json': {
+                    schema: { $ref: '#/components/schemas/MessageResponse' },
+                    example: { message: 'KCP Connection Error' },
+                },
+            },
+        },
+    }})
     @ResponseSchema(PaymentApprovalResult)
     @UseBefore(RequestLoggingMiddleware)
     @HttpCode(200)
@@ -42,6 +94,32 @@ export class PaymentController {
         return result;
     }
 
+    @OpenAPI({ responses: {
+        400: {
+            content: {
+                'application/json': {
+                    schema: { $ref: '#/components/schemas/MessageResponse' },
+                    example: { message: '거래번호는 필수값입니다.' },
+                },
+            },
+        },
+        500: {
+            content: {
+                'application/json': {
+                    schema: { $ref: '#/components/schemas/MessageResponse' },
+                    example: { message: 'KCP Process Failed' },
+                },
+            },
+        },
+        503: {
+            content: {
+                'application/json': {
+                    schema: { $ref: '#/components/schemas/MessageResponse' },
+                    example: { message: 'KCP Connection Error' },
+                },
+            },
+        },
+    }})
     @ResponseSchema(PaymentCancellationResult)
     @UseBefore(RequestLoggingMiddleware)
     @HttpCode(200)

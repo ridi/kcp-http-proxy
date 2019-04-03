@@ -5,12 +5,13 @@ import { Database } from '@root/database';
 import { TABLE_NAME as PaymentApprovalRequestEntityTableName } from '@root/domain/entities/PaymentApprovalRequestEntity';
 import { DatabaseConnectionError } from '@root/errors/DatabaseConnectionError';
 import { KcpConnectionError } from '@root/errors/KcpConnectionError';
+import { MessageResponse } from '@root/presentation/models/MessageResponse';
 import { AWSError } from 'aws-sdk';
 import { ListTablesOutput } from 'aws-sdk/clients/dynamodb';
 import { PromiseResult } from 'aws-sdk/lib/request';
-import { ContentType, Get, HttpCode, JsonController } from 'routing-controllers';
+import { Get, HttpCode, JsonController } from 'routing-controllers';
+import { OpenAPI } from 'routing-controllers-openapi';
 import { Inject } from 'typedi';
-import { ResponseSchema } from 'routing-controllers-openapi';
 
 @JsonController('/health')
 export class HealthCheckController {
@@ -48,13 +49,29 @@ export class HealthCheckController {
         }
     }
 
-    @ResponseSchema('OK')
-    @ContentType('text/plain')
+    @OpenAPI({ responses: {
+        200: {
+            content: {
+                'application/json': {
+                    schema: { $ref: '#/components/schemas/MessageResponse' },
+                    example: { message: 'OK' },
+                },
+            },
+        },
+        503: {
+            content: {
+                'application/json': {
+                    schema: { $ref: '#/components/schemas/MessageResponse' },
+                    example: { message: 'Database Connection Error' },
+                },
+            },
+        },
+    }})
     @HttpCode(200)
     @Get('')
-    public async index(): Promise<string> {
+    public async index(): Promise<MessageResponse> {
         await this.checkDatabaseConnection();
         await this.checkKcpConnection();
-        return 'OK';
+        return new MessageResponse('OK');
     }
 }

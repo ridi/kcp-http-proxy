@@ -2,6 +2,7 @@ import { DatabaseConnectionError } from '@root/errors/DatabaseConnectionError';
 import { InvalidRequestError } from '@root/errors/InvalidRequestError';
 import { KcpConnectionError } from '@root/errors/KcpConnectionError';
 import { PayPlusError } from '@root/errors/PayPlusError';
+import { MessageResponse } from '@root/presentation/models/MessageResponse';
 import * as status from 'http-status';
 import { ExpressErrorMiddlewareInterface, HttpError, Middleware } from 'routing-controllers';
 
@@ -12,16 +13,13 @@ export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
             case InvalidRequestError: {
                 response
                     .status(status.BAD_REQUEST)
-                    .json({ message: error.message });
+                    .json(new MessageResponse(error.message));
                 break;
             }
             case PayPlusError: {
                 response
                     .status(status.INTERNAL_SERVER_ERROR)
-                    .json({
-                        code: (error as PayPlusError).code,
-                        message: error.message,
-                    });
+                    .json(new MessageResponse(`code: ${(error as PayPlusError).code}, ${error.message}`));
                 break;
             }
             case HttpError: {
@@ -32,29 +30,29 @@ export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
                 }
                 response
                     .status(httpCode)
-                    .json({ message });
+                    .json(new MessageResponse(message));
                 break;
             }
             case DatabaseConnectionError: {
                 response
                     .status(status.SERVICE_UNAVAILABLE)
-                    .json({ message: 'Database Connection Error' });
+                    .json(new MessageResponse('Database Connection Error'));
                 break;
             }
             case KcpConnectionError: {
                 response
                     .status(status.SERVICE_UNAVAILABLE)
-                    .json({ message: 'KCP Connection Error' });
+                    .json(new MessageResponse('KCP Connection Error'));
                 break;
             }
             default: {
                 let message = 'Internal Server Error';
                 if (error.message.startsWith('Command failed')) {
-                    message = 'KCP Error';
+                    message = 'KCP Process Failed';
                 }
                 response
                     .status(status.INTERNAL_SERVER_ERROR)
-                    .json({ message });
+                    .json(new MessageResponse(message));
                 break;
             }
         }
