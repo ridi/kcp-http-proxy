@@ -1,6 +1,6 @@
 import { PaymentBatchKeyRequest } from '@root/application/requests/PaymentBatchKeyRequest';
 import { KcpAppService } from '@root/application/services/KcpAppService';
-import { PayPlusStatus } from '@root/common/constants';
+import { PAY_PLUS_STATUS } from '@root/common/constants';
 import { Database } from '@root/database';
 import { TABLE_NAME as PaymentApprovalRequestEntityTableName } from '@root/domain/entities/PaymentApprovalRequestEntity';
 import { DatabaseConnectionError } from '@root/errors/DatabaseConnectionError';
@@ -14,16 +14,7 @@ import { Inject } from 'typedi';
 @JsonController('/health')
 export class HealthCheckController {
     @Inject()
-    kcpSerivce: KcpAppService;
-
-    @ContentType('text/plain')
-    @HttpCode(200)
-    @Get('')
-    async index(): Promise<string> {
-        await this.checkDatabaseConnection();
-        await this.checkKcpConnection();
-        return 'ok';
-    }
+    private kcpSerivce: KcpAppService;
 
     private async checkDatabaseConnection(): Promise<void> {
         try {
@@ -47,12 +38,21 @@ export class HealthCheckController {
 
         try {
             const result = await this.kcpSerivce.requestBatchKey(dummyRequest);
-            if (!result || result.code !== PayPlusStatus.OK) {
+            if (!result || result.code !== PAY_PLUS_STATUS.OK) {
                 throw new Error('Invalid KCP Response');
             }
         } catch (err) {
             console.error('KCP Connection Error', err);
             throw new KcpConnectionError();
         }
+    }
+
+    @ContentType('text/plain')
+    @HttpCode(200)
+    @Get('')
+    public async index(): Promise<string> {
+        await this.checkDatabaseConnection();
+        await this.checkKcpConnection();
+        return 'OK';
     }
 }

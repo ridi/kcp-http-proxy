@@ -20,24 +20,24 @@ describe('payments controller test', async () => {
             card_no: '4499140000000000',
             card_expiry_date: '7912',
             card_tax_no: '000101',
-            card_password: '00'
+            card_password: '00',
         },
         order: {
             id: `t${new Date().getTime()}`,
             product: {
                 name: '테스트 상품',
-                amount: 10000
+                amount: 10000,
             },
             user: {
                 name: '테스터',
-                email: 'payment-test@ridi.com'
-            }
-        }
+                email: 'payment-test@ridi.com',
+            },
+        },
     };
     
     const stored = {
         batch_key: null,
-        approved: null
+        approved: null,
     };
 
     before('Connect Database', async () => {
@@ -56,7 +56,7 @@ describe('payments controller test', async () => {
                 card_no: given.credit_card.card_no,
                 card_expiry_date: given.credit_card.card_expiry_date,
                 card_tax_no: given.credit_card.card_tax_no,
-                card_password: given.credit_card.card_password
+                card_password: given.credit_card.card_password,
             })
             .end((_, res) => {
                 chai.expect(res).to.have.status(201);
@@ -80,7 +80,7 @@ describe('payments controller test', async () => {
                 product_amount: given.order.product.amount,
                 buyer_name: given.order.user.name,
                 buyer_email: given.order.user.email,
-                installment_months: 0
+                installment_months: 0,
             })
             .end((_, res) => {
                 chai.expect(res).to.have.status(200);     
@@ -99,7 +99,7 @@ describe('payments controller test', async () => {
                 chai.expect(res.body.amount).to.equal(given.order.product.amount);
                 chai.expect(res.body.card_amount).to.equal(given.order.product.amount);
                 chai.expect(res.body.coupon_amount).to.equal(0);
-                chai.expect(res.body.is_escrow).to.be.false;
+                chai.expect(res.body.is_escrow).to.equal(false);
                 chai.expect(res.body.van_code).to.equal('VNKC');
                 chai.expect(res.body.approval_time).to.match(/[0-9]{14}/);
                 chai.expect(res.body.van_approval_time).to.match(/[0-9]{14}/);
@@ -108,7 +108,7 @@ describe('payments controller test', async () => {
                 chai.expect(res.body.tax_amount).to.equal(9090);
                 chai.expect(res.body.tax_free_amount).to.equal(0);
                 chai.expect(res.body.vat_amount).to.equal(910);
-                chai.expect(res.body.is_partial_cancel).to.be.true;
+                chai.expect(res.body.is_partial_cancel).to.equal(true);
         
                 stored.approved = res.body;
                 return done();
@@ -125,14 +125,13 @@ describe('payments controller test', async () => {
                 product_amount: given.order.product.amount,
                 buyer_name: given.order.user.name,
                 buyer_email: given.order.user.email,
-                installment_months: 0
+                installment_months: 0,
             })
             .end((_, res) => {
                 chai.expect(res).to.have.status(200);
                 // 기결제와 동일한지 idempotence 확인
-                for (const key in stored.approved) {
-                    chai.expect(res.body[key]).to.equal(stored.approved[key]);
-                }
+                Object.keys(stored.approved)
+                    .forEach(key => chai.expect(res.body[key]).to.equal(stored.approved[key]));
                 return done();
             });
     });
@@ -141,7 +140,7 @@ describe('payments controller test', async () => {
         chai.request(app)
             .del(`/payments/${stored.approved.tno}`)
             .send({
-                reason: '결제 취소 테스트'
+                reason: '결제 취소 테스트',
             })
             .end((_, res) => {
                 chai.expect(res).to.have.status(200);
@@ -159,7 +158,7 @@ describe('payments controller test', async () => {
                 chai.expect(res.body.amount).to.equal(given.order.product.amount);
                 chai.expect(res.body.card_amount).to.equal(given.order.product.amount);
                 chai.expect(res.body.coupon_amount).to.equal(0);
-                chai.expect(res.body.is_escrow).to.be.false;
+                chai.expect(res.body.is_escrow).to.equal(false);
                 chai.expect(res.body.cancel_gubun).to.equal('B');
                 chai.expect(res.body.van_code).to.equal('VNKC');
                 chai.expect(res.body.approval_time).to.match(/[0-9]{14}/);

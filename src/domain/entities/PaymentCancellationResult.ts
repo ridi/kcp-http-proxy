@@ -1,41 +1,42 @@
 import { attribute, rangeKey } from '@aws/dynamodb-data-mapper-annotations';
+import { RADIX } from '@root/common/constants';
 import { IsBoolean, IsNumber, IsString } from 'class-validator';
 import { JSONSchema } from 'class-validator-jsonschema';
 
-export type PaymentCancellationResultType = {
-    res_cd: string;
-    res_msg: string;
-    res_en_msg: string;
-    trace_no: string;
-    pay_method: string;
-    order_no: string;
-    card_cd: string;
-    card_name: string;
-    acqu_cd: string;
-    acqu_name: string;
-    mcht_taxno: string;
-    mall_taxno: string;
-    ca_order_id: string;
-    tno: string;
-    amount: string;
-    card_mny: string;
-    coupon_mny: string;
-    escw_yn: string;
-    canc_gubn: string;
-    van_cd: string;
-    app_time: string;
-    van_apptime: string;
-    canc_time: string;
-    app_no: string;
-    bizx_numb: string;
-    quota: string;
-    noinf: string;
-    pg_txid: string;
+export interface PaymentCancellationResultType {
+    res_cd: string,
+    res_msg: string,
+    res_en_msg: string,
+    trace_no: string,
+    pay_method: string,
+    order_no: string,
+    card_cd: string,
+    card_name: string,
+    acqu_cd: string,
+    acqu_name: string,
+    mcht_taxno: string,
+    mall_taxno: string,
+    ca_order_id: string,
+    tno: string,
+    amount: string,
+    card_mny: string,
+    coupon_mny: string,
+    escw_yn: string,
+    canc_gubn: string,
+    van_cd: string,
+    app_time: string,
+    van_apptime: string,
+    canc_time: string,
+    app_no: string,
+    bizx_numb: string,
+    quota: string,
+    noinf: string,
+    pg_txid: string,
 };
 
 @JSONSchema({ description: '결제 취소 결과' })
 export class PaymentCancellationResult {
-    static parse(output: PaymentCancellationResultType): PaymentCancellationResult {
+    public static parse(output: PaymentCancellationResultType): PaymentCancellationResult {
         const result: PaymentCancellationResult = new PaymentCancellationResult();
         result.code = output.res_cd;
         result.message = output.res_msg;
@@ -51,9 +52,9 @@ export class PaymentCancellationResult {
         result.mall_tax_no = output.mall_taxno;
         result.ca_order_id = output.ca_order_id;
         result.tno = output.tno;
-        result.amount = <number>parseInt(output.amount || '0');
-        result.card_amount = <number>parseInt(output.card_mny || '0');
-        result.coupon_amount = <number>parseInt(output.coupon_mny || '0');
+        result.amount = parseInt(output.amount || '0', RADIX.DECIMAL) as number;
+        result.card_amount = parseInt(output.card_mny || '0', RADIX.DECIMAL) as number;
+        result.coupon_amount = parseInt(output.coupon_mny || '0', RADIX.DECIMAL) as number;
         result.is_escrow = (output.escw_yn || 'N') === 'Y';
         result.cancel_gubun = output.canc_gubn;
         result.van_code = output.van_cd;
@@ -62,7 +63,7 @@ export class PaymentCancellationResult {
         result.cancel_time = output.canc_time;
         result.approval_no = output.app_no;
         result.business_no = output.bizx_numb;
-        result.quota = <number>parseInt(output.quota || '0');
+        result.quota = parseInt(output.quota || '0', RADIX.DECIMAL) as number;
         result.is_interest_free = (output.noinf || 'N') === 'Y';
         result.pg_tx_id = output.pg_txid;
         return result;
@@ -71,148 +72,148 @@ export class PaymentCancellationResult {
     @JSONSchema({ description: 'KCP 결과 코드: 0000 (정상처리)' })
     @IsString()
     @attribute()
-    code: string;
+    public code: string;
 
     @JSONSchema({ description: 'KCP 결과 메시지' })
     @IsString()
     @attribute()
-    message: string;
+    public message: string;
 
     @JSONSchema({ description: '영문 메시지' })
     @IsString()
     @attribute()
-    en_message: string;
+    public en_message: string;
 
     @JSONSchema({ description: 'KCP 결제 고유 번호' })
     @IsString()
     @attribute()
-    trace_no: string;
+    public trace_no: string;
 
     @JSONSchema({ description: '사용 결제 수단' })
     @IsString()
     @attribute()
-    pay_method: string;
+    public pay_method: string;
 
     @JSONSchema({ description: '가맹점 주문 번호' })
     @IsString()
     @attribute()
-    order_no: string;
+    public order_no: string;
 
     @JSONSchema({ description: '카드 발급사 코드' })
     @IsString()
     @attribute()
-    card_code: string;
+    public card_code: string;
 
     @JSONSchema({ description: '카드 이름' })
     @IsString()
     @attribute()
-    card_name: string;
+    public card_name: string;
 
     @JSONSchema({ description: '카드 매입사 코드' })
     @IsString()
     @attribute()
-    acquirer_code: string;
+    public acquirer_code: string;
 
     @JSONSchema({ description: '카드 매입사 이름', format: '한글' })
     @IsString()
     @attribute()
-    acquirer_name: string;
+    public acquirer_name: string;
 
     @JSONSchema({ description: '카드 번호' })
     @IsString()
     @attribute()
-    card_no: string;
+    public card_no: string;
 
     @JSONSchema({ description: '' })
     @IsString()
     @attribute()
-    merchant_tax_no: string;
+    public merchant_tax_no: string;
 
     @JSONSchema({ description: '가맹점 인증 번호' })
     @IsString()
     @attribute()
-    mall_tax_no: string;
+    public mall_tax_no: string;
 
     @JSONSchema({ description: '' })
     @IsString()
     @attribute()
-    ca_order_id: string;
+    public ca_order_id: string;
 
     @JSONSchema({ description: 'KCP 거래 번호' })
     @IsString()
     @attribute()
-    tno: string;
+    public tno: string;
 
     @JSONSchema({ description: '총 결제 금액' })
     @IsNumber()
     @attribute()
-    amount: number;
+    public amount: number;
 
     @JSONSchema({ description: '카드 결제 금액' })
     @IsNumber()
     @attribute()
-    card_amount: number;
+    public card_amount: number;
 
     @JSONSchema({ description: '쿠폰 결제 금액' })
     @IsNumber()
     @attribute()
-    coupon_amount: number;
+    public coupon_amount: number;
 
     @JSONSchema({ description: '에스크로 사용 여부' })
     @IsBoolean()
     @attribute()
-    is_escrow: boolean;
+    public is_escrow: boolean;
 
     @JSONSchema({ description: '매입 취소/승인 취소의 구분값' })
     @IsString()
     @attribute()
-    cancel_gubun: string;
+    public cancel_gubun: string;
 
     @JSONSchema({ description: 'VAN사 코드' })
     @IsString()
     @attribute()
-    van_code: string;
+    public van_code: string;
 
     @JSONSchema({ description: '결제 승인 시각(공통)', format: 'yyyyMMddHHmmss' })
     @IsString()
     @attribute()
-    approval_time: string;
+    public approval_time: string;
 
     @JSONSchema({ description: 'VAN사 결제 승인 시각' })
     @IsString()
     @attribute()
-    van_approval_time: string;
+    public van_approval_time: string;
 
     @JSONSchema({ description: '결제 취소 시각', format: 'yyyyMMddHHmmss' })
     @IsString()
     @attribute()
-    cancel_time: string;
+    public cancel_time: string;
 
     @JSONSchema({ description: '정상 결제 거래의 승인 번호, KCP와 카드사에서 공통적으로 관리하는 번호' })
     @IsString()
     @attribute()
-    approval_no: string;
+    public approval_no: string;
 
     @JSONSchema({ description: '' })
     @IsString()
     @attribute()
-    business_no: string;
+    public business_no: string;
 
     @JSONSchema({ description: '할부 개월(0: 일시불)', format: '0~12' })
     @IsNumber()
     @attribute()
-    quota: number;
+    public quota: number;
 
     @JSONSchema({ description: '무이자 할부 결제 여부' })
     @IsBoolean()
     @attribute()
-    is_interest_free: boolean;
+    public is_interest_free: boolean;
 
     @JSONSchema({ description: '' })
     @IsString()
     @attribute()
-    pg_tx_id: string;
+    public pg_tx_id: string;
 
     @rangeKey({ defaultProvider: () => new Date() })
-    created_at?: Date;
+    public readonly created_at?: Date;
 }

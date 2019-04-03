@@ -2,7 +2,7 @@ import { PaymentApprovalRequest } from '@root/application/requests/PaymentApprov
 import { PaymentBatchKeyRequest } from '@root/application/requests/PaymentBatchKeyRequest';
 import { PaymentCancellationRequest } from '@root/application/requests/PaymentCancellationRequest';
 import { KcpConfig, KcpSite } from '@root/common/config';
-import { Ascii, PayPlusStatus } from '@root/common/constants';
+import { ASCII, PAY_PLUS_STATUS } from '@root/common/constants';
 import { AbstractKcpCommand } from '@root/domain/commands/AbstractKcpCommand';
 import { PaymentApprovalCommand } from '@root/domain/commands/PaymentApprovalCommand';
 import { PaymentBatchKeyCommand } from '@root/domain/commands/PaymentBatchKeyCommand';
@@ -22,69 +22,24 @@ import Container, { Inject, Service } from 'typedi';
 @Service()
 export class KcpAppService {
     @Inject()
-    approvalRepository: PaymentApprovalRequestRepository;
+    private approvalRepository: PaymentApprovalRequestRepository;
 
     @Inject()
-    commandActuator: KcpComandActuator;
+    private commandActuator: KcpComandActuator;
 
     @Inject('sentry.loggable')
-    sentryLoggable: boolean;
-
-    async requestBatchKey(req: PaymentBatchKeyRequest): Promise<PaymentBatchKeyResult> {
-        const command = new PaymentBatchKeyCommand(
-            req.is_tax_deductible,
-            req.card_no,
-            req.card_expiry_date,
-            req.card_tax_no,
-            req.card_password
-        );
-        return await this.executeCommand(command) as PaymentBatchKeyResult;
-    }
-
-    async approvePayment(req: PaymentApprovalRequest): Promise<PaymentApprovalResult> {
-        const command = new PaymentApprovalCommand(
-            req.is_tax_deductible,
-            req.batch_key,
-            req.order_no,
-            req.product_name,
-            req.product_amount,
-            req.buyer_name,
-            req.buyer_email,
-            '',
-            '',
-            req.installment_months
-        );
-
-        // caching result
-        let { found, result } = await this.getSuccessfulPaymentApprovalResult(command);
-        if (result) {
-            return result;
-        }
-        
-        // execute pp_cli
-        result = await this.executeCommand(command) as PaymentApprovalResult;
-
-        // persist result
-        found.results.push(result);
-        await this.approvalRepository.savePaymentApprovalRequest(found);
-        return result;
-    }
-
-    async cancelPayment(req: PaymentCancellationRequest): Promise<PaymentCancellationResult> {
-        const command = new PaymentCancellationCommand(req.is_tax_deductible, req.tno, req.reason);
-        return await this.executeCommand(command) as PaymentCancellationResult;
-    }
+    private sentryLoggable: boolean;
 
     private async executeCommand(command: AbstractKcpCommand): Promise<PaymentBatchKeyResult | PaymentApprovalResult | PaymentCancellationResult> {
         return this.commandActuator.actuate(command)
             .then(output => {
                 const outputObject = {};
-                output.split(Ascii.UnitSeparator).map(keyValueString => {
+                output.split(ASCII.UNIT_SEPARATOR).map(keyValueString => {
                     const key_value: string[] = keyValueString.split('=');
                     outputObject[key_value[0]] = key_value[1];
                 });
 
-                if (outputObject['res_cd'] !== PayPlusStatus.OK) {
+                if (outputObject['res_cd'] !== PAY_PLUS_STATUS.OK) {
                     throw new PayPlusError(outputObject['res_cd'], outputObject['res_msg']);
                 }
 
@@ -118,14 +73,15 @@ export class KcpAppService {
             siteCode: site.code,
             batchKey: command.batchKey,
             orderNo: command.orderNo,
-            productAmount: command.productAmount
+            productAmount: command.productAmount,
         });
         const found: PaymentApprovalRequestEntity = await this.getPaymentApprovalRequestEntity(hashId);
-        const result = found.results.find(r => r.code === PayPlusStatus.OK) || null;
+        const result = found.results.find(r => r.code === PAY_PLUS_STATUS.OK);
         if (result) {
-            delete result.created_at;
+            const { created_at, ...rest } = result;
+            return { found, result: rest };
         }
-        return { found, result };
+        return { found };
     }
 
     private async getPaymentApprovalRequestEntity(id: string): Promise<PaymentApprovalRequestEntity> {
@@ -139,5 +95,50 @@ export class KcpAppService {
             found.results = [];
         }
         return found;
+    }
+
+    public async requestBatchKey(req: PaymentBatchKeyRequest): Promise<PaymentBatchKeyResult> {
+        const command = new PaymentBatchKeyCommand(
+            req.is_tax_deductible,
+            req.card_no,
+            req.card_expiry_date,
+            req.card_tax_no,
+            req.card_password,
+        );
+        return await this.executeCommand(command) as PaymentBatchKeyResult;
+    }
+
+    public async approvePayment(req: PaymentApprovalRequest): Promise<PaymentApprovalResult> {
+        const command = new PaymentApprovalCommand(
+            req.is_tax_deductible,
+            req.batch_key,
+            req.order_no,
+            req.product_name,
+            req.product_amount,
+            req.buyer_name,
+            req.buyer_email,
+            '',
+            '',
+            req.installment_months,
+        );
+
+        // caching result
+        const { found, result } = await this.getSuccessfulPaymentApprovalResult(command);
+        if (result) {
+            return result;
+        }
+        
+        // execute pp_cli
+        const newResult = await this.executeCommand(command) as PaymentApprovalResult;
+
+        // persist result
+        found.results.push(newResult);
+        await this.approvalRepository.savePaymentApprovalRequest(found);
+        return newResult;
+    }
+
+    public async cancelPayment(req: PaymentCancellationRequest): Promise<PaymentCancellationResult> {
+        const command = new PaymentCancellationCommand(req.is_tax_deductible, req.tno, req.reason);
+        return await this.executeCommand(command) as PaymentCancellationResult;
     }
 }

@@ -2,12 +2,12 @@ import { Request, Response } from 'express';
 import { ExpressMiddlewareInterface } from 'routing-controllers';
 
 export class RequestLoggingMiddleware implements ExpressMiddlewareInterface {
-    use(request: any, response: any, next: (err?: any) => any) {
+    public use(request: any, response: any, next: (err?: any) => any) {
         const req = request as Request;
         console.info('REQ:', req.method, req.originalUrl);
 
-        const originalWrite: Function = response.write;
-        const originalEnd: Function = response.end;
+        const originalWrite = response.write;
+        const originalEnd = response.end;
         const chunks: Buffer[] = [];
         response.write = (...args: any[]) => {
             chunks.push(Buffer.from(args[0]));

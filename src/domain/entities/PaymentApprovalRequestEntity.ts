@@ -7,20 +7,20 @@ export const TABLE_NAME = 't_payment_approval_requests';
 @table(TABLE_NAME)
 export class PaymentApprovalRequestEntity {
     @hashKey()
-    id: string;
+    public id: string;
     
     @attribute()
-    siteCode: string;
+    public siteCode: string;
 
     @attribute({ defaultProvider: () => new Date() })
-    createdAt: Date;
+    public createdAt: Date;
 
     @attribute()
-    updatedAt: Date;
+    public updatedAt: Date;
 
     @attribute({ memberType: embed(PaymentApprovalResult) })
-    results?: Array<PaymentApprovalResult>;
+    public results?: PaymentApprovalResult[];
 
     @versionAttribute()
-    version: number;
+    public version: number;
 }

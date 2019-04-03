@@ -2,7 +2,7 @@ import { attribute, rangeKey } from '@aws/dynamodb-data-mapper-annotations';
 import { IsString } from 'class-validator';
 import { JSONSchema } from 'class-validator-jsonschema';
 
-export type PaymentBatchKeyResultType = {
+export interface PaymentBatchKeyResultType {
     res_cd: string,
     res_msg: string,
     card_cd: string,
@@ -11,11 +11,11 @@ export type PaymentBatchKeyResultType = {
     card_bin_type_01: string,
     batch_key: string,
     join_cd: string,
-    card_name: string
+    card_name: string,
 };
 @JSONSchema({ description: '결제키 발급 요청 결과' })
 export class PaymentBatchKeyResult {
-    static parse(output: PaymentBatchKeyResultType): PaymentBatchKeyResult {
+    public static parse(output: PaymentBatchKeyResultType): PaymentBatchKeyResult {
         const result = new PaymentBatchKeyResult();
         result.code = output.res_cd;
         result.message = output.res_msg;
@@ -31,48 +31,48 @@ export class PaymentBatchKeyResult {
     @JSONSchema({ description: 'KCP 결과 코드: 0000 (정상처리)' })
     @IsString()
     @attribute()
-    code: string;
+    public code: string;
 
     @JSONSchema({ description: 'KCP 결과 메시지' })
     @IsString()
     @attribute()
-    message: string;
+    public message: string;
 
     @JSONSchema({ description: '카드 발급사 코드' })
     @IsString()
     @attribute()
-    card_code: string;
+    public card_code: string;
     
     @JSONSchema({ description: '카드 발급사 이름', format: '한글' })
     @IsString()
     @attribute()
-    card_name: string;
+    public card_name: string;
 
     @JSONSchema({ description: '카드 발급사 은행 코드' })
     @IsString()
     @attribute()
-    card_bank_code: string;
+    public card_bank_code: string;
     
     @JSONSchema({ description: 'VAN사 거래 번호' })
     @IsString()
     @attribute()
-    van_tx_id: string;
+    public van_tx_id: string;
 
     @JSONSchema({ description: '' })
     @IsString()
     @attribute()
-    card_bin_type_01: string;
+    public card_bin_type_01: string;
 
     @JSONSchema({ description: '결제 요청 Key(Batch/Billing Key)' })
     @IsString()
     @attribute()
-    batch_key: string;
+    public batch_key: string;
 
     @JSONSchema({ description: '' })
     @IsString()
     @attribute()
-    join_code: string;
+    public join_code: string;
     
     @rangeKey({ defaultProvider: () => new Date() })
-    created_at?: Date;
+    public readonly created_at?: Date;
 }

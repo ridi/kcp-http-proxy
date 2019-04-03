@@ -5,10 +5,10 @@ import { Inject, Service } from 'typedi';
 @Service()
 export class PaymentApprovalRequestRepository {
     @Inject(type => DataMapper)
-    mapper: DataMapper;
+    private mapper: DataMapper;
     
-    async getPaymentApprovalRequestById(id: string): Promise<PaymentApprovalRequestEntity | null> {
-        return this.mapper.get(Object.assign(new PaymentApprovalRequestEntity, { id: id })).then(fetched => {                
+    public async getPaymentApprovalRequestById(id: string): Promise<PaymentApprovalRequestEntity | null> {
+        return this.mapper.get(Object.assign(new PaymentApprovalRequestEntity, { id })).then(fetched => {                
                 return fetched;
             }).catch(err => {
                 if (err.name === ItemNotFoundException.name) {
@@ -18,7 +18,7 @@ export class PaymentApprovalRequestRepository {
             });
     }
     
-    async savePaymentApprovalRequest(request: PaymentApprovalRequestEntity): Promise<PaymentApprovalRequestEntity> {
+    public async savePaymentApprovalRequest(request: PaymentApprovalRequestEntity): Promise<PaymentApprovalRequestEntity> {
         request.updatedAt = new Date();
         const saved = await this.mapper.put(Object.assign(new PaymentApprovalRequestEntity, request));
         if (saved) {

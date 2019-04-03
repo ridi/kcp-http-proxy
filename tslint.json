@@ -1,0 +1,19 @@
+{
+    "defaultSeverity": "error",
+    "extends": ["@ridi/tslint-config", "tslint-config-prettier"],
+    "rules": {
+        "no-var-keyword": true,
+        "no-var-requires": true,
+        "no-require-imports": false,
+        "no-console": false,
+        "no-string-literal": false,
+        "trailing-comma": [true, { "multiline": "always", "singleline": "never" }],
+        "variable-name": [true, "allow-snake-case"]
+    },
+    "linterOptions": {
+        "exclude": [
+            "src/index.ts",
+            "src/test/**/*.ts"
+        ]
+    }
+}

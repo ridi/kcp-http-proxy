@@ -5,5 +5,5 @@ export abstract class AbstractKcpRequest {
     @JSONSchema({ description: '소득공제여부' })
     @IsBoolean()
     @IsOptional()
-    is_tax_deductible?: boolean = false;
+    public is_tax_deductible?: boolean = false;
 }

@@ -15,16 +15,16 @@ import { RequestLoggingMiddleware } from '../middlewares/RequestLoggingMiddlewar
 @JsonController()
 export class PaymentController {
     @Inject(type => KcpAppService)
-    kcpService: KcpAppService;
+    private kcpService: KcpAppService;
 
     @Inject()
-    requestValidator: KcpRequestValidator;
+    private requestValidator: KcpRequestValidator;
 
     @ResponseSchema(PaymentBatchKeyResult)
     @UseBefore(RequestLoggingMiddleware)
     @HttpCode(201)
     @Post('/payments/batch-key')
-    async requestBatchKey(@Body() req: PaymentBatchKeyRequest, @Res() res: Response): Promise<PaymentBatchKeyResult> {
+    public async requestBatchKey(@Body() req: PaymentBatchKeyRequest, @Res() res: Response): Promise<PaymentBatchKeyResult> {
         await this.requestValidator.validate(req);
 
         const result: PaymentBatchKeyResult = await this.kcpService.requestBatchKey(req);
@@ -35,7 +35,7 @@ export class PaymentController {
     @UseBefore(RequestLoggingMiddleware)
     @HttpCode(200)
     @Post('/payments')
-    async approvePayment(@Body() req: PaymentApprovalRequest, @Res() res: Response): Promise<PaymentApprovalResult> {
+    public async approvePayment(@Body() req: PaymentApprovalRequest, @Res() res: Response): Promise<PaymentApprovalResult> {
         await this.requestValidator.validate(req);
 
         const result: PaymentApprovalResult = await this.kcpService.approvePayment(req);
@@ -46,7 +46,7 @@ export class PaymentController {
     @UseBefore(RequestLoggingMiddleware)
     @HttpCode(200)
     @Delete('/payments/:kcp_tno')
-    async cancelPayment(@Param('kcp_tno') kcp_tno: string, @Body() req: PaymentCancellationRequest, @Res() res: Response): Promise<PaymentCancellationResult> {
+    public async cancelPayment(@Param('kcp_tno') kcp_tno: string, @Body() req: PaymentCancellationRequest, @Res() res: Response): Promise<PaymentCancellationResult> {
         req.tno = kcp_tno;
 
         await this.requestValidator.validate(req);
