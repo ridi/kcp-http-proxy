@@ -32,9 +32,9 @@ export class KcpAppService {
 
     private async executeCommand(command: AbstractKcpCommand): Promise<PaymentBatchKeyResult | PaymentApprovalResult | PaymentCancellationResult> {
         return this.commandActuator.actuate(command)
-            .then(output => {
+            .then((output) => {
                 const outputObject = {};
-                output.split(ASCII.UNIT_SEPARATOR).map(keyValueString => {
+                output.split(ASCII.UNIT_SEPARATOR).map((keyValueString) => {
                     const key_value: string[] = keyValueString.split('=');
                     outputObject[key_value[0]] = key_value[1];
                 });
@@ -54,11 +54,11 @@ export class KcpAppService {
                         return PaymentCancellationResult.parse(outputObject as PaymentCancellationResultType);
                     }
                     default: {
-                        console.error('Unknown Command', command);                        
+                        console.error('Unknown Command', command);
                         throw new InvalidRequestError();
                     }
                 }
-            }).catch(error => {
+            }).catch((error) => {
                 if (this.sentryLoggable) {
                     Sentry.captureException(error);
                 }
@@ -76,7 +76,7 @@ export class KcpAppService {
             productAmount: command.productAmount,
         });
         const found: PaymentApprovalRequestEntity = await this.getPaymentApprovalRequestEntity(hashId);
-        const result = found.results.find(r => r.code === PAY_PLUS_STATUS.OK);
+        const result = found.results.find((r) => r.code === PAY_PLUS_STATUS.OK);
         if (result) {
             const { created_at, ...rest } = result;
             return { found, result: rest };
@@ -127,7 +127,7 @@ export class KcpAppService {
         if (result) {
             return result;
         }
-        
+
         // execute pp_cli
         const newResult = await this.executeCommand(command) as PaymentApprovalResult;
 

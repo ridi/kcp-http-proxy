@@ -7,12 +7,14 @@ import { Service } from 'typedi';
 export class KcpRequestValidator {
     public validate(request: AbstractKcpRequest): Promise<string> {
         return validate(request)
-            .then(errors => {
+            .then((errors) => {
                 if (errors.length > 0) {
                     const resolvedErrors: object = {};
 
                     for (const error of errors) {
-                        resolvedErrors[error.property] = Object.entries(error.constraints).map(([_, val]) => val).join('/n');
+                        resolvedErrors[error.property] = Object.entries(error.constraints)
+                            .map(([_, val]) => val)
+                            .join('/n');
                     }
 
                     return Promise.reject(new InvalidRequestError(JSON.stringify(resolvedErrors)));

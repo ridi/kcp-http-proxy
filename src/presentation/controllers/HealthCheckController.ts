@@ -18,8 +18,8 @@ export class HealthCheckController {
 
     private async checkDatabaseConnection(): Promise<void> {
         try {
-            const result:PromiseResult<ListTablesOutput, AWSError> = await Database.client.listTables().promise();
-            const found = result.TableNames.find(table => table === PaymentApprovalRequestEntityTableName) || false;
+            const result: PromiseResult<ListTablesOutput, AWSError> = await Database.client.listTables().promise();
+            const found = result.TableNames.find((table) => table === PaymentApprovalRequestEntityTableName) || false;
             if (!found) {
                 throw new Error(`Table ${PaymentApprovalRequestEntityTableName} doesn't exist.`);
             }

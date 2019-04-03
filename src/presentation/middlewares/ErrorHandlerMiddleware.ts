@@ -8,7 +8,7 @@ import { ExpressErrorMiddlewareInterface, HttpError, Middleware } from 'routing-
 @Middleware({ type: 'after' })
 export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
     public error(error: any, request: any, response: any, next: (err?: any) => any): void {
-        switch (error.constructor) {            
+        switch (error.constructor) {
             case InvalidRequestError: {
                 response
                     .status(status.BAD_REQUEST)

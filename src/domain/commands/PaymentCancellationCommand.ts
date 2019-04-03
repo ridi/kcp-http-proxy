@@ -7,6 +7,6 @@ export class PaymentCancellationCommand extends AbstractKcpCommand {
         this.reason = reason;
     }
 
-    public readonly tno: string;// KCP측 주문번호
-    public readonly reason: string;// 취소사유
+    public readonly tno: string; // KCP측 주문번호
+    public readonly reason: string; // 취소사유
 }

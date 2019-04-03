@@ -11,7 +11,7 @@ import { Inject, Service } from 'typedi';
 
 @Service()
 export class KcpComandActuator {
-    @Inject(type => KcpConfig)
+    @Inject((type) => KcpConfig)
     private config: KcpConfig;
 
     private requestBatchKey(command: PaymentBatchKeyCommand): Promise<string> {
@@ -29,7 +29,7 @@ export class KcpComandActuator {
             `group_id=${site.groupId}`,
             `${ASCII.RECORD_SEPARATOR}`,
         ].join(ASCII.UNIT_SEPARATOR);
-        
+
         const pp_cli_arg = { payx_data };
 
         return this.executePayPlusClient(site, this.config.code.request.batchKey.txCode, pp_cli_arg);
@@ -37,7 +37,7 @@ export class KcpComandActuator {
 
     private batchOrder(command: PaymentApprovalCommand): Promise<string> {
         const site = this.config.site(command.isTaxDeductible);
-        
+
         const payx_data = [
             `payx_data=common=amount=${command.productAmount}`,
             `currency=${this.config.code.currency.KRW}`,
@@ -81,11 +81,11 @@ export class KcpComandActuator {
         ].join(ASCII.UNIT_SEPARATOR);
 
         const pp_cli_arg = { modx_data: data };
-        
+
         return this.executePayPlusClient(site, this.config.code.request.txCancellation.txCode, pp_cli_arg);
     }
 
-    private executePayPlusClient(site: KcpSite, txCode: string, ppCliArg: object): Promise<string> {        
+    private executePayPlusClient(site: KcpSite, txCode: string, ppCliArg: object): Promise<string> {
         const commandArgument: any = Object.assign(
             {
                 home: this.config.modulePath,
@@ -94,7 +94,7 @@ export class KcpComandActuator {
                 tx_cd: txCode,
                 pa_url: site.gwUrl,
                 pa_port: 8090,
-            },            
+            },
             ppCliArg,
             {
                 log_level: this.config.log.level,
@@ -118,7 +118,7 @@ export class KcpComandActuator {
     }
 
     private flattenCommand(command: any, separator: string): string {
-        return Object.keys(command).map(key => `${key}=${command[key]}`).join(separator);
+        return Object.keys(command).map((key) => `${key}=${command[key]}`).join(separator);
     }
 
     public actuate(command: AbstractKcpCommand): Promise<string> {

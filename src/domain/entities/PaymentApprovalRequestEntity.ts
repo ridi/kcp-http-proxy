@@ -8,7 +8,7 @@ export const TABLE_NAME = 't_payment_approval_requests';
 export class PaymentApprovalRequestEntity {
     @hashKey()
     public id: string;
-    
+
     @attribute()
     public siteCode: string;
 

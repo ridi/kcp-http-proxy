@@ -4,4 +4,4 @@ export abstract class AbstractKcpCommand {
     }
 
     public readonly isTaxDeductible: boolean;
-};
+}

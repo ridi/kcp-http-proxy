@@ -9,28 +9,28 @@ export class KcpConfig {
             [KcpSiteMode.TaxDeduction, taxDeductionSite],
         ]);
     }
-    
+
     private sites: Map<string, KcpSite>;
 
     public readonly code = {
         request: {
             // 배치키(인증키) 발급 요청 코드
             batchKey: {
-                txCode: '00300001',// TRANSACTION_CODE_AUTH
-                cardTxType: '12100000',// CARD_TRANSACTION_TYPE_AUTH
-                signTxType: '0001',// SIGN_TRANSACTION_TYPE_AUTH
+                txCode: '00300001', // TRANSACTION_CODE_AUTH
+                cardTxType: '12100000', // CARD_TRANSACTION_TYPE_AUTH
+                signTxType: '0001', // SIGN_TRANSACTION_TYPE_AUTH
             },
             // 결제 승인 요청 코드
             txApproval: {
-                txCode: '00100000',// TRANSACTION_CODE_ORDER
-                cardTxType: '11511000',// CARD_TRANSACTION_TYPE_BATCH_ORDER
+                txCode: '00100000', // TRANSACTION_CODE_ORDER
+                cardTxType: '11511000', // CARD_TRANSACTION_TYPE_BATCH_ORDER
             },
             // 결제 취소 요청 코드
             txCancellation: {
                 txCode: '00200000',
                 modType: {
-                    full: 'STSC',// 승인 금액 전체 취소 MOD_TYPE_CANCEL_ORDER_FULL
-                    partial: 'STPC',// 승인 금액 부분 취소 MOD_TYPE_CANCEL_ORDER_PART
+                    full: 'STSC', // 승인 금액 전체 취소 MOD_TYPE_CANCEL_ORDER_FULL
+                    partial: 'STPC', // 승인 금액 부분 취소 MOD_TYPE_CANCEL_ORDER_PART
                 },
             },
         },
@@ -51,10 +51,10 @@ export class KcpConfig {
             UTF_8: 1,
         },
     };
-    
-    public readonly modulePath: string = `${Container.get('app.root')}/../resources/pp_cli`; 
-    public readonly gwPort: string = '8090';// KCP 결제 서버 포트
-    
+
+    public readonly modulePath: string = `${Container.get('app.root')}/../resources/pp_cli`;
+    public readonly gwPort: string = '8090'; // KCP 결제 서버 포트
+
     private validate(sites: KcpSite[]): void {
         for (const site of sites) {
             if (!site.code || !site.key || !site.groupId) {
@@ -70,7 +70,7 @@ export class KcpConfig {
         }
         return this.sites.get(KcpSiteMode.Normal);
     }
-};
+}
 
 enum KcpSiteMode {
     Normal = 'n',
@@ -78,8 +78,8 @@ enum KcpSiteMode {
 }
 
 export interface KcpSite {
-    code: string;// 상점 코드
-    key: string;// 상점 키
-    groupId: string;// 상점 그룹 ID
-    gwUrl?: string;// KCP 결제 서버 주소
+    code: string; // 상점 코드
+    key: string; // 상점 키
+    groupId: string; // 상점 그룹 ID
+    gwUrl?: string; // KCP 결제 서버 주소
 }

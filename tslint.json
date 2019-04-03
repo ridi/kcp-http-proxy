@@ -1,14 +1,29 @@
 {
     "defaultSeverity": "error",
-    "extends": ["@ridi/tslint-config", "tslint-config-prettier"],
+    "extends": [
+        "@ridi/tslint-config"
+    ],
     "rules": {
         "no-var-keyword": true,
         "no-var-requires": true,
         "no-require-imports": false,
         "no-console": false,
         "no-string-literal": false,
-        "trailing-comma": [true, { "multiline": "always", "singleline": "never" }],
-        "variable-name": [true, "allow-snake-case"]
+        "trailing-comma": [
+            true,
+            {
+                "multiline": "always",
+                "singleline": "never"
+            }
+        ],
+        "variable-name": [
+            true,
+            "allow-snake-case"
+        ],
+        "max-line-length": [
+            true,
+            180
+        ]
     },
     "linterOptions": {
         "exclude": [

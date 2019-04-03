@@ -3,16 +3,17 @@ import { IsString } from 'class-validator';
 import { JSONSchema } from 'class-validator-jsonschema';
 
 export interface PaymentBatchKeyResultType {
-    res_cd: string,
-    res_msg: string,
-    card_cd: string,
-    card_bank_cd: string, 
-    van_tx_id: string,
-    card_bin_type_01: string,
-    batch_key: string,
-    join_cd: string,
-    card_name: string,
-};
+    res_cd: string;
+    res_msg: string;
+    card_cd: string;
+    card_bank_cd: string;
+    van_tx_id: string;
+    card_bin_type_01: string;
+    batch_key: string;
+    join_cd: string;
+    card_name: string;
+}
+
 @JSONSchema({ description: '결제키 발급 요청 결과' })
 export class PaymentBatchKeyResult {
     public static parse(output: PaymentBatchKeyResultType): PaymentBatchKeyResult {
@@ -42,7 +43,7 @@ export class PaymentBatchKeyResult {
     @IsString()
     @attribute()
     public card_code: string;
-    
+
     @JSONSchema({ description: '카드 발급사 이름', format: '한글' })
     @IsString()
     @attribute()
@@ -52,7 +53,7 @@ export class PaymentBatchKeyResult {
     @IsString()
     @attribute()
     public card_bank_code: string;
-    
+
     @JSONSchema({ description: 'VAN사 거래 번호' })
     @IsString()
     @attribute()
@@ -72,7 +73,7 @@ export class PaymentBatchKeyResult {
     @IsString()
     @attribute()
     public join_code: string;
-    
+
     @rangeKey({ defaultProvider: () => new Date() })
     public readonly created_at?: Date;
 }

@@ -4,35 +4,35 @@ import { IsBoolean, IsNumber, IsString } from 'class-validator';
 import { JSONSchema } from 'class-validator-jsonschema';
 
 export interface PaymentCancellationResultType {
-    res_cd: string,
-    res_msg: string,
-    res_en_msg: string,
-    trace_no: string,
-    pay_method: string,
-    order_no: string,
-    card_cd: string,
-    card_name: string,
-    acqu_cd: string,
-    acqu_name: string,
-    mcht_taxno: string,
-    mall_taxno: string,
-    ca_order_id: string,
-    tno: string,
-    amount: string,
-    card_mny: string,
-    coupon_mny: string,
-    escw_yn: string,
-    canc_gubn: string,
-    van_cd: string,
-    app_time: string,
-    van_apptime: string,
-    canc_time: string,
-    app_no: string,
-    bizx_numb: string,
-    quota: string,
-    noinf: string,
-    pg_txid: string,
-};
+    res_cd: string;
+    res_msg: string;
+    res_en_msg: string;
+    trace_no: string;
+    pay_method: string;
+    order_no: string;
+    card_cd: string;
+    card_name: string;
+    acqu_cd: string;
+    acqu_name: string;
+    mcht_taxno: string;
+    mall_taxno: string;
+    ca_order_id: string;
+    tno: string;
+    amount: string;
+    card_mny: string;
+    coupon_mny: string;
+    escw_yn: string;
+    canc_gubn: string;
+    van_cd: string;
+    app_time: string;
+    van_apptime: string;
+    canc_time: string;
+    app_no: string;
+    bizx_numb: string;
+    quota: string;
+    noinf: string;
+    pg_txid: string;
+}
 
 @JSONSchema({ description: '결제 취소 결과' })
 export class PaymentCancellationResult {

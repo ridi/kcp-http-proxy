@@ -56,20 +56,20 @@ export class App {
         // load .env
         dotenv.config();
 
-        const profile = Profiles.from(process.env.PROFILE || 'dev');        
+        const profile = Profiles.from(process.env.PROFILE || 'dev');
 
         useContainer(Container);
 
         Container.set('app.root', path.resolve(__dirname));
         Container.set('profile', profile);
-        
+
         App.configureSentryLogger(profile);
         App.configureKcpEnvironment(profile);
 
         // create server
         const routingControllersOptions = {
             defaultErrorHandler: false,
-            controllers: [ __dirname + '/presentation/controllers/*Controller.*' ],    
+            controllers: [ __dirname + '/presentation/controllers/*Controller.*' ],
             middlewares: [ __dirname + '/presentation/middlewares/*Middleware.*' ],
         };
         const app: Application = createExpressServer(routingControllersOptions);

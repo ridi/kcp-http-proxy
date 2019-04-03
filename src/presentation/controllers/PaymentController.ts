@@ -14,7 +14,7 @@ import { RequestLoggingMiddleware } from '../middlewares/RequestLoggingMiddlewar
 
 @JsonController()
 export class PaymentController {
-    @Inject(type => KcpAppService)
+    @Inject((type) => KcpAppService)
     private kcpService: KcpAppService;
 
     @Inject()
@@ -30,7 +30,7 @@ export class PaymentController {
         const result: PaymentBatchKeyResult = await this.kcpService.requestBatchKey(req);
         return result;
     }
-    
+
     @ResponseSchema(PaymentApprovalResult)
     @UseBefore(RequestLoggingMiddleware)
     @HttpCode(200)

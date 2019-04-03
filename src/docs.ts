@@ -15,11 +15,11 @@ App.init();
 
 const routingControllersOptions = {
     defaultErrorHandler: false,
-    controllers: [ __dirname + '/presentation/controllers/*Controller.*' ],    
+    controllers: [ __dirname + '/presentation/controllers/*Controller.*' ],
     middlewares: [ __dirname + '/presentation/middlewares/*Middleware.*' ],
 };
 const metadata = (getFromContainer(MetadataStorage) as any).validationMetadatas;
-                
+
 const schemas = validationMetadatasToSchemas(metadata, {
     refPointerPrefix: '#/components/schemas',
 });
@@ -35,7 +35,7 @@ const specification = routingControllersToSpec(storage, routingControllersOption
         version: '0.0.1',
     },
 });
-fs.readFile(path.join(__dirname, '/../docs/init.hbs'), 'utf-8', (error, source) => {    
+fs.readFile(path.join(__dirname, '/../docs/init.hbs'), 'utf-8', (error, source) => {
     Handlebars.registerHelper('swaggerSpecification', (spec) => spec);
 
     const template = Handlebars.compile(source);

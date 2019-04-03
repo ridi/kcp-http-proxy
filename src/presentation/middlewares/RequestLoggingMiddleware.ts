@@ -23,7 +23,7 @@ export class RequestLoggingMiddleware implements ExpressMiddlewareInterface {
             console.info('REQ:', res.req.method, res.req.originalUrl, res.req.body, 'RES:', res.statusCode, body);
 
             originalEnd.apply(response, args);
-        }
+        };
 
         next();
     }

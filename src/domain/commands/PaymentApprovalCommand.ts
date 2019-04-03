@@ -25,7 +25,7 @@ export class PaymentApprovalCommand extends AbstractKcpCommand {
         this.installmentMonths = installmentMonths;
     }
 
-    public readonly batchKey: string;// 발급받은 배치키    
+    public readonly batchKey: string; // 발급받은 배치키
     public readonly orderNo: string;
     public readonly productName: string;
     public readonly productAmount: number;
@@ -33,5 +33,5 @@ export class PaymentApprovalCommand extends AbstractKcpCommand {
     public readonly buyerTel1: string;
     public readonly buyerTel2: string;
     public readonly buyerEmail: string;
-    public readonly installmentMonths: number;// 할부 개월수
+    public readonly installmentMonths: number; // 할부 개월수
 }
