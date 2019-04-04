@@ -10,7 +10,7 @@
     "tslint": "tslint -c tslint.json 'src/**/*.ts'",
     "build": "tsc",
     "test": "PROFILE=test AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test nyc mocha --opts src/test/mocha.opts",
-    "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
+    "coverage": "codecov",
     "prestart": "npm run build",
     "start": "node dist/index.js"
   },
@@ -49,6 +49,7 @@
     "@types/raven": "^2.5.3",
     "chai": "^4.2.0",
     "chai-http": "^4.2.1",
+    "codecov": "^3.3.0",
     "handlebars": "^4.1.1",
     "mocha": "^6.0.2",
     "nyc": "^13.3.0",
