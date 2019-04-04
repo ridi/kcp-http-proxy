@@ -22,7 +22,7 @@ addons:
 stages:
   - test
 
-  jobs:
+jobs:
   include:
     - stage: test
       name: test
