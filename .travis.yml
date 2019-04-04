@@ -22,14 +22,14 @@ addons:
 stages:
   - test
 
-jobs:
+  jobs:
   include:
     - stage: test
       name: test
-      if: tag IS NOT present
+      if: tag IS NOT present      
       install:
         - docker run -d --name dynamodb -p 8000:8000 amazon/dynamodb-local
-        - docker run -itd -v $(pwd):/app --name application --link dynamodb:dynamodb -p 3000:3000 node:lts
+        - docker run -itd -v $(pwd):/app --name test-app --link dynamodb:dynamodb -p 3000:3000 node:lts
         - docker exec -it -w /app test-app bash -c "npm install"
       script:
         - docker exec -it -w /app test-app bash -c "npm test"
