@@ -34,4 +34,4 @@ jobs:
       script:
         - docker exec -it -w /app test-app bash -c "npm test"
       after_success:
-        - npm coverage
+        - docker exec -it -w /app test-app bash -c "npm coverage"
