@@ -2,16 +2,16 @@ version: '3'
 
 services:
   dynamodb:
-    container_name: test_ridi_kcp_http_proxy_db
+    container_name: test-db
     image: amazon/dynamodb-local
     ports:
       - 8000:8000
     networks:
-      - test-kcp-http-proxy
+      - test-network
     command: ['-jar', 'DynamoDBLocal.jar', '-inMemory']
 
   application:
-    container_name: test_ridi_kcp_http_proxy
+    container_name: test-app
     image: node:lts
     volumes:
       - ./:/app
@@ -35,11 +35,11 @@ services:
     depends_on:
       - dynamodb
     networks:
-      - test-kcp-http-proxy
+      - test-network
     command: >
-      bash -c 'npm ci &&
-               npm run test'
+      bash -c 'npm install &&
+               npm test'
 
 networks:
-  test-kcp-http-proxy:
+  test-network:
     driver: bridge

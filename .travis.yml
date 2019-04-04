@@ -2,6 +2,8 @@ langugage: node_js
 node_js:
   - "stable"
 
+sudo: required
+
 install:
   - npm ci
 
@@ -19,8 +21,6 @@ addons:
 
 stages:
   - test
-  - build
-  - deploy
 
 jobs:
   include:
@@ -29,27 +29,9 @@ jobs:
       if: tag IS NOT present
       install:
         - docker run -d --name dynamodb -p 8000:8000 amazon/dynamodb-local
-        - docker run -itd -v $(pwd):/app --name test --link dynamodb:dynamodb -p 3000:3000 node:lts
-        - docker exec -it -w /app test bash -c "npm install"
+        - docker run -itd -v $(pwd):/app --name application --link dynamodb:dynamodb -p 3000:3000 node:lts
+        - docker exec -it -w /app test-app bash -c "npm install"
       script:
-        - docker exec -it -w /app test bash -c "npm test"
-      after_success: #todo npm run coverage
+        - docker exec -it -w /app test-app bash -c "npm test"
+      after_success:
         - bash <(curl -s https://codecov.io/bash)
-
-    - stage: build
-      name: build
-      if: branch IN (test, master)
-      install: sudo apt-get install python3-pip && sudo pip3 install awscli
-      script: # todo
-      after_success:
-        #- todo docker push
-
-    - stage: deploy
-      name: prod-deploy
-      if: tag IS present AND tag =~ ^v
-      install: sudo curl -o /usr/local/bin/ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest && sudo chmod +x /usr/local/bin/ecs-cli
-      script: #todo
-      after_success:
-        - sh ./bin/slack_notification.sh success
-      after_failure:
-        - sh ./bin/slack_notification.sh fail
