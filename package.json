@@ -10,7 +10,7 @@
     "tslint": "tslint -c tslint.json 'src/**/*.ts'",
     "build": "tsc",
     "test": "PROFILE=test AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test nyc mocha --opts src/test/mocha.opts",
-    "coverage": "codecov",
+    "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "prestart": "npm run build",
     "start": "node dist/index.js"
   },
