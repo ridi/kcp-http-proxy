@@ -32,6 +32,6 @@ jobs:
         - docker run -itd -v "$(pwd):/app" --name test-app --link dynamodb:dynamodb -p 3000:3000 node:lts
         - docker exec -it -w /app test-app bash -c "npm install"
       script:
-        - docker exec -it -w /app test-app bash -c "npm test && npm coverage"
+        - docker exec -it -w /app test-app bash -c "npm test && npm run coverage"
       after_success:
         - bash <(curl -s https://codecov.io/bash)
