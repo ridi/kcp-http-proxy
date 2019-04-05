@@ -10,7 +10,8 @@
         "outDir": "dist",
         "resolveJsonModule": true,
         "emitDecoratorMetadata": true,
-        "experimentalDecorators": true
+        "experimentalDecorators": true,
+        "sourceMap": true,
     },
     "include": [
         "src/**/*.ts", "index.ts"

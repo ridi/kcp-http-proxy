@@ -34,4 +34,4 @@ jobs:
       script:
         - docker exec -it -w /app test-app bash -c "npm test"
       after_success:
-        - docker exec -it -w /app test-app bash -c "npm coverage"
+        - bash <(curl -s https://codecov.io/bash)
