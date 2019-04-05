@@ -10,30 +10,10 @@
     "tslint": "tslint -c tslint.json 'src/**/*.ts'",
     "build": "tsc",
     "test": "PROFILE=test AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test nyc mocha --opts src/test/mocha.opts",
-    "coverage": "nyc report --reporter=json > shared/coverage.json",
     "start": "node dist/index.js"
   },
   "_moduleAliases": {
     "@root": "dist"
-  },
-  "nyc": {
-    "include": [
-      "src/**/*.ts"
-    ],
-    "extension": [
-      ".ts"
-    ],
-    "require": [
-      "ts-node/register"
-    ],
-    "reporter": [
-      "text-summary",
-      "lcov",
-      "json"
-    ],
-    "sourceMap": true,
-    "instrument": true,
-    "report-dir": "./shared"
   },
   "devDependencies": {
     "@ridi/tslint-config": "^0.1.0",
@@ -50,7 +30,6 @@
     "@types/raven": "^2.5.3",
     "chai": "^4.2.0",
     "chai-http": "^4.2.1",
-    "codecov": "^3.3.0",
     "handlebars": "^4.1.1",
     "mocha": "^6.0.2",
     "nyc": "^13.3.0",

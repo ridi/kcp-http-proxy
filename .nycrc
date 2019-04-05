@@ -1,0 +1,17 @@
+{
+    "require": [
+        "ts-node/register"
+    ],
+    "reporter": [
+        "text",
+        "json"
+    ],
+    "include": [
+      "src/**/*.ts"
+    ],
+    "extension": [
+        ".ts"
+    ],
+    "sourceMap": true,
+    "instrument": true
+}
