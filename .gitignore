@@ -21,7 +21,7 @@ node_modules/
 # nyc
 .nyc_output
 coverage/
-coverage.lcov
+shared/
 
 ### VisualStudioCode ###
 .vscode/*
