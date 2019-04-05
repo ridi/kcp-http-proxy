@@ -4,7 +4,7 @@
 make test
 ```
 
-## Run on Local Environment
+## Run on Local
 ```shell
 docker-compose up
 ```
