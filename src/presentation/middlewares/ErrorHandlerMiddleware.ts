@@ -1,9 +1,11 @@
+import { PAY_PLUS_STATUS } from '@root/common/constants';
 import { DatabaseConnectionError } from '@root/errors/DatabaseConnectionError';
 import { InvalidRequestError } from '@root/errors/InvalidRequestError';
 import { KcpConnectionError } from '@root/errors/KcpConnectionError';
 import { PayPlusError } from '@root/errors/PayPlusError';
 import { MessageResponse } from '@root/presentation/models/MessageResponse';
-import * as status from 'http-status';
+import { PayPlusErrorResponse } from '@root/presentation/models/PayPlusErrorResponse';
+import * as httpStatus from 'http-status';
 import { ExpressErrorMiddlewareInterface, HttpError, Middleware } from 'routing-controllers';
 
 @Middleware({ type: 'after' })
@@ -12,47 +14,41 @@ export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
         switch (error.constructor) {
             case InvalidRequestError: {
                 response
-                    .status(status.BAD_REQUEST)
+                    .status(httpStatus.BAD_REQUEST)
                     .json(new MessageResponse(error.message));
                 break;
             }
             case PayPlusError: {
+                const code = (error as PayPlusError).code;
+                const status =  (code === PAY_PLUS_STATUS.ALREADY_CANCELED) ? httpStatus.CONFLICT : httpStatus.INTERNAL_SERVER_ERROR;
                 response
-                    .status(status.INTERNAL_SERVER_ERROR)
-                    .json(new MessageResponse(`code: ${(error as PayPlusError).code}, ${error.message}`));
+                    .status(status)
+                    .json(new PayPlusErrorResponse(code, error.message));
                 break;
             }
             case HttpError: {
-                const httpCode: number = (error as HttpError).httpCode || status.INTERNAL_SERVER_ERROR;
-                let message = error.message;
-                if (error.message.startsWith('Command failed')) {
-                    message = 'KCP Error';
-                }
+                const status: number = (error as HttpError).httpCode || httpStatus.INTERNAL_SERVER_ERROR;
                 response
-                    .status(httpCode)
-                    .json(new MessageResponse(message));
+                    .status(status)
+                    .json(new MessageResponse(error.message));
                 break;
             }
             case DatabaseConnectionError: {
                 response
-                    .status(status.SERVICE_UNAVAILABLE)
+                    .status(httpStatus.SERVICE_UNAVAILABLE)
                     .json(new MessageResponse('Database Connection Error'));
                 break;
             }
             case KcpConnectionError: {
                 response
-                    .status(status.SERVICE_UNAVAILABLE)
+                    .status(httpStatus.SERVICE_UNAVAILABLE)
                     .json(new MessageResponse('KCP Connection Error'));
                 break;
             }
             default: {
-                let message = 'Internal Server Error';
-                if (error.message.startsWith('Command failed')) {
-                    message = 'KCP Process Failed';
-                }
                 response
-                    .status(status.INTERNAL_SERVER_ERROR)
-                    .json(new MessageResponse(message));
+                    .status(httpStatus.INTERNAL_SERVER_ERROR)
+                    .json(new MessageResponse(error.message));
                 break;
             }
         }

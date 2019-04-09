@@ -9,6 +9,7 @@ export const RADIX = {
 };
 
 export const PAY_PLUS_STATUS = {
+    ALREADY_CANCELED: '8133',
     OK: '0000',
 };
 

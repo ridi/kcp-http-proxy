@@ -39,6 +39,7 @@ services:
       - kcp-http-proxy-net
     command: >
       bash -c 'npm i pm2 -g &&
+               npm run build &&
                npm install &&
                pm2-runtime --name kcp-http-proxy npm -- start'
     
