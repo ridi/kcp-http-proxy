@@ -18,7 +18,7 @@ services:
       - ./:/app
     working_dir: /app
     environment:
-      PROFILE: dev
+      APP_ENV: dev
       PORT: 3000
       KCP_SITE_CODE: test
       KCP_SITE_KEY: test

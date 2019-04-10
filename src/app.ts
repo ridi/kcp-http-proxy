@@ -56,7 +56,7 @@ export class App {
         // load .env
         dotenv.config();
 
-        const profile = Profiles.from(process.env.PROFILE || 'dev');
+        const profile = Profiles.from(process.env.APP_ENV || 'dev');
 
         useContainer(Container);
 
