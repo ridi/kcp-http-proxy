@@ -10,7 +10,7 @@
     "tslint": "tslint -c tslint.json 'src/**/*.ts'",
     "build": "tsc",
     "test": "APP_ENV=test AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test nyc mocha --opts src/test/mocha.opts",
-    "start": "node dist/index.js"
+    "start": "pm2-docker pm2.yml --watch"
   },
   "_moduleAliases": {
     "@root": "dist"
