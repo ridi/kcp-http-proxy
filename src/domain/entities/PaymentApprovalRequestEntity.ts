@@ -9,9 +9,6 @@ export class PaymentApprovalRequestEntity {
     @hashKey()
     public id: string;
 
-    @attribute()
-    public siteCode: string;
-
     @attribute({ defaultProvider: () => new Date() })
     public createdAt: Date;
 
