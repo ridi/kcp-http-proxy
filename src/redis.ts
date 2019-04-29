@@ -4,8 +4,8 @@ import * as Redlock from 'redlock';
 
 export class Redis {
     public static client = redis.createClient({
-        host: process.env.REDIS_HOST,
-        port: parseInt(process.env.REDIS_PORT, RADIX.DECIMAL),
+        host: process.env.REDIS_HOST || 'redis',
+        port: parseInt(process.env.REDIS_PORT, RADIX.DECIMAL) || 6379,
     });
 
     public static redlock = new Redlock(
