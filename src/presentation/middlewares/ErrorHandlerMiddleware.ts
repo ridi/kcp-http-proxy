@@ -1,7 +1,6 @@
 import { PAY_PLUS_STATUS } from '@root/common/constants';
 import { DatabaseConnectionError } from '@root/errors/DatabaseConnectionError';
 import { InvalidRequestError } from '@root/errors/InvalidRequestError';
-import { KcpConnectionError } from '@root/errors/KcpConnectionError';
 import { PayPlusError } from '@root/errors/PayPlusError';
 import { MessageResponse } from '@root/presentation/models/MessageResponse';
 import { PayPlusErrorResponse } from '@root/presentation/models/PayPlusErrorResponse';
@@ -37,12 +36,6 @@ export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
                 response
                     .status(httpStatus.SERVICE_UNAVAILABLE)
                     .json(new MessageResponse('Database Connection Error'));
-                break;
-            }
-            case KcpConnectionError: {
-                response
-                    .status(httpStatus.SERVICE_UNAVAILABLE)
-                    .json(new MessageResponse('KCP Connection Error'));
                 break;
             }
             default: {
