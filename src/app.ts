@@ -2,7 +2,6 @@ import { KcpConfig, KcpSite } from '@root/common/config';
 import { Profile, Profiles } from '@root/common/constants';
 import * as Sentry from '@sentry/node';
 import * as bodyParser from 'body-parser';
-import * as dotenv from 'dotenv';
 import { Application } from 'express';
 import * as path from 'path';
 import 'reflect-metadata';
@@ -53,9 +52,6 @@ export class App {
     }
 
     public static init(): Application {
-        // load .env
-        dotenv.config();
-
         const profile = Profiles.from(process.env.APP_ENV || 'dev');
 
         useContainer(Container);
