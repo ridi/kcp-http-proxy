@@ -5,6 +5,7 @@ import { App } from '@root/app';
 import { Database } from '@root/database';
 import * as chai from 'chai';
 import { Application } from 'express';
+import { Redis } from '@root/redis';
 
 chai.use(require('chai-http'));
 
@@ -173,6 +174,7 @@ describe('payments controller test', async () => {
     after(() => {
         if (server) {
             console.info('Closing Server...');
+            Redis.client.quit();
             server.close();
         }
     });

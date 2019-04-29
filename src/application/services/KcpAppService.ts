@@ -13,10 +13,13 @@ import { PaymentApprovalResult, PaymentApprovalResultType } from '@root/domain/e
 import { PaymentBatchKeyResult, PaymentBatchKeyResultType } from '@root/domain/entities/PaymentBatchKeyResult';
 import { PaymentCancellationResult, PaymentCancellationResultType } from '@root/domain/entities/PaymentCancellationResult';
 import { KcpComandActuator } from '@root/domain/kcp/KcpCommandActuator';
+import { AlreadyLockedError } from '@root/errors/AlreadyLockedError';
 import { InvalidRequestError } from '@root/errors/InvalidRequestError';
 import { PayPlusError } from '@root/errors/PayPlusError';
+import { Redis } from '@root/redis';
 import * as Sentry from '@sentry/node';
 import * as hash from 'object-hash';
+import { Lock, LockError } from 'redlock';
 import Container, { Inject, Service } from 'typedi';
 
 @Service()
@@ -122,19 +125,48 @@ export class KcpAppService {
             req.installment_months,
         );
 
-        // caching result
-        const { found, result } = await this.getSuccessfulPaymentApprovalResult(command);
-        if (result) {
-            return result;
+        const config: KcpConfig = Container.get(KcpConfig);
+        const site: KcpSite = config.site(command.isTaxDeductible);
+        const key = hash({
+            siteCode: site.code,
+            batchKey: command.batchKey,
+            orderNo: command.orderNo,
+            productAmount: command.productAmount,
+        });
+        const ttl = 3000 * 60 * 60;
+        let lock: Lock;
+
+        try {
+            lock = await Redis.redlock.lock(`locks:kcp:${key}`, ttl);
+
+            // caching result
+            const { found, result } = await this.getSuccessfulPaymentApprovalResult(command);
+            if (result) {
+                return result;
+            }
+
+            // execute pp_cli
+            const newResult = await this.executeCommand(command) as PaymentApprovalResult;
+
+            // persist result
+            found.results.push(newResult);
+            await this.approvalRepository.savePaymentApprovalRequest(found);
+            return newResult;
+        } catch (err) {
+            if (err instanceof LockError) {
+                throw new AlreadyLockedError(JSON.stringify({
+                    isTaxDeductible: command.isTaxDeductible,
+                    batchKey: command.batchKey,
+                    orderNo: command.orderNo,
+                    productAmount: command.productAmount,
+                }));
+            }
+            throw err;
+        } finally {
+            if (lock && lock instanceof Lock) {
+                lock.unlock();
+            }
         }
-
-        // execute pp_cli
-        const newResult = await this.executeCommand(command) as PaymentApprovalResult;
-
-        // persist result
-        found.results.push(newResult);
-        await this.approvalRepository.savePaymentApprovalRequest(found);
-        return newResult;
     }
 
     public async cancelPayment(req: PaymentCancellationRequest): Promise<PaymentCancellationResult> {

@@ -27,6 +27,8 @@ services:
       AWS_SECRET_ACCESS_KEY: test
       AWS_REGION: ap-northeast-2      
       AWS_DYNAMO_DB_ENDPOINT: http://dynamodb:8000
+      REDIS_HOST:
+      REDIS_PORT: 6379
     depends_on:
       - dynamodb
     command: >
