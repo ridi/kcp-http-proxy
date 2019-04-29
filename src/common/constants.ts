@@ -4,7 +4,6 @@ export const ASCII = {
 };
 
 export const RADIX = {
-    BINARY: 2,
     DECIMAL: 10,
 };
 
