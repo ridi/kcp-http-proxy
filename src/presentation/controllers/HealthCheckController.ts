@@ -15,6 +15,19 @@ export class HealthCheckController {
     @Inject()
     private kcpSerivce: KcpAppService;
 
+    private async checkDatabaseConnection(): Promise<void> {
+        try {
+            const result: PromiseResult<ListTablesOutput, AWSError> = await Database.client.listTables().promise();
+            const found = result.TableNames.find((table) => table === PaymentApprovalRequestEntityTableName) || false;
+            if (!found) {
+                throw new Error(`Table ${PaymentApprovalRequestEntityTableName} doesn't exist.`);
+            }
+        } catch (err) {
+            console.error('Database Connection Error', err);
+            throw new DatabaseConnectionError();
+        }
+    }
+
     @OpenAPI({ responses: {
         200: {
             content: {
@@ -38,18 +51,5 @@ export class HealthCheckController {
     public async index(): Promise<MessageResponse> {
         await this.checkDatabaseConnection();
         return new MessageResponse('OK');
-    }
-
-    private async checkDatabaseConnection(): Promise<void> {
-        try {
-            const result: PromiseResult<ListTablesOutput, AWSError> = await Database.client.listTables().promise();
-            const found = result.TableNames.find((table) => table === PaymentApprovalRequestEntityTableName) || false;
-            if (!found) {
-                throw new Error(`Table ${PaymentApprovalRequestEntityTableName} doesn't exist.`);
-            }
-        } catch (err) {
-            console.error('Database Connection Error', err);
-            throw new DatabaseConnectionError();
-        }
     }
 }
