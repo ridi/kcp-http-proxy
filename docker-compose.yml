@@ -1,6 +1,11 @@
 version: '3'
 
 services:
+  redis:
+    container_name: kcp-http-proxy-redis
+    image: redis:latest
+    command: ['redis-server']
+
   dynamodb:
     container_name: kcp-http-proxy-db
     image: amazon/dynamodb-local

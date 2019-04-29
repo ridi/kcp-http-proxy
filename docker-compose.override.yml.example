@@ -1,6 +1,10 @@
 version: '3'
 
 services:
+  redis:
+    ports:
+      - 6379:6379
+
   dynamodb:
     ports:
       - 8000:8000
