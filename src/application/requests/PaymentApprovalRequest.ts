@@ -21,6 +21,7 @@ export class PaymentApprovalRequest extends AbstractKcpRequest {
 
     @JSONSchema({ description: '결제 상품 금액' })
     @IsNotEmpty({ message: '상품금액은 필수값입니다.' })
+    @IsNumber()
     public product_amount: number;
 
     @JSONSchema({ description: '상품 구매자 이름' })
