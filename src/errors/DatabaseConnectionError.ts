@@ -1,5 +1,5 @@
 export class DatabaseConnectionError extends Error {
-    constructor(messgae?: string) {
-        super(messgae);
+    constructor(message?: string) {
+        super(message);
     }
 }
