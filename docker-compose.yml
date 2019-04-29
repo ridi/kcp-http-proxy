@@ -4,8 +4,6 @@ services:
   dynamodb:
     container_name: kcp-http-proxy-db
     image: amazon/dynamodb-local
-    ports:
-      - 8000:8000
     working_dir: /home/dynamodblocal
     command: ['-jar', 'DynamoDBLocal.jar', '-sharedDb', '-dbPath', '.']
 
@@ -29,8 +27,6 @@ services:
       AWS_SECRET_ACCESS_KEY: test
       AWS_REGION: ap-northeast-2      
       AWS_DYNAMO_DB_ENDPOINT: http://dynamodb:8000
-    ports:
-      - 3000:3000
     depends_on:
       - dynamodb
     command: >
