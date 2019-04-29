@@ -5,9 +5,9 @@ services:
     container_name: test-db
     image: amazon/dynamodb-local
     ports:
-      - 8000:8000
+      - 8000
     networks:
-      - test-network
+      - test
     command: ['-jar', 'DynamoDBLocal.jar', '-inMemory']
 
   application:
@@ -24,15 +24,15 @@ services:
       AWS_REGION: ap-northeast-2      
       AWS_DYNAMO_DB_ENDPOINT: http://dynamodb:8000
     ports:
-      - 3000:3000
+      - 3000
     depends_on:
       - dynamodb
     networks:
-      - test-network
+      - test
     command: >
       bash -c 'npm install &&
                npm test'
 
 networks:
-  test-network:
+  test:
     driver: bridge

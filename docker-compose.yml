@@ -6,8 +6,6 @@ services:
     image: amazon/dynamodb-local
     ports:
       - 8000:8000
-    networks:
-      - kcp-http-proxy-net
     working_dir: /home/dynamodblocal
     command: ['-jar', 'DynamoDBLocal.jar', '-sharedDb', '-dbPath', '.']
 
@@ -35,14 +33,8 @@ services:
       - 3000:3000
     depends_on:
       - dynamodb
-    networks:
-      - kcp-http-proxy-net
     command: >
       bash -c 'npm i pm2 -g &&
                npm install &&
                npm run build &&
                npm start'
-    
-networks:
-  kcp-http-proxy-net:
-    driver: bridge
