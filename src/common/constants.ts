@@ -12,6 +12,8 @@ export const PAY_PLUS_STATUS = {
     OK: '0000',
 };
 
+export const LOCK_TIME_TO_LIVE_MILLIS = 3000;
+
 export enum Profile {
     Production = 'prod',
     Development = 'dev',

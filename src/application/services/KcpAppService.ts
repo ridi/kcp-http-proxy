@@ -2,7 +2,7 @@ import { PaymentApprovalRequest } from '@root/application/requests/PaymentApprov
 import { PaymentBatchKeyRequest } from '@root/application/requests/PaymentBatchKeyRequest';
 import { PaymentCancellationRequest } from '@root/application/requests/PaymentCancellationRequest';
 import { KcpConfig, KcpSite } from '@root/common/config';
-import { ASCII, PAY_PLUS_STATUS } from '@root/common/constants';
+import { ASCII, LOCK_TIME_TO_LIVE_MILLIS, PAY_PLUS_STATUS } from '@root/common/constants';
 import { AbstractKcpCommand } from '@root/domain/commands/AbstractKcpCommand';
 import { PaymentApprovalCommand } from '@root/domain/commands/PaymentApprovalCommand';
 import { PaymentBatchKeyCommand } from '@root/domain/commands/PaymentBatchKeyCommand';
@@ -133,11 +133,10 @@ export class KcpAppService {
             orderNo: command.orderNo,
             productAmount: command.productAmount,
         });
-        const ttl = 3000 * 60 * 60;
         let lock: Lock;
 
         try {
-            lock = await Redis.redlock.lock(`locks:kcp:${key}`, ttl);
+            lock = await Redis.redlock.lock(`locks:kcp:${key}`, LOCK_TIME_TO_LIVE_MILLIS);
 
             // caching result
             const { found, result } = await this.getSuccessfulPaymentApprovalResult(command);
