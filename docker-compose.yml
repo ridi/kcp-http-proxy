@@ -22,7 +22,6 @@ services:
       - 80
     environment:
       APP_ENV: dev
-      PORT: 80
       KCP_SITE_CODE: test
       KCP_SITE_KEY: test
       KCP_GROUP_ID: test

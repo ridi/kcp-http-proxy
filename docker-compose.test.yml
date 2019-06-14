@@ -28,7 +28,6 @@ services:
     working_dir: /app
     environment:
       APP_ENV: dev
-      PORT: 80
       DYNAMODB_ENDPOINT: http://dynamodb:8000
       REDIS_HOST: redis
     ports:
