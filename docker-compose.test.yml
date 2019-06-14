@@ -29,8 +29,6 @@ services:
     environment:
       APP_ENV: dev
       PORT: 80
-      AWS_ACCESS_KEY_ID: test
-      AWS_SECRET_ACCESS_KEY: test    
       DYNAMODB_ENDPOINT: http://dynamodb:8000
       REDIS_HOST: redis
     ports:
