@@ -11,7 +11,7 @@ chai.use(require('chai-http'));
 
 describe('payments controller test', async () => {
     const app: Application = App.init();
-    const port = process.env.PORT || 80;
+    const port = process.env.PORT;
     const server = app.listen(port, () => {
         console.info('Server is running...');
     });

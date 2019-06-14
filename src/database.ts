@@ -5,8 +5,8 @@ import { Container } from 'typedi';
 
 export class Database {
     public static client = new DynamoDB({
-        region: process.env.AWS_REGION || 'ap-northeast-2',
-        endpoint: process.env.AWS_DYNAMO_DB_ENDPOINT || 'http://dynamodb:8000',
+        region: 'ap-northeast-2',
+        endpoint: process.env.DYNAMODB_ENDPOINT,
     });
 
     public static async connect(): Promise<void> {

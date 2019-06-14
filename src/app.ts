@@ -52,7 +52,7 @@ export class App {
     }
 
     public static init(): Application {
-        const profile = Profiles.from(process.env.APP_ENV || 'dev');
+        const profile = Profiles.from(process.env.APP_ENV);
 
         useContainer(Container);
 
