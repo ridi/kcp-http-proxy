@@ -6,7 +6,7 @@ services:
     container_name: api
     build: ../..
     ports:
-      - 3000:3000
+      - 80
     environment:
       - APP_ENV=${APP_ENV}
     logging:

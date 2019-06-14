@@ -30,7 +30,7 @@ jobs:
       install:
         - docker run -d --name redis -p 6379:6379 redis:latest
         - docker run -d --name dynamodb -p 8000:8000 amazon/dynamodb-local
-        - docker run -itd -v "$(pwd):/app" --name test-app --link redis:redis --link dynamodb:dynamodb -p 3000:3000 node:lts
+        - docker run -itd -v "$(pwd):/app" --name test-app --link redis:redis --link dynamodb:dynamodb node:lts
         - docker exec -it -w /app test-app bash -c "npm install"
       script:
         - docker exec -it -w /app test-app bash -c "npm test"

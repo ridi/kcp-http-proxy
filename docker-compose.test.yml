@@ -28,7 +28,7 @@ services:
     working_dir: /app
     environment:
       APP_ENV: dev
-      PORT: 3000
+      PORT: 80
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
       AWS_REGION: ap-northeast-2      
@@ -36,7 +36,7 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
     ports:
-      - 3000
+      - 80
     depends_on:
       - redis
       - dynamodb
