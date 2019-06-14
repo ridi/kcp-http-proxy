@@ -18,6 +18,8 @@ services:
     volumes:
       - ./:/app
     working_dir: /app
+    ports:
+      - 3000
     environment:
       APP_ENV: dev
       PORT: 3000
@@ -41,3 +43,16 @@ services:
                npm install &&
                npm run build &&
                npm start'
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=${EXTERNAL_NETWORK:-ridi}"
+      - "traefik.frontend.rule=Host:kcp.local.ridi.io"
+    networks:
+      traefik:
+        aliases:
+          - kcp
+      default:
+networks:
+  traefik:
+    external:
+      name: ${EXTERNAL_NETWORK:-ridi}
