@@ -1,0 +1,39 @@
+version: 1
+
+task_definition:
+  task_role_arn: kcpHttpProxyRole
+  task_execution_role: ecsTaskExecutionRole
+  ecs_network_mode: awsvpc
+  task_size:
+    mem_limit: 512
+    cpu_limit: 256
+  services:
+    kcp-http-proxy:
+      secrets:
+        - value_from: "/kcp-http-proxy/${APP_ENV}/KCP_SITE_CODE"
+          name: KCP_SITE_CODE
+        - value_from: "/kcp-http-proxy/${APP_ENV}/KCP_SITE_KEY"
+          name: KCP_SITE_KEY
+        - value_from: "/kcp-http-proxy/${APP_ENV}/KCP_GROUP_ID"
+          name: KCP_GROUP_ID
+        - value_from: "/kcp-http-proxy/${APP_ENV}/KCP_TAX_DEDUCTION_SITE_CODE"
+          name: KCP_TAX_DEDUCTION_SITE_CODE
+        - value_from: "/kcp-http-proxy/${APP_ENV}/KCP_TAX_DEDUCTION_SITE_KEY"
+          name: KCP_TAX_DEDUCTION_SITE_KEY
+        - value_from: "/kcp-http-proxy/${APP_ENV}/KCP_TAX_DEDUCTION_GROUP_ID"
+          name: KCP_TAX_DEDUCTION_GROUP_ID
+        - value_from: "/kcp-http-proxy/${APP_ENV}/SENTRY_DSN"
+          name: SENTRY_DSN
+        - value_from: "/kcp-http-proxy/${APP_ENV}/DYNAMODB_ENDPOINT"
+          name: DYNAMODB_ENDPOINT
+        - value_from: "/kcp-http-proxy/${APP_ENV}/REDIS_HOST"
+          name: REDIS_HOST
+run_params:
+  network_configuration:
+    awsvpc_configuration:
+      subnets:
+        - ${AP_NORTHEAST_2A_PRIVATE_SUBNET_ID}
+        - ${AP_NORHTEAST_2C_PRIVATE_SUBNET_ID}
+      security_groups:
+        - ${SECURITY_GROUP_ID}
+      assign_public_ip: DISABLED

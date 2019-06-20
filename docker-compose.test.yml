@@ -20,7 +20,7 @@ services:
       - test
     command: ['-jar', 'DynamoDBLocal.jar', '-inMemory']
 
-  application:
+  app:
     container_name: test-app
     image: node:lts
     volumes:

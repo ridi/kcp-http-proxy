@@ -2,18 +2,15 @@ version: '3'
 
 services:
   redis:
-    container_name: kcp-http-proxy-redis
     image: redis:latest
     command: ['redis-server']
 
   dynamodb:
-    container_name: kcp-http-proxy-db
     image: amazon/dynamodb-local
     working_dir: /home/dynamodblocal
     command: ['-jar', 'DynamoDBLocal.jar', '-sharedDb', '-dbPath', '.']
 
-  application:
-    container_name: kcp-http-proxy
+  app:
     image: node:lts
     volumes:
       - ./:/app
@@ -28,6 +25,8 @@ services:
       KCP_TAX_DEDUCTION_SITE_CODE: test
       KCP_TAX_DEDUCTION_SITE_KEY: test
       KCP_TAX_DEDUCTION_GROUP_ID: test
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
       SENTRY_DSN: your_sentry_dsn   
       DYNAMODB_ENDPOINT: http://dynamodb:8000
       REDIS_HOST: redis
