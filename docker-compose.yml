@@ -20,15 +20,8 @@ services:
       - 80
     environment:
       APP_ENV: dev
-      KCP_SITE_CODE: test
-      KCP_SITE_KEY: test
-      KCP_GROUP_ID: test
-      KCP_TAX_DEDUCTION_SITE_CODE: test
-      KCP_TAX_DEDUCTION_SITE_KEY: test
-      KCP_TAX_DEDUCTION_GROUP_ID: test
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
-      SENTRY_DSN: your_sentry_dsn   
       DYNAMODB_ENDPOINT: http://dynamodb:8000
       REDIS_HOST: redis
     depends_on:
