@@ -29,13 +29,8 @@ jobs:
     - stage: test
       name: test
       if: tag IS NOT present
-      install:
-        - docker run -d --name redis redis:latest
-        - docker run -d --name dynamodb amazon/dynamodb-local
-        - docker run -itd -v "$(pwd):/app" --name test-app --link redis:redis --link dynamodb:dynamodb node:lts
-        - docker exec -it -w /app test-app bash -c "npm install"
       script:
-        - docker exec -it -w /app test-app bash -c "npm test"
+        - make test
       after_success:
         - bash <(curl -s https://codecov.io/bash) -f "$(pwd)/coverage/coverage-final.json"  
     - stage: build

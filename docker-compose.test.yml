@@ -1,28 +1,8 @@
 version: '3'
 
 services:
-  redis:
-    container_name: test-redis
-    image: redis:latest
-    ports:
-      - 6379
-    networks:
-      - test
-    command: ['redis-server']
-
-  dynamodb:
-    container_name: test-db
-    image: amazon/dynamodb-local
-    ports:
-      - 8000
-    hostname: redis
-    networks:
-      - test
-    command: ['-jar', 'DynamoDBLocal.jar', '-inMemory']
-
   app:
-    container_name: test-app
-    image: node:lts
+    build: .
     volumes:
       - ./:/app
     working_dir: /app
@@ -32,17 +12,11 @@ services:
       AWS_SECRET_ACCESS_KEY: test
       DYNAMODB_ENDPOINT: http://dynamodb:8000
       REDIS_HOST: redis
-    ports:
-      - 80
     depends_on:
       - redis
       - dynamodb
-    networks:
-      - test
-    command: >
-      bash -c 'npm install &&
-               npm test'
-
-networks:
-  test:
-    driver: bridge
+    command: ['bash', '-c', 'npm test']
+  redis:
+    image: redis:latest
+  dynamodb:
+    image: amazon/dynamodb-local
