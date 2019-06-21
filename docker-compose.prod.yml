@@ -2,7 +2,7 @@ version: "3"
 
 services:
   app:
-    image: 023315198496.dkr.ecr.ap-northeast-2.amazonaws.com/ridi/kcp-http-proxy:${GIT_REVISION}
+    image: 023315198496.dkr.ecr.ap-northeast-2.amazonaws.com/ridi/kcp-http-proxy:${TAG}
     build: .
     ports:
       - 80:80
