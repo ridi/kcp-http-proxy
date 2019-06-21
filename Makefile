@@ -8,6 +8,8 @@ docs:
 build:
 	TAG=${TAG} docker-compose -f docker-compose.prod.yml build
 	docker push 023315198496.dkr.ecr.ap-northeast-2.amazonaws.com/ridi/kcp-http-proxy:${TAG}
+	TAG=latest docker-compose -f docker-compose.prod.yml build
+	docker push 023315198496.dkr.ecr.ap-northeast-2.amazonaws.com/ridi/kcp-http-proxy:latest
 	
 deploy:
 	ecs-cli configure --region ap-northeast-2 --cluster kcp-http-proxy-${APP_ENV} --default-launch-type FARGATE
