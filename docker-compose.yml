@@ -3,18 +3,19 @@ version: '3'
 services:
   redis:
     image: redis:latest
-    command: ['redis-server']
+    volumes:
+      - ./data/redis:/data
 
   dynamodb:
     image: amazon/dynamodb-local
-    working_dir: /home/dynamodblocal
     command: ['-jar', 'DynamoDBLocal.jar', '-sharedDb', '-dbPath', '.']
+    volumes:
+     - ./data/dynamodb:/home/dynamodblocal/data
 
   app:
-    image: node:lts
+    build: .
     volumes:
-      - ./:/app
-    working_dir: /app
+      - .:/app
     ports:
       - 80
     environment:
@@ -32,21 +33,3 @@ services:
       REDIS_HOST: redis
     depends_on:
       - dynamodb
-    command: >
-      bash -c 'npm i pm2 -g &&
-               npm install &&
-               npm run build &&
-               npm start'
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=${EXTERNAL_NETWORK:-ridi}"
-      - "traefik.frontend.rule=Host:kcp.local.ridi.io"
-    networks:
-      traefik:
-        aliases:
-          - kcp
-      default:
-networks:
-  traefik:
-    external:
-      name: ${EXTERNAL_NETWORK:-ridi}
