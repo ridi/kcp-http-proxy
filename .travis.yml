@@ -4,9 +4,6 @@ node_js:
 
 sudo: required
 
-install:
-  - npm ci
-
 cache:
   directories:
     - "$HOME/.npm"
