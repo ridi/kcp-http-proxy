@@ -33,7 +33,7 @@ run_params:
     awsvpc_configuration:
       subnets:
         - ${AP_NORTHEAST_2A_PRIVATE_SUBNET_ID}
-        - ${AP_NORHTEAST_2C_PRIVATE_SUBNET_ID}
+        - ${AP_NORTHEAST_2C_PRIVATE_SUBNET_ID}
       security_groups:
         - ${SECURITY_GROUP_ID}
       assign_public_ip: DISABLED
