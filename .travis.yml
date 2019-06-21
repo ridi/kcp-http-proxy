@@ -39,14 +39,14 @@ jobs:
       script:
         - $(aws ecr get-login --no-include-email --region ap-northeast-2)
         - TAG=$TRAVIS_COMMIT make build
-        - docker push 023315198496.dkr.ecr.ap-northeast-2.amazonaws.com/ridi/kcp-http-proxy:$TRAVIS_COMMIT
       after_success:
-        - if [ "$TRAVIS_BRANCH" = "master" ]; then TAG=latest make build && docker push 023315198496.dkr.ecr.ap-northeast-2.amazonaws.com/ridi/kcp-http-proxy:latest; fi
+        - if [ "$TRAVIS_BRANCH" = "master" ]; then TAG=latest make build; fi
     - stage: deploy
       name: prod-deploy
       if: tag IS present AND tag =~ ^v
       install: sudo curl -o /usr/local/bin/ecs-cli https://s3.amazonaws.com/amazon-ecs-cli/ecs-cli-linux-amd64-latest && sudo chmod +x /usr/local/bin/ecs-cli
       script:
+        - |
           APP_ENV=prod \
           TAG=$TRAVIS_COMMIT \
           AP_NORTHEAST_2A_PRIVATE_SUBNET_ID=$PROD_AP_NORTHEAST_2A_PRIVATE_SUBNET_ID \
