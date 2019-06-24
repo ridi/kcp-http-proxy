@@ -1,10 +1,9 @@
 import { embed } from '@aws/dynamodb-data-mapper';
 import { attribute, hashKey, table, versionAttribute } from '@aws/dynamodb-data-mapper-annotations';
 import { PaymentApprovalResult } from '@root/domain/entities/PaymentApprovalResult';
+import { KCP_PAYMENT_APPROVAL_REQUEST_TABLE } from '@root/common/constants';
 
-export const TABLE_NAME = 'kcp-payment-approval-requests';
-
-@table(TABLE_NAME)
+@table(KCP_PAYMENT_APPROVAL_REQUEST_TABLE)
 export class PaymentApprovalRequestEntity {
     @hashKey()
     public id: string;

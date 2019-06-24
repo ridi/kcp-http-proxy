@@ -26,8 +26,6 @@ task_definition:
           name: SENTRY_DSN
         - value_from: "/kcp-http-proxy/${APP_ENV}/DYNAMODB_ENDPOINT"
           name: DYNAMODB_ENDPOINT
-        - value_from: "/kcp-http-proxy/${APP_ENV}/REDIS_HOST"
-          name: REDIS_HOST
 run_params:
   network_configuration:
     awsvpc_configuration:

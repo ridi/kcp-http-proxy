@@ -2,7 +2,7 @@ import { PaymentApprovalRequest } from '@root/application/requests/PaymentApprov
 import { PaymentBatchKeyRequest } from '@root/application/requests/PaymentBatchKeyRequest';
 import { PaymentCancellationRequest } from '@root/application/requests/PaymentCancellationRequest';
 import { KcpConfig, KcpSite } from '@root/common/config';
-import { ASCII, LOCK_TIME_TO_LIVE_MILLIS, PAY_PLUS_STATUS } from '@root/common/constants';
+import { ASCII, PAY_PLUS_STATUS, KCP_PAYMENT_APPROVAL_REQUEST_LOCK_TABLE } from '@root/common/constants';
 import { AbstractKcpCommand } from '@root/domain/commands/AbstractKcpCommand';
 import { PaymentApprovalCommand } from '@root/domain/commands/PaymentApprovalCommand';
 import { PaymentBatchKeyCommand } from '@root/domain/commands/PaymentBatchKeyCommand';
@@ -16,10 +16,9 @@ import { KcpComandActuator } from '@root/domain/kcp/KcpCommandActuator';
 import { AlreadyLockedError } from '@root/errors/AlreadyLockedError';
 import { InvalidRequestError } from '@root/errors/InvalidRequestError';
 import { PayPlusError } from '@root/errors/PayPlusError';
-import { Redis } from '@root/redis';
+import { Database } from '@root/database'; 
 import * as Sentry from '@sentry/node';
 import * as hash from 'object-hash';
-import { Lock, LockError } from 'redlock';
 import Container, { Inject, Service } from 'typedi';
 
 @Service()
@@ -133,10 +132,10 @@ export class KcpAppService {
             orderNo: command.orderNo,
             productAmount: command.productAmount,
         });
-        let lock: Lock;
+        let lock;
 
         try {
-            lock = await Redis.redlock.lock(`locks:kcp:${key}`, LOCK_TIME_TO_LIVE_MILLIS);
+            lock = await KcpAppService.lock(key)
 
             // caching result
             const { found, result } = await this.getSuccessfulPaymentApprovalResult(command);
@@ -152,7 +151,7 @@ export class KcpAppService {
             await this.approvalRepository.savePaymentApprovalRequest(found);
             return newResult;
         } catch (err) {
-            if (err instanceof LockError) {
+            if (typeof err.code !== 'undefined' && err.code === 'ConditionalCheckFailedException') {
                 throw new AlreadyLockedError(JSON.stringify({
                     isTaxDeductible: command.isTaxDeductible,
                     batchKey: command.batchKey,
@@ -162,10 +161,35 @@ export class KcpAppService {
             }
             throw err;
         } finally {
-            if (lock && lock instanceof Lock) {
-                lock.unlock();
+            if (lock) {
+                await KcpAppService.unlock(key)
             }
         }
+    }
+
+    private static async lock(id: string)
+    {
+        return await Database.client.putItem({
+            TableName: KCP_PAYMENT_APPROVAL_REQUEST_LOCK_TABLE,
+            Item: {
+                "id": {
+                    S: id
+                },
+            },
+            ConditionExpression: "attribute_not_exists(id)",
+        }).promise();
+    }
+
+    private static async unlock(id: string)
+    {
+        return await Database.client.deleteItem({
+            TableName: KCP_PAYMENT_APPROVAL_REQUEST_LOCK_TABLE,
+            Key: {
+                "id": {
+                    S: id
+                }
+            },
+        }).promise();
     }
 
     public async cancelPayment(req: PaymentCancellationRequest): Promise<PaymentCancellationResult> {

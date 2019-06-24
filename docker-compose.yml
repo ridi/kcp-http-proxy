@@ -1,11 +1,6 @@
 version: '3'
 
 services:
-  redis:
-    image: redis:latest
-    volumes:
-      - ./data/redis:/data
-
   dynamodb:
     image: amazon/dynamodb-local
     command: ['-jar', 'DynamoDBLocal.jar', '-sharedDb', '-dbPath', '.']
@@ -23,6 +18,6 @@ services:
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
       DYNAMODB_ENDPOINT: http://dynamodb:8000
-      REDIS_HOST: redis
     depends_on:
       - dynamodb
+    command: ['bash', '-c', 'node bin/db_init.js && npm start']

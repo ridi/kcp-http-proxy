@@ -11,12 +11,9 @@ services:
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
       DYNAMODB_ENDPOINT: http://dynamodb:8000
-      REDIS_HOST: redis
     depends_on:
-      - redis
       - dynamodb
-    command: ['bash', '-c', 'npm test']
-  redis:
-    image: redis:latest
+    command: ['bash', '-c', 'node bin/db_init.js && npm test']
+
   dynamodb:
     image: amazon/dynamodb-local
