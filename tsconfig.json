@@ -5,7 +5,9 @@
         "moduleResolution": "node",
         "baseUrl": ".",
         "paths": {
-            "@root/*": [ "src/*" ]
+            "@root/*": [
+                "src/*"
+            ]
         },
         "outDir": "dist",
         "resolveJsonModule": true,
@@ -14,7 +16,7 @@
         "sourceMap": true,
     },
     "include": [
-        "src/**/*.ts", "index.ts"
+        "src/**/*.ts"
     ],
     "exclude": [
         "node_modules"
