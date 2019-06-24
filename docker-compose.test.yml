@@ -13,7 +13,7 @@ services:
       DYNAMODB_ENDPOINT: http://dynamodb:8000
     depends_on:
       - dynamodb
-    command: ['bash', '-c', 'node bin/db_init.js && npm test']
+    command: ['bash', '-c', 'npm run init-db && npm test']
 
   dynamodb:
     image: amazon/dynamodb-local

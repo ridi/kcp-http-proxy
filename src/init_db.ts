@@ -1,7 +1,8 @@
-require('module-alias/register');
+import * as moduleAlias from 'module-alias';
+moduleAlias.addAlias('@root', __dirname);
 
-const Database = require('@root/database').Database;
-const { KCP_PAYMENT_APPROVAL_REQUEST_LOCK_TABLE, KCP_PAYMENT_APPROVAL_REQUEST_TABLE } = require('@root/common/constants');
+import { Database } from '@root/database'
+import { KCP_PAYMENT_APPROVAL_REQUEST_LOCK_TABLE, KCP_PAYMENT_APPROVAL_REQUEST_TABLE } from '@root/common/constants';
 
 Database.client.createTable({
     TableName: KCP_PAYMENT_APPROVAL_REQUEST_LOCK_TABLE,

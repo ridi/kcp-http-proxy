@@ -7,6 +7,7 @@
   "main": "index.js",
   "scripts": {
     "docs": "ts-node src/docs.ts",
+    "init-db": "ts-node src/init_db.ts",
     "tslint": "tslint -c tslint.json 'src/**/*.ts'",
     "build": "tsc",
     "test": "nyc mocha --opts src/test/mocha.opts",
