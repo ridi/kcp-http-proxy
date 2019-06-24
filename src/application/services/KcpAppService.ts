@@ -175,6 +175,9 @@ export class KcpAppService {
                 "id": {
                     S: id
                 },
+                "ttl": {
+                    N: (Math.floor(Date.now() / 1000) + 60).toString() // TTL: 60초
+                }
             },
             ConditionExpression: "attribute_not_exists(id)",
         }).promise();
