@@ -9,4 +9,4 @@ RUN yarn install --frozen-lockfile
 RUN yarn run build
 
 EXPOSE 80
-CMD ["yarn", "start"]
+CMD ["pm2-docker", "pm2.yml"]

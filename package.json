@@ -11,7 +11,6 @@
     "tslint": "tslint -c tslint.json 'src/**/*.ts'",
     "build": "tsc",
     "test": "nyc mocha --opts src/test/mocha.opts",
-    "start": "pm2-docker pm2.yml --watch"
   },
   "_moduleAliases": {
     "@root": "dist"
