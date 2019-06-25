@@ -3,9 +3,6 @@ version: '3'
 services:
   dynamodb:
     image: amazon/dynamodb-local
-    command: ['-jar', 'DynamoDBLocal.jar', '-sharedDb', '-dbPath', '/home/dynamodblocal/data']
-    volumes:
-     - ./data/dynamodb:/home/dynamodblocal/data
 
   app:
     build: .

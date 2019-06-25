@@ -101,5 +101,3 @@ $RECYCLE.BIN/
 
 # docker-commpose
 docker-compose.override.yml
-
-data/
