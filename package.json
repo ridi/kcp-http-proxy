@@ -11,6 +11,7 @@
     "tslint": "tslint -c tslint.json 'src/**/*.ts'",
     "build": "tsc",
     "test": "nyc mocha --opts src/test/mocha.opts",
+    "watch": "tsc -w"
   },
   "_moduleAliases": {
     "@root": "dist"
