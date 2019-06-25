@@ -3,7 +3,7 @@ test:
 	docker-compose -f docker-compose.test.yml down
 
 docs:
-	npm run docs
+	yarn run docs
 
 build:
 	TAG=${TAG} docker-compose -f docker-compose.prod.yml build

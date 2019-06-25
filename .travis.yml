@@ -4,9 +4,7 @@ node_js:
 
 sudo: required
 
-cache:
-  directories:
-    - "$HOME/.npm"
+cache: yarn
 
 services:
   - docker

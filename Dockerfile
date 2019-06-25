@@ -5,8 +5,8 @@ LABEL maintainer="ridicorp"
 COPY . /app
 WORKDIR /app
 
-RUN npm install
-RUN npm run build
+RUN yarn install --frozen-lockfile
+RUN yarn run build
 
 EXPOSE 80
-CMD ["npm", "start"]
+CMD ["yarn", "start"]

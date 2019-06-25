@@ -20,4 +20,4 @@ services:
       DYNAMODB_ENDPOINT: http://dynamodb:8000
     depends_on:
       - dynamodb
-    command: ['bash', '-c', 'npm run init-db && npm start']
+    command: ['bash', '-c', 'yarn run init-db && yarn start']
