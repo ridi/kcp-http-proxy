@@ -3,7 +3,7 @@ dev:
 	yarn run build
 
 test:
-	docker-compose -f docker-compose.test.yml up --exit-code-from app
+	docker-compose -f docker-compose.test.yml up --build --exit-code-from app
 	docker-compose -f docker-compose.test.yml down
 
 docs:
