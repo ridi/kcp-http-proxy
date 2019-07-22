@@ -107,10 +107,13 @@ export class KcpComandActuator {
         const command = `${this.config.modulePath} -h ${flattenedCommandArgument}`;
 
         return new Promise((resolve, reject) => {
-            exec(command, { encoding: 'euckr' }, (error: ExecException, stdout: Buffer, stderr) => {
+            exec(command, { encoding: 'euckr' }, (error: ExecException, stdout: Buffer, stderr: Buffer) => {
                 if (error) {
                     reject(error);
                     return;
+                }
+                if (stderr.length > 0) {
+                    console.log(iconv.decode(stderr, 'euc-kr').trim());
                 }
                 resolve(iconv.decode(stdout, 'euc-kr').trim());
             });
