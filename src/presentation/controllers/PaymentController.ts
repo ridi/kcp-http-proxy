@@ -6,7 +6,6 @@ import { KcpAppService } from '@root/application/services/KcpAppService';
 import { PaymentApprovalResult } from '@root/domain/entities/PaymentApprovalResult';
 import { PaymentBatchKeyResult } from '@root/domain/entities/PaymentBatchKeyResult';
 import { PaymentCancellationResult } from '@root/domain/entities/PaymentCancellationResult';
-import { RequestLoggingMiddleware } from '@root/presentation/middlewares/RequestLoggingMiddleware';
 import { Response } from 'express';
 import { Body, Delete, HttpCode, JsonController, Param, Post, Res, UseBefore } from 'routing-controllers';
 import { OpenAPI, ResponseSchema } from 'routing-controllers-openapi';
@@ -47,7 +46,6 @@ export class PaymentController {
         },
     }})
     @ResponseSchema(PaymentBatchKeyResult)
-    @UseBefore(RequestLoggingMiddleware)
     @HttpCode(201)
     @Post('/payments/batch-key')
     public async requestBatchKey(@Body() req: PaymentBatchKeyRequest, @Res() res: Response): Promise<PaymentBatchKeyResult> {
@@ -84,7 +82,6 @@ export class PaymentController {
         },
     }})
     @ResponseSchema(PaymentApprovalResult)
-    @UseBefore(RequestLoggingMiddleware)
     @HttpCode(200)
     @Post('/payments')
     public async approvePayment(@Body() req: PaymentApprovalRequest, @Res() res: Response): Promise<PaymentApprovalResult> {
@@ -121,7 +118,6 @@ export class PaymentController {
         },
     }})
     @ResponseSchema(PaymentCancellationResult)
-    @UseBefore(RequestLoggingMiddleware)
     @HttpCode(200)
     @Delete('/payments/:kcp_tno')
     public async cancelPayment(@Param('kcp_tno') kcp_tno: string, @Body() req: PaymentCancellationRequest, @Res() res: Response): Promise<PaymentCancellationResult> {
