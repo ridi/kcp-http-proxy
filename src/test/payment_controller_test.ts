@@ -49,7 +49,7 @@ describe('payments controller test', async () => {
         });
     });
 
-    it('배치키 요청 201 상태 반환', (done) => {
+    it('배치키 요청 200 상태 반환', (done) => {
         chai.request(app)
             .post('/payments/batch-key')
             .send({
@@ -59,7 +59,7 @@ describe('payments controller test', async () => {
                 card_password: given.credit_card.card_password,
             })
             .end((_, res) => {
-                chai.expect(res).to.have.status(201);
+                chai.expect(res).to.have.status(200);
                 chai.expect(res.body.code).to.equal('0000');
                 chai.expect(res.body.card_code).to.equal('CCLG');
                 chai.expect(res.body.card_name).to.equal('신한카드');

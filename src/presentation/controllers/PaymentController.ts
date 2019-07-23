@@ -46,7 +46,7 @@ export class PaymentController {
         },
     }})
     @ResponseSchema(PaymentBatchKeyResult)
-    @HttpCode(201)
+    @HttpCode(200)
     @Post('/payments/batch-key')
     public async requestBatchKey(@Body() req: PaymentBatchKeyRequest, @Res() res: Response): Promise<PaymentBatchKeyResult> {
         await this.requestValidator.validate(req);
