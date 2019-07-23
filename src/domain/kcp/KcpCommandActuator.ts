@@ -1,6 +1,7 @@
 import { KcpConfig, KcpSite } from '@root/common/config';
 import { ASCII } from '@root/common/constants';
 import { AbstractKcpCommand } from '@root/domain/commands/AbstractKcpCommand';
+import { KcpLogSanitizer } from '@root/domain/kcp/KcpLogSanitizer';
 import { PaymentApprovalCommand } from '@root/domain/commands/PaymentApprovalCommand';
 import { PaymentBatchKeyCommand } from '@root/domain/commands/PaymentBatchKeyCommand';
 import { PaymentCancellationCommand } from '@root/domain/commands/PaymentCancellationCommand';
@@ -107,13 +108,13 @@ export class KcpComandActuator {
         const command = `${this.config.modulePath} -h ${flattenedCommandArgument}`;
 
         return new Promise((resolve, reject) => {
-            exec(command, { encoding: 'euckr' }, (error: ExecException, stdout: Buffer, stderr: Buffer) => {
+            exec(command, { encoding: 'euckr' }, (error: ExecException | null, stdout: Buffer, stderr: Buffer) => {
                 if (error) {
                     reject(error);
                     return;
                 }
                 if (stderr.length > 0) {
-                    console.log(iconv.decode(stderr, 'euc-kr').trim());
+                    console.log(KcpLogSanitizer.sanitize(iconv.decode(stderr, 'euc-kr').trim()));
                 }
                 resolve(iconv.decode(stdout, 'euc-kr').trim());
             });
