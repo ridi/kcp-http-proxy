@@ -2,7 +2,7 @@ import { PaymentApprovalRequest } from '@root/application/requests/PaymentApprov
 import { PaymentBatchKeyRequest } from '@root/application/requests/PaymentBatchKeyRequest';
 import { PaymentCancellationRequest } from '@root/application/requests/PaymentCancellationRequest';
 import { KcpConfig, KcpSite } from '@root/common/config';
-import { ASCII, PAY_PLUS_STATUS, KCP_PAYMENT_APPROVAL_REQUEST_LOCK_TABLE } from '@root/common/constants';
+import { ASCII, PAY_PLUS_STATUS } from '@root/common/constants';
 import { AbstractKcpCommand } from '@root/domain/commands/AbstractKcpCommand';
 import { PaymentApprovalCommand } from '@root/domain/commands/PaymentApprovalCommand';
 import { PaymentBatchKeyCommand } from '@root/domain/commands/PaymentBatchKeyCommand';
@@ -13,10 +13,9 @@ import { PaymentApprovalResult, PaymentApprovalResultType } from '@root/domain/e
 import { PaymentBatchKeyResult, PaymentBatchKeyResultType } from '@root/domain/entities/PaymentBatchKeyResult';
 import { PaymentCancellationResult, PaymentCancellationResultType } from '@root/domain/entities/PaymentCancellationResult';
 import { KcpComandActuator } from '@root/domain/kcp/KcpCommandActuator';
-import { AlreadyLockedError } from '@root/errors/AlreadyLockedError';
+import { DuplicatedRequestError } from '@root/errors/DuplicatedRequestError';
 import { InvalidRequestError } from '@root/errors/InvalidRequestError';
 import { PayPlusError } from '@root/errors/PayPlusError';
-import { Database } from '@root/database'; 
 import * as Sentry from '@sentry/node';
 import * as hash from 'object-hash';
 import Container, { Inject, Service } from 'typedi';
@@ -68,35 +67,20 @@ export class KcpAppService {
             });
     }
 
-    private async getSuccessfulPaymentApprovalResult(command: PaymentApprovalCommand): Promise<any> {
+    private async getSuccessfulPaymentApprovalResult(command: PaymentApprovalCommand): Promise<PaymentApprovalResult | null> {
         const config: KcpConfig = Container.get(KcpConfig);
         const site: KcpSite = config.site(command.isTaxDeductible);
-        const hashId = hash({
+        const id = hash({
             siteCode: site.code,
             batchKey: command.batchKey,
             orderNo: command.orderNo,
             productAmount: command.productAmount,
         });
-        const found: PaymentApprovalRequestEntity = await this.getPaymentApprovalRequestEntity(hashId);
-        const result = found.results.find((r) => r.code === PAY_PLUS_STATUS.OK);
-        if (result) {
-            const { created_at, ...rest } = result;
-            return { found, result: rest };
+        const found: PaymentApprovalRequestEntity = await this.approvalRepository.getPaymentApprovalRequestById(id);
+        if (found !== null && found.result !== null) {
+            return found.result;
         }
-        return { found };
-    }
-
-    private async getPaymentApprovalRequestEntity(id: string): Promise<PaymentApprovalRequestEntity> {
-        let found: PaymentApprovalRequestEntity | null = await this.approvalRepository.getPaymentApprovalRequestById(id);
-        if (!found) {
-            const request = new PaymentApprovalRequestEntity();
-            request.id = id;
-            found = await this.approvalRepository.savePaymentApprovalRequest(request);
-        }
-        if (!found.results) {
-            found.results = [];
-        }
-        return found;
+        return null;
     }
 
     public async requestBatchKey(req: PaymentBatchKeyRequest): Promise<PaymentBatchKeyResult> {
@@ -132,67 +116,47 @@ export class KcpAppService {
             orderNo: command.orderNo,
             productAmount: command.productAmount,
         });
-        let lock;
 
-        try {
-            lock = await KcpAppService.lock(key)
+        if (await this.lock(key)) {
+            try {
+                const paymentApprovalResult = await this.executeCommand(command) as PaymentApprovalResult;
+                await this.approvalRepository.updatePaymentApprovalRequest(key, paymentApprovalResult);
 
-            // caching result
-            const { found, result } = await this.getSuccessfulPaymentApprovalResult(command);
-            if (result) {
-                return result;
+                return paymentApprovalResult;
+            } catch (err) {
+                await this.unlock(key);
+
+                throw err;
             }
-
-            // execute pp_cli
-            const newResult = await this.executeCommand(command) as PaymentApprovalResult;
-
-            // persist result
-            found.results.push(newResult);
-            await this.approvalRepository.savePaymentApprovalRequest(found);
-            return newResult;
-        } catch (err) {
-            if (typeof err.code !== 'undefined' && err.code === 'ConditionalCheckFailedException') {
-                throw new AlreadyLockedError(JSON.stringify({
+        } else {
+            const paymentApprovalResult = await this.getSuccessfulPaymentApprovalResult(command);
+            if (paymentApprovalResult !== null) {
+                return paymentApprovalResult;
+            } else {
+                throw new DuplicatedRequestError(JSON.stringify({
                     isTaxDeductible: command.isTaxDeductible,
                     batchKey: command.batchKey,
                     orderNo: command.orderNo,
                     productAmount: command.productAmount,
                 }));
             }
-            throw err;
-        } finally {
-            if (lock) {
-                await KcpAppService.unlock(key)
-            }
         }
     }
 
-    private static async lock(id: string)
-    {
-        return await Database.client.putItem({
-            TableName: KCP_PAYMENT_APPROVAL_REQUEST_LOCK_TABLE,
-            Item: {
-                "id": {
-                    S: id
-                },
-                "ttl": {
-                    N: (Math.floor(Date.now() / 1000) + 60).toString() // TTL: 60초
-                }
-            },
-            ConditionExpression: "attribute_not_exists(id)",
-        }).promise();
+    private async lock(id: string): Promise<boolean> {
+        const ttl = Math.floor(Date.now() / 1000) + 60 * 60 * 24; // TTL: 1일
+
+        try {
+            await this.approvalRepository.createPaymentApprovalRequest(id, ttl);
+        } catch (err) {
+            return false;
+        }
+
+        return true;
     }
 
-    private static async unlock(id: string)
-    {
-        return await Database.client.deleteItem({
-            TableName: KCP_PAYMENT_APPROVAL_REQUEST_LOCK_TABLE,
-            Key: {
-                "id": {
-                    S: id
-                }
-            },
-        }).promise();
+    private async unlock(id: string) {
+        return await this.approvalRepository.deletePaymentApprovalRequest(id);
     }
 
     public async cancelPayment(req: PaymentCancellationRequest): Promise<PaymentCancellationResult> {

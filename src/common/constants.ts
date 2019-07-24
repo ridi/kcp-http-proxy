@@ -12,7 +12,6 @@ export const PAY_PLUS_STATUS = {
     OK: '0000',
 };
 
-export const KCP_PAYMENT_APPROVAL_REQUEST_LOCK_TABLE = `kcp-payment-approval-request-locks-${process.env.APP_ENV}`;
 export const KCP_PAYMENT_APPROVAL_REQUEST_TABLE = `kcp-payment-approval-requests-${process.env.APP_ENV}`;
 
 export enum Profile {

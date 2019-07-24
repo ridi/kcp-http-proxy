@@ -1,4 +1,3 @@
-import { embed } from '@aws/dynamodb-data-mapper';
 import { attribute, hashKey, table, versionAttribute } from '@aws/dynamodb-data-mapper-annotations';
 import { PaymentApprovalResult } from '@root/domain/entities/PaymentApprovalResult';
 import { KCP_PAYMENT_APPROVAL_REQUEST_TABLE } from '@root/common/constants';
@@ -12,10 +11,10 @@ export class PaymentApprovalRequestEntity {
     public createdAt: Date;
 
     @attribute()
-    public updatedAt: Date;
+    public result: PaymentApprovalResult | null;
 
-    @attribute({ memberType: embed(PaymentApprovalResult) })
-    public results?: PaymentApprovalResult[];
+    @attribute()
+    public ttl: number;
 
     @versionAttribute()
     public version: number;

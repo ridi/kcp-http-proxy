@@ -1,4 +1,4 @@
-export class AlreadyLockedError extends Error {
+export class DuplicatedRequestError extends Error {
     constructor(message?: string) {
         super(message);
     }

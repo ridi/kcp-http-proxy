@@ -6,6 +6,7 @@ import { MessageResponse } from '@root/presentation/models/MessageResponse';
 import { PayPlusErrorResponse } from '@root/presentation/models/PayPlusErrorResponse';
 import * as httpStatus from 'http-status';
 import { ExpressErrorMiddlewareInterface, HttpError, Middleware } from 'routing-controllers';
+import { DuplicatedRequestError } from '@root/errors/DuplicatedRequestError';
 
 @Middleware({ type: 'after' })
 export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
@@ -17,6 +18,12 @@ export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
                     .json(new MessageResponse(error.message));
                 break;
             }
+            case DuplicatedRequestError: {
+                response
+                    .status(httpStatus.FORBIDDEN)
+                    .json(new MessageResponse(error.message));
+                break;
+            }
             case PayPlusError: {
                 const code = (error as PayPlusError).code;
                 const status =  (code === PAY_PLUS_STATUS.ALREADY_CANCELED) ? httpStatus.CONFLICT : httpStatus.INTERNAL_SERVER_ERROR;
@@ -25,17 +32,17 @@ export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
                     .json(new PayPlusErrorResponse(code, error.message));
                 break;
             }
+            case DatabaseConnectionError: {
+                response
+                    .status(httpStatus.SERVICE_UNAVAILABLE)
+                    .json(new MessageResponse('Database Connection Error'));
+                break;
+            }
             case HttpError: {
                 const status: number = (error as HttpError).httpCode || httpStatus.INTERNAL_SERVER_ERROR;
                 response
                     .status(status)
                     .json(new MessageResponse(error.message));
-                break;
-            }
-            case DatabaseConnectionError: {
-                response
-                    .status(httpStatus.SERVICE_UNAVAILABLE)
-                    .json(new MessageResponse('Database Connection Error'));
                 break;
             }
             default: {
