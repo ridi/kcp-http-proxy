@@ -35,7 +35,7 @@ export class App {
             }, {
                 code: process.env.KCP_TAX_DEDUCTION_SITE_CODE,
                 key: process.env.KCP_TAX_DEDUCTION_SITE_KEY,
-                groupId: process.env.KCP_TAX_DEDUCTION_SITE_GROUP_ID,
+                groupId: process.env.KCP_TAX_DEDUCTION_GROUP_ID,
                 gwUrl: 'paygw.kcp.co.kr',
             });
             Container.set(KcpConfig, kcpConfig);
