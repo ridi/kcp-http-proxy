@@ -60,7 +60,7 @@ export class KcpAppService {
                     }
                 }
             }).catch((error) => {
-                if (this.sentryLoggable) {
+                if (this.sentryLoggable && !(error instanceof PayPlusError)) {
                     Sentry.captureException(error);
                 }
                 throw error;
