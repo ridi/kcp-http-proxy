@@ -1,6 +1,6 @@
 import { IsString } from 'class-validator';
 
-export class PayPlusErrorResponse {
+export class ErrorResponse {
     constructor(code: string, message: string) {
         this.code = code;
         this.message = message;

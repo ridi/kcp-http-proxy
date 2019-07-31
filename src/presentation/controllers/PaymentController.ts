@@ -23,24 +23,24 @@ export class PaymentController {
         400: {
             content: {
                 'application/json': {
-                    schema: { $ref: '#/components/schemas/MessageResponse' },
-                    example: { message: '카드번호가 올바르지 않습니다. 카드번호는 공백없이 숫자만 가능합니다.' },
+                    schema: { $ref: '#/components/schemas/ErrorResponse' },
+                    example: { code: 'INVALID_REQUEST', message: '카드 번호가 올바르지 않습니다. 카드 번호는 공백없이 숫자만 가능합니다.' },
                 },
             },
         },
         500: {
             content: {
                 'application/json': {
-                    schema: { $ref: '#/components/schemas/MessageResponse' },
-                    example: { message: 'KCP Process Failed' },
+                    schema: { $ref: '#/components/schemas/ErrorResponse' },
+                    example: { code: 'INTERNAL_SERVER_ERROR', message: 'KCP Process Failed' },
                 },
             },
         },
         503: {
             content: {
                 'application/json': {
-                    schema: { $ref: '#/components/schemas/MessageResponse' },
-                    example: { message: 'KCP Connection Error' },
+                    schema: { $ref: '#/components/schemas/ErrorResponse' },
+                    example: { code: 'INTERNAL_SERVER_ERROR', message: 'KCP Connection Error' },
                 },
             },
         },
@@ -59,24 +59,24 @@ export class PaymentController {
         400: {
             content: {
                 'application/json': {
-                    schema: { $ref: '#/components/schemas/MessageResponse' },
-                    example: { message: '배치키는 필수값입니다.' },
+                    schema: { $ref: '#/components/schemas/ErrorResponse' },
+                    example: { code: 'INVALID_REQUEST', message: 'batch_key는 필수 값입니다.' },
                 },
             },
         },
         500: {
             content: {
                 'application/json': {
-                    schema: { $ref: '#/components/schemas/MessageResponse' },
-                    example: { message: 'KCP Process Failed' },
+                    schema: { $ref: '#/components/schemas/ErrorResponse' },
+                    example: { code: 'INTERNAL_SERVER_ERROR', message: 'KCP Process Failed' },
                 },
             },
         },
         503: {
             content: {
                 'application/json': {
-                    schema: { $ref: '#/components/schemas/MessageResponse' },
-                    example: { message: 'KCP Connection Error' },
+                    schema: { $ref: '#/components/schemas/ErrorResponse' },
+                    example: { code: 'INTERNAL_SERVER_ERROR', message: 'KCP Connection Error' },
                 },
             },
         },
@@ -95,24 +95,24 @@ export class PaymentController {
         400: {
             content: {
                 'application/json': {
-                    schema: { $ref: '#/components/schemas/MessageResponse' },
-                    example: { message: '거래번호는 필수값입니다.' },
+                    schema: { $ref: '#/components/schemas/ErrorResponse' },
+                    example: { code: 'INVALID_REQUEST', message: 'tno는 필수 값입니다.' },
                 },
             },
         },
         500: {
             content: {
                 'application/json': {
-                    schema: { $ref: '#/components/schemas/MessageResponse' },
-                    example: { message: 'KCP Process Failed' },
+                    schema: { $ref: '#/components/schemas/ErrorResponse' },
+                    example: { code: 'INTERNAL_SERVER_ERROR', message: 'KCP Process Failed' },
                 },
             },
         },
         503: {
             content: {
                 'application/json': {
-                    schema: { $ref: '#/components/schemas/MessageResponse' },
-                    example: { message: 'KCP Connection Error' },
+                    schema: { $ref: '#/components/schemas/ErrorResponse' },
+                    example: { code: 'INTERNAL_SERVER_ERROR', message: 'KCP Connection Error' },
                 },
             },
         },

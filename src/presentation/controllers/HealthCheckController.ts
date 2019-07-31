@@ -34,8 +34,8 @@ export class HealthCheckController {
         503: {
             content: {
                 'application/json': {
-                    schema: { $ref: '#/components/schemas/MessageResponse' },
-                    example: { message: 'Database Connection Error' },
+                    schema: { $ref: '#/components/schemas/ErrorResponse' },
+                    example: { code: 'DATABASE_CONNECTION_ERROR', message: 'Database Connection Error' },
                 },
             },
         },
