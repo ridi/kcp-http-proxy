@@ -8,10 +8,10 @@ import { JSONSchema } from 'class-validator-jsonschema';
 })
 export class PaymentCancellationRequest extends AbstractKcpRequest {
     @JSONSchema({ description: 'KCP 거래번호' })
-    @IsNotEmpty({ message: '거래번호는 필수값입니다.' })
+    @IsNotEmpty({ message: 'tno는 필수 값입니다.' })
     public tno: string;
 
     @JSONSchema({ description: '취소사유' })
-    @IsNotEmpty({ message: '취소사유는 필수값입니다.' })
+    @IsNotEmpty({ message: 'reason은 필수 값입니다.' })
     public reason: string;
 }
