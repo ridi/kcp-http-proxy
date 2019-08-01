@@ -1,5 +1,5 @@
 import { AbstractKcpRequest } from '@root/application/requests/AbstractKcpRequest';
-import { IsEmail, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsDefined } from 'class-validator';
 import { JSONSchema } from 'class-validator-jsonschema';
 
 @JSONSchema({
@@ -25,12 +25,11 @@ export class PaymentApprovalRequest extends AbstractKcpRequest {
     public product_amount: number;
 
     @JSONSchema({ description: '상품 구매자 이름' })
-    @IsNotEmpty({ message: 'buyer_name은 필수 값입니다.' })
+    @IsDefined()
     public buyer_name: string;
 
     @JSONSchema({ description: '상품 구매자 이메일 주소' })
-    @IsNotEmpty({ message: 'buyer_email은 필수 값입니다.' })
-    @IsEmail()
+    @IsDefined()
     public buyer_email: string;
 
     @JSONSchema({ description: '할부 개월 수' })
