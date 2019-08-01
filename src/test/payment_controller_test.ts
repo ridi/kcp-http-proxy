@@ -17,7 +17,7 @@ describe('payments controller test', async () => {
 
     const given = {
         credit_card: {// shinhan card mock
-            card_no: '4499140000000000',
+            card_no: '5164530000000000',
             card_expiry_date: '7912',
             card_tax_no: '000101',
             card_password: '00',
@@ -61,8 +61,8 @@ describe('payments controller test', async () => {
             .end((_, res) => {
                 chai.expect(res).to.have.status(200);
                 chai.expect(res.body.code).to.equal('0000');
-                chai.expect(res.body.card_code).to.equal('CCLG');
-                chai.expect(res.body.card_name).to.equal('신한카드');
+                chai.expect(res.body.card_code).to.equal('CCKM');
+                chai.expect(res.body.card_name).to.equal('KB국민카드');
                 chai.expect(res.body.batch_key).to.match(/[0-9A-Za-z]+/);
 
                 stored.batch_key = res.body.batch_key;
@@ -87,10 +87,10 @@ describe('payments controller test', async () => {
                 chai.expect(res.body.code).to.equal('0000');
                 chai.expect(res.body.pay_method).to.equal('PACA');
                 chai.expect(res.body.order_no).to.equal(given.order.id);
-                chai.expect(res.body.card_code).to.equal('CCLG');
-                chai.expect(res.body.card_name).to.equal('신한카드');
-                chai.expect(res.body.acquirer_code).to.equal('CCLG');
-                chai.expect(res.body.acquirer_name).to.equal('신한카드');
+                chai.expect(res.body.card_code).to.equal('CCKM');
+                chai.expect(res.body.card_name).to.equal('KB국민카드');
+                chai.expect(res.body.acquirer_code).to.equal('CCKM');
+                chai.expect(res.body.acquirer_name).to.equal('KB국민카드');
                 chai.expect(res.body.card_no).to.equal(given.credit_card.card_no);
                 chai.expect(res.body.merchant_tax_no).to.match(/[0-9]+/);
                 chai.expect(res.body.mall_tax_no).to.match(/[0-9]+/);
@@ -147,10 +147,10 @@ describe('payments controller test', async () => {
                 chai.expect(res.body.code).to.equal('0000');
                 chai.expect(res.body.pay_method).to.equal('PACA');
                 chai.expect(res.body.order_no).to.equal(given.order.id);
-                chai.expect(res.body.card_code).to.equal('CCLG');
-                chai.expect(res.body.card_name).to.equal('신한카드');
-                chai.expect(res.body.acquirer_code).to.equal('CCLG');
-                chai.expect(res.body.acquirer_name).to.equal('신한카드');
+                chai.expect(res.body.card_code).to.equal('CCKM');
+                chai.expect(res.body.card_name).to.equal('KB국민카드');
+                chai.expect(res.body.acquirer_code).to.equal('CCKM');
+                chai.expect(res.body.acquirer_name).to.equal('KB국민카드');
                 chai.expect(res.body.merchant_tax_no).to.match(/[0-9]+/);
                 chai.expect(res.body.mall_tax_no).to.match(/[0-9]+/);
                 chai.expect(res.body.ca_order_id).to.equal(given.order.id);
