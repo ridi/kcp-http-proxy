@@ -6,8 +6,7 @@ import { PaymentApprovalCommand } from '@root/domain/commands/PaymentApprovalCom
 import { PaymentBatchKeyCommand } from '@root/domain/commands/PaymentBatchKeyCommand';
 import { PaymentCancellationCommand } from '@root/domain/commands/PaymentCancellationCommand';
 import { InvalidRequestError } from '@root/errors/InvalidRequestError';
-import { exec, ExecException } from 'child_process';
-import * as iconv from 'iconv-lite';
+import { execFile, ExecException } from 'child_process';
 import { Inject, Service } from 'typedi';
 
 @Service()
@@ -100,23 +99,23 @@ export class KcpComandActuator {
             {
                 log_level: this.config.log.level,
                 log_path: this.config.log.path,
-                opt: this.config.options.encoding.EUC_KR, // UTF_8 적용시 '결제 요청 처리(payments)'에서 인식이 안 됨
+                opt: this.config.options.encoding.UTF_8,
             },
         );
 
         const flattenedCommandArgument = this.flattenCommand(commandArgument, ',');
-        const command = `${this.config.modulePath} -h ${flattenedCommandArgument}`;
 
         return new Promise((resolve, reject) => {
-            exec(command, { encoding: 'euckr' }, (error: ExecException | null, stdout: Buffer, stderr: Buffer) => {
+            execFile(this.config.modulePath, ['-h', flattenedCommandArgument], (error: ExecException | null, stdout: string, stderr: string) => {
                 if (error) {
                     reject(error);
                     return;
                 }
                 if (stderr.length > 0) {
-                    console.log(KcpLogSanitizer.sanitize(iconv.decode(stderr, 'euc-kr').trim()));
+                    console.log(KcpLogSanitizer.sanitize(stderr).trim());
                 }
-                resolve(iconv.decode(stdout, 'euc-kr').trim());
+                
+                resolve(stdout.trim());
             });
         });
     }

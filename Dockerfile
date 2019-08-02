@@ -2,6 +2,8 @@ FROM keymetrics/pm2:latest-stretch
 
 LABEL maintainer="ridicorp"
 
+ENV LC_ALL=C.UTF-8
+
 COPY . /app
 WORKDIR /app
 
