@@ -20,4 +20,8 @@ deploy:
 	AP_NORTHEAST_2A_PRIVATE_SUBNET_ID=${AP_NORTHEAST_2A_PRIVATE_SUBNET_ID} \
 	AP_NORTHEAST_2C_PRIVATE_SUBNET_ID=${AP_NORTHEAST_2C_PRIVATE_SUBNET_ID} \
 	SECURITY_GROUP_ID=${SECURITY_GROUP_ID} \
-	ecs-cli compose -f docker-compose.prod.yml service up --force-deployment
+	ecs-cli compose --project-name kcp-http-proxy-api -f docker-compose.prod.yml service up \
+	--force-deployment \
+	--target-group-arn ${TARGET_GROUP_ARN} \
+	--container-name app \
+	--container-port 80
