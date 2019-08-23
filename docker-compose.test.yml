@@ -10,6 +10,8 @@ services:
       DYNAMODB_ENDPOINT: http://dynamodb:8000
     depends_on:
       - dynamodb
+    volumes:
+      - .:/app
     command: ['bash', '-c', 'yarn run init-db && yarn test']
 
   dynamodb:
