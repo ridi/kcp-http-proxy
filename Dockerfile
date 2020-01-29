@@ -1,4 +1,4 @@
-FROM keymetrics/pm2:latest-stretch
+FROM node:lts-buster
 
 LABEL maintainer="ridicorp"
 
@@ -11,4 +11,4 @@ RUN yarn install --frozen-lockfile
 RUN yarn run build
 
 EXPOSE 80
-CMD ["pm2-docker", "pm2.yml"]
+CMD ["yarn", "start"]
