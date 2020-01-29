@@ -1,3 +1,4 @@
+import { KCP_PAYMENT_APPROVAL_REQUEST_TABLE } from '@root/common/constants';
 import { Database } from '@root/database';
 import { DatabaseConnectionError } from '@root/errors/DatabaseConnectionError';
 import { MessageResponse } from '@root/presentation/models/MessageResponse';
@@ -6,7 +7,6 @@ import { ListTablesOutput } from 'aws-sdk/clients/dynamodb';
 import { PromiseResult } from 'aws-sdk/lib/request';
 import { Get, HttpCode, JsonController } from 'routing-controllers';
 import { OpenAPI } from 'routing-controllers-openapi';
-import { KCP_PAYMENT_APPROVAL_REQUEST_TABLE } from '@root/common/constants';
 
 @JsonController('/health')
 export class HealthCheckController {

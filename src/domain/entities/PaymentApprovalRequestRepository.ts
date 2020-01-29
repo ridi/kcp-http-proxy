@@ -1,8 +1,8 @@
 import { DataMapper, ItemNotFoundException } from '@aws/dynamodb-data-mapper';
+import { AttributePath, FunctionExpression } from '@aws/dynamodb-expressions';
 import { PaymentApprovalRequestEntity } from '@root/domain/entities/PaymentApprovalRequestEntity';
 import { PaymentApprovalResult } from '@root/domain/entities/PaymentApprovalResult';
 import { Inject, Service } from 'typedi';
-import { FunctionExpression, AttributePath } from '@aws/dynamodb-expressions';
 
 @Service()
 export class PaymentApprovalRequestRepository {
@@ -22,8 +22,8 @@ export class PaymentApprovalRequestRepository {
 
     public async createPaymentApprovalRequest(id: string, ttl: number): Promise<PaymentApprovalRequestEntity> {
         return await this.mapper.put(
-            Object.assign(new PaymentApprovalRequestEntity(), { id: id, ttl: ttl }),
-            { condition: new FunctionExpression('attribute_not_exists', new AttributePath('id'))}
+            Object.assign(new PaymentApprovalRequestEntity(), { id, ttl }),
+            { condition: new FunctionExpression('attribute_not_exists', new AttributePath('id'))},
         );
     }
 

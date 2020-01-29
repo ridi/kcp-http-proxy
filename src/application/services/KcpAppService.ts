@@ -31,6 +31,22 @@ export class KcpAppService {
     @Inject('sentry.loggable')
     private sentryLoggable: boolean;
 
+    private async lock(id: string): Promise<boolean> {
+        const ttl = Math.floor(Date.now() / 1000) + 60 * 60 * 24; // TTL: 1일
+
+        try {
+            await this.approvalRepository.createPaymentApprovalRequest(id, ttl);
+        } catch (err) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private async unlock(id: string) {
+        return await this.approvalRepository.deletePaymentApprovalRequest(id);
+    }
+
     private async executeCommand(command: AbstractKcpCommand): Promise<PaymentBatchKeyResult | PaymentApprovalResult | PaymentCancellationResult> {
         return this.commandActuator.actuate(command)
             .then((output) => {
@@ -141,22 +157,6 @@ export class KcpAppService {
                 }));
             }
         }
-    }
-
-    private async lock(id: string): Promise<boolean> {
-        const ttl = Math.floor(Date.now() / 1000) + 60 * 60 * 24; // TTL: 1일
-
-        try {
-            await this.approvalRepository.createPaymentApprovalRequest(id, ttl);
-        } catch (err) {
-            return false;
-        }
-
-        return true;
-    }
-
-    private async unlock(id: string) {
-        return await this.approvalRepository.deletePaymentApprovalRequest(id);
     }
 
     public async cancelPayment(req: PaymentCancellationRequest): Promise<PaymentCancellationResult> {

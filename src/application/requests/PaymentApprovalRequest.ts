@@ -1,5 +1,5 @@
 import { AbstractKcpRequest } from '@root/application/requests/AbstractKcpRequest';
-import { IsNotEmpty, IsNumber, IsOptional, IsDefined } from 'class-validator';
+import { IsDefined, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 import { JSONSchema } from 'class-validator-jsonschema';
 
 @JSONSchema({
