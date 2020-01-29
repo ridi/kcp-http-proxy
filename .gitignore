@@ -20,6 +20,9 @@ node_modules/
 .nyc_output
 coverage/
 
+### JetBrains IDE ###
+.idea/*
+
 ### VisualStudioCode ###
 .vscode/*
 !.vscode/settings.json

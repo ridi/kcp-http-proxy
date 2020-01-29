@@ -1,12 +1,13 @@
 import { KcpConfig, KcpSite } from '@root/common/config';
 import { ASCII } from '@root/common/constants';
 import { AbstractKcpCommand } from '@root/domain/commands/AbstractKcpCommand';
-import { KcpLogSanitizer } from '@root/domain/kcp/KcpLogSanitizer';
 import { PaymentApprovalCommand } from '@root/domain/commands/PaymentApprovalCommand';
 import { PaymentBatchKeyCommand } from '@root/domain/commands/PaymentBatchKeyCommand';
 import { PaymentCancellationCommand } from '@root/domain/commands/PaymentCancellationCommand';
+import { KcpLogSanitizer } from '@root/domain/kcp/KcpLogSanitizer';
 import { InvalidRequestError } from '@root/errors/InvalidRequestError';
-import { execFile, ExecException } from 'child_process';
+import { ProcessExecutionError } from '@root/errors/ProcessExecutionError';
+import { ExecException, execFile } from 'child_process';
 import { Inject, Service } from 'typedi';
 
 @Service()
@@ -108,13 +109,13 @@ export class KcpComandActuator {
         return new Promise((resolve, reject) => {
             execFile(this.config.modulePath, ['-h', flattenedCommandArgument], (error: ExecException | null, stdout: string, stderr: string) => {
                 if (error) {
-                    reject(error);
+                    reject(new ProcessExecutionError(error));
                     return;
                 }
                 if (stderr.length > 0) {
                     console.log(KcpLogSanitizer.sanitize(stderr).trim());
                 }
-                
+
                 resolve(stdout.trim());
             });
         });
