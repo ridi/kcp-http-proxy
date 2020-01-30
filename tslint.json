@@ -1,7 +1,8 @@
 {
     "defaultSeverity": "error",
     "extends": [
-        "@ridi/tslint-config"
+        "@ridi/tslint-config",
+        "tslint-eslint-rules"
     ],
     "rules": {
         "no-var-keyword": true,
@@ -23,6 +24,10 @@
         "max-line-length": [
             true,
             180
+        ],
+        "object-curly-spacing": [
+            true,
+            "always"
         ]
     },
     "linterOptions": {

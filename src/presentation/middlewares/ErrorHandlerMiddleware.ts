@@ -1,11 +1,11 @@
-import {PAY_PLUS_STATUS} from '@root/common/constants';
-import {DatabaseConnectionError} from '@root/errors/DatabaseConnectionError';
-import {DuplicatedRequestError} from '@root/errors/DuplicatedRequestError';
-import {InvalidRequestError} from '@root/errors/InvalidRequestError';
-import {PayPlusError} from '@root/errors/PayPlusError';
-import {ErrorResponse} from '@root/presentation/models/ErrorResponse';
+import { PAY_PLUS_STATUS } from '@root/common/constants';
+import { DatabaseConnectionError } from '@root/errors/DatabaseConnectionError';
+import { DuplicatedRequestError } from '@root/errors/DuplicatedRequestError';
+import { InvalidRequestError } from '@root/errors/InvalidRequestError';
+import { PayPlusError } from '@root/errors/PayPlusError';
+import { ErrorResponse } from '@root/presentation/models/ErrorResponse';
 import * as httpStatus from 'http-status';
-import {ExpressErrorMiddlewareInterface, HttpError, Middleware} from 'routing-controllers';
+import { ExpressErrorMiddlewareInterface, HttpError, Middleware } from 'routing-controllers';
 
 @Middleware({ type: 'after' })
 export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {

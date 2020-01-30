@@ -23,7 +23,7 @@ export class PaymentApprovalRequestRepository {
     public async createPaymentApprovalRequest(id: string, ttl: number): Promise<PaymentApprovalRequestEntity> {
         return await this.mapper.put(
             Object.assign(new PaymentApprovalRequestEntity(), { id, ttl }),
-            { condition: new FunctionExpression('attribute_not_exists', new AttributePath('id'))},
+            { condition: new FunctionExpression('attribute_not_exists', new AttributePath('id')) },
         );
     }
 
