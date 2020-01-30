@@ -16,6 +16,7 @@ import { KcpComandActuator } from '@root/domain/kcp/KcpCommandActuator';
 import { DuplicatedRequestError } from '@root/errors/DuplicatedRequestError';
 import { InvalidRequestError } from '@root/errors/InvalidRequestError';
 import { PayPlusError } from '@root/errors/PayPlusError';
+import {ProcessExecutionError} from '@root/errors/ProcessExecutionError';
 import * as Sentry from '@sentry/node';
 import * as hash from 'object-hash';
 import Container, { Inject, Service } from 'typedi';
@@ -76,7 +77,7 @@ export class KcpAppService {
                     }
                 }
             }).catch((error) => {
-                if (this.sentryLoggable && !(error instanceof PayPlusError)) {
+                if (this.sentryLoggable && !(error instanceof PayPlusError) && !(error instanceof ProcessExecutionError)) {
                     Sentry.captureException(error);
                 }
                 throw error;
