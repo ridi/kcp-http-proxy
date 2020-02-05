@@ -16,6 +16,7 @@ import { KcpComandActuator } from '@root/domain/kcp/KcpCommandActuator';
 import { DuplicatedRequestError } from '@root/errors/DuplicatedRequestError';
 import { InvalidRequestError } from '@root/errors/InvalidRequestError';
 import { PayPlusError } from '@root/errors/PayPlusError';
+import { ProcessExecutionError } from '@root/errors/ProcessExecutionError';
 import * as Sentry from '@sentry/node';
 import * as hash from 'object-hash';
 import Container, { Inject, Service } from 'typedi';
@@ -30,6 +31,22 @@ export class KcpAppService {
 
     @Inject('sentry.loggable')
     private sentryLoggable: boolean;
+
+    private async lock(id: string): Promise<boolean> {
+        const ttl = Math.floor(Date.now() / 1000) + 60 * 60 * 24; // TTL: 1일
+
+        try {
+            await this.approvalRepository.createPaymentApprovalRequest(id, ttl);
+        } catch (err) {
+            return false;
+        }
+
+        return true;
+    }
+
+    private async unlock(id: string) {
+        return await this.approvalRepository.deletePaymentApprovalRequest(id);
+    }
 
     private async executeCommand(command: AbstractKcpCommand): Promise<PaymentBatchKeyResult | PaymentApprovalResult | PaymentCancellationResult> {
         return this.commandActuator.actuate(command)
@@ -60,7 +77,7 @@ export class KcpAppService {
                     }
                 }
             }).catch((error) => {
-                if (this.sentryLoggable && !(error instanceof PayPlusError)) {
+                if (this.sentryLoggable && !(error instanceof PayPlusError) && !(error instanceof ProcessExecutionError)) {
                     Sentry.captureException(error);
                 }
                 throw error;
@@ -141,22 +158,6 @@ export class KcpAppService {
                 }));
             }
         }
-    }
-
-    private async lock(id: string): Promise<boolean> {
-        const ttl = Math.floor(Date.now() / 1000) + 60 * 60 * 24; // TTL: 1일
-
-        try {
-            await this.approvalRepository.createPaymentApprovalRequest(id, ttl);
-        } catch (err) {
-            return false;
-        }
-
-        return true;
-    }
-
-    private async unlock(id: string) {
-        return await this.approvalRepository.deletePaymentApprovalRequest(id);
     }
 
     public async cancelPayment(req: PaymentCancellationRequest): Promise<PaymentCancellationResult> {

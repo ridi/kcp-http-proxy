@@ -1,6 +1,6 @@
 import { attribute, hashKey, table, versionAttribute } from '@aws/dynamodb-data-mapper-annotations';
-import { PaymentApprovalResult } from '@root/domain/entities/PaymentApprovalResult';
 import { KCP_PAYMENT_APPROVAL_REQUEST_TABLE } from '@root/common/constants';
+import { PaymentApprovalResult } from '@root/domain/entities/PaymentApprovalResult';
 
 @table(KCP_PAYMENT_APPROVAL_REQUEST_TABLE)
 export class PaymentApprovalRequestEntity {
