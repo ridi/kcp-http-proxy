@@ -10,13 +10,13 @@ docs:
 	yarn run docs
 
 build:
-	TAG=${TAG} docker-compose -f docker-compose.prod.yml build
-	docker push 023315198496.dkr.ecr.ap-northeast-2.amazonaws.com/ridi/kcp-http-proxy:${TAG}
+	GIT_REVISION=${GIT_REVISION} docker-compose -f docker-compose.prod.yml build
+	docker push 023315198496.dkr.ecr.ap-northeast-2.amazonaws.com/ridi/kcp-http-proxy:${GIT_REVISION}
 	
 deploy:
 	ecs-cli configure --region ap-northeast-2 --cluster kcp-http-proxy-${APP_ENV} --default-launch-type FARGATE
 	APP_ENV=${APP_ENV} \
-	TAG=${TAG} \
+	GIT_REVISION=${GIT_REVISION} \
 	AP_NORTHEAST_2A_PRIVATE_SUBNET_ID=${AP_NORTHEAST_2A_PRIVATE_SUBNET_ID} \
 	AP_NORTHEAST_2C_PRIVATE_SUBNET_ID=${AP_NORTHEAST_2C_PRIVATE_SUBNET_ID} \
 	SECURITY_GROUP_ID=${SECURITY_GROUP_ID} \
