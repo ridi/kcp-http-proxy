@@ -1,4 +1,4 @@
-[![Build Status](https://api.travis-ci.com/ridi/kcp-http-proxy.svg)](https://api.travis-ci.com/ridi/kcp-http-proxy.svg) [![codecov](https://codecov.io/gh/ridi/kcp-http-proxy/branch/master/graph/badge.svg)](https://codecov.io/gh/ridi/kcp-http-proxy)
+[![CI](https://github.com/ridi/kcp-http-proxy/workflows/CI/badge.svg?branch=master)](https://github.com/ridi/kcp-http-proxy/actions?query=workflow%3ACI+branch%3Amaster) [![codecov](https://codecov.io/gh/ridi/kcp-http-proxy/branch/master/graph/badge.svg)](https://codecov.io/gh/ridi/kcp-http-proxy)
 
 ## Requirements
 - [Yarn](https://yarnpkg.com/en/docs/install#mac-stable)
