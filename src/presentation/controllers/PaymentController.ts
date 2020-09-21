@@ -13,119 +13,125 @@ import { Inject } from 'typedi';
 
 @JsonController()
 export class PaymentController {
-    @Inject((type) => KcpAppService)
-    private kcpService: KcpAppService;
+  @Inject((type) => KcpAppService)
+  private kcpService: KcpAppService;
 
-    @Inject()
-    private requestValidator: KcpRequestValidator;
+  @Inject()
+  private requestValidator: KcpRequestValidator;
 
-    @OpenAPI({ responses: {
-        400: {
-            content: {
-                'application/json': {
-                    schema: { $ref: '#/components/schemas/ErrorResponse' },
-                    example: { code: 'INVALID_REQUEST', message: '카드 번호가 올바르지 않습니다. 카드 번호는 공백없이 숫자만 가능합니다.' },
-                },
-            },
+  @OpenAPI({
+    responses: {
+      400: {
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/ErrorResponse' },
+            example: { code: 'INVALID_REQUEST', message: '카드 번호가 올바르지 않습니다. 카드 번호는 공백없이 숫자만 가능합니다.' },
+          },
         },
-        500: {
-            content: {
-                'application/json': {
-                    schema: { $ref: '#/components/schemas/ErrorResponse' },
-                    example: { code: 'INTERNAL_SERVER_ERROR', message: 'KCP Process Failed' },
-                },
-            },
+      },
+      500: {
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/ErrorResponse' },
+            example: { code: 'INTERNAL_SERVER_ERROR', message: 'KCP Process Failed' },
+          },
         },
-        503: {
-            content: {
-                'application/json': {
-                    schema: { $ref: '#/components/schemas/ErrorResponse' },
-                    example: { code: 'INTERNAL_SERVER_ERROR', message: 'KCP Connection Error' },
-                },
-            },
+      },
+      503: {
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/ErrorResponse' },
+            example: { code: 'INTERNAL_SERVER_ERROR', message: 'KCP Connection Error' },
+          },
         },
-    }})
-    @ResponseSchema(PaymentBatchKeyResult)
-    @HttpCode(200)
-    @Post('/payments/batch-key')
-    public async requestBatchKey(@Body() req: PaymentBatchKeyRequest, @Res() res: Response): Promise<PaymentBatchKeyResult> {
-        await this.requestValidator.validate(req);
-
-        const result: PaymentBatchKeyResult = await this.kcpService.requestBatchKey(req);
-        return result;
+      },
     }
+  })
+  @ResponseSchema(PaymentBatchKeyResult)
+  @HttpCode(200)
+  @Post('/payments/batch-key')
+  public async requestBatchKey(@Body() req: PaymentBatchKeyRequest, @Res() res: Response): Promise<PaymentBatchKeyResult> {
+    await this.requestValidator.validate(req);
 
-    @OpenAPI({ responses: {
-        400: {
-            content: {
-                'application/json': {
-                    schema: { $ref: '#/components/schemas/ErrorResponse' },
-                    example: { code: 'INVALID_REQUEST', message: 'batch_key는 필수 값입니다.' },
-                },
-            },
-        },
-        500: {
-            content: {
-                'application/json': {
-                    schema: { $ref: '#/components/schemas/ErrorResponse' },
-                    example: { code: 'INTERNAL_SERVER_ERROR', message: 'KCP Process Failed' },
-                },
-            },
-        },
-        503: {
-            content: {
-                'application/json': {
-                    schema: { $ref: '#/components/schemas/ErrorResponse' },
-                    example: { code: 'INTERNAL_SERVER_ERROR', message: 'KCP Connection Error' },
-                },
-            },
-        },
-    }})
-    @ResponseSchema(PaymentApprovalResult)
-    @HttpCode(200)
-    @Post('/payments')
-    public async approvePayment(@Body() req: PaymentApprovalRequest, @Res() res: Response): Promise<PaymentApprovalResult> {
-        await this.requestValidator.validate(req);
+    const result: PaymentBatchKeyResult = await this.kcpService.requestBatchKey(req);
+    return result;
+  }
 
-        const result: PaymentApprovalResult = await this.kcpService.approvePayment(req);
-        return result;
+  @OpenAPI({
+    responses: {
+      400: {
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/ErrorResponse' },
+            example: { code: 'INVALID_REQUEST', message: 'batch_key는 필수 값입니다.' },
+          },
+        },
+      },
+      500: {
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/ErrorResponse' },
+            example: { code: 'INTERNAL_SERVER_ERROR', message: 'KCP Process Failed' },
+          },
+        },
+      },
+      503: {
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/ErrorResponse' },
+            example: { code: 'INTERNAL_SERVER_ERROR', message: 'KCP Connection Error' },
+          },
+        },
+      },
     }
+  })
+  @ResponseSchema(PaymentApprovalResult)
+  @HttpCode(200)
+  @Post('/payments')
+  public async approvePayment(@Body() req: PaymentApprovalRequest, @Res() res: Response): Promise<PaymentApprovalResult> {
+    await this.requestValidator.validate(req);
 
-    @OpenAPI({ responses: {
-        400: {
-            content: {
-                'application/json': {
-                    schema: { $ref: '#/components/schemas/ErrorResponse' },
-                    example: { code: 'INVALID_REQUEST', message: 'tno는 필수 값입니다.' },
-                },
-            },
-        },
-        500: {
-            content: {
-                'application/json': {
-                    schema: { $ref: '#/components/schemas/ErrorResponse' },
-                    example: { code: 'INTERNAL_SERVER_ERROR', message: 'KCP Process Failed' },
-                },
-            },
-        },
-        503: {
-            content: {
-                'application/json': {
-                    schema: { $ref: '#/components/schemas/ErrorResponse' },
-                    example: { code: 'INTERNAL_SERVER_ERROR', message: 'KCP Connection Error' },
-                },
-            },
-        },
-    }})
-    @ResponseSchema(PaymentCancellationResult)
-    @HttpCode(200)
-    @Delete('/payments/:kcp_tno')
-    public async cancelPayment(@Param('kcp_tno') kcp_tno: string, @Body() req: PaymentCancellationRequest, @Res() res: Response): Promise<PaymentCancellationResult> {
-        req.tno = kcp_tno;
+    const result: PaymentApprovalResult = await this.kcpService.approvePayment(req);
+    return result;
+  }
 
-        await this.requestValidator.validate(req);
-
-        const result: PaymentCancellationResult = await this.kcpService.cancelPayment(req);
-        return result;
+  @OpenAPI({
+    responses: {
+      400: {
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/ErrorResponse' },
+            example: { code: 'INVALID_REQUEST', message: 'tno는 필수 값입니다.' },
+          },
+        },
+      },
+      500: {
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/ErrorResponse' },
+            example: { code: 'INTERNAL_SERVER_ERROR', message: 'KCP Process Failed' },
+          },
+        },
+      },
+      503: {
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/ErrorResponse' },
+            example: { code: 'INTERNAL_SERVER_ERROR', message: 'KCP Connection Error' },
+          },
+        },
+      },
     }
+  })
+  @ResponseSchema(PaymentCancellationResult)
+  @HttpCode(200)
+  @Delete('/payments/:kcp_tno')
+  public async cancelPayment(@Param('kcp_tno') kcp_tno: string, @Body() req: PaymentCancellationRequest, @Res() res: Response): Promise<PaymentCancellationResult> {
+    req.tno = kcp_tno;
+
+    await this.requestValidator.validate(req);
+
+    const result: PaymentCancellationResult = await this.kcpService.cancelPayment(req);
+    return result;
+  }
 }
