@@ -14,7 +14,7 @@ services:
       DYNAMODB_ENDPOINT: http://dynamodb:8000
     depends_on:
       - dynamodb
-    command: ['bash', '-c', 'yarn run init-db && yarn start']
+    command: ['bash', '-c', 'yarn run init-db && yarn start:dev']
 
   dynamodb:
     image: amazon/dynamodb-local
