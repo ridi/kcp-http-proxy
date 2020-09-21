@@ -1,7 +1,7 @@
 export abstract class AbstractKcpCommand {
-    protected constructor(isTaxDeductible: boolean) {
-        this.isTaxDeductible = isTaxDeductible || false;
-    }
+  protected constructor(isTaxDeductible: boolean) {
+    this.isTaxDeductible = isTaxDeductible || false;
+  }
 
-    public readonly isTaxDeductible: boolean;
+  public readonly isTaxDeductible: boolean;
 }
