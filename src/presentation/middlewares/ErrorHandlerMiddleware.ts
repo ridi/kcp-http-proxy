@@ -1,6 +1,5 @@
 import { PAY_PLUS_STATUS } from '@root/common/constants';
 import { DatabaseConnectionError } from '@root/errors/DatabaseConnectionError';
-import { DuplicatedRequestError } from '@root/errors/DuplicatedRequestError';
 import { InvalidRequestError } from '@root/errors/InvalidRequestError';
 import { PayPlusError } from '@root/errors/PayPlusError';
 import { ErrorResponse } from '@root/presentation/models/ErrorResponse';
@@ -15,12 +14,6 @@ export class ErrorHandlerMiddleware implements ExpressErrorMiddlewareInterface {
         response
           .status(httpStatus.BAD_REQUEST)
           .json(new ErrorResponse('INVALID_REQUEST', error.message));
-        break;
-      }
-      case DuplicatedRequestError: {
-        response
-          .status(httpStatus.FORBIDDEN)
-          .json(new ErrorResponse('DUPLICATED_REQUEST', error.message));
         break;
       }
       case PayPlusError: {

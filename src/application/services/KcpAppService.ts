@@ -16,7 +16,6 @@ import {
   PaymentCancellationResultType
 } from '@root/domain/entities/PaymentCancellationResult';
 import { KcpComandActuator } from '@root/domain/kcp/KcpCommandActuator';
-import { DuplicatedRequestError } from '@root/errors/DuplicatedRequestError';
 import { InvalidRequestError } from '@root/errors/InvalidRequestError';
 import { PayPlusError } from '@root/errors/PayPlusError';
 import { ProcessExecutionError } from '@root/errors/ProcessExecutionError';
@@ -132,21 +131,21 @@ export class KcpAppService {
 
     const config: KcpConfig = Container.get(KcpConfig);
     const site: KcpSite = config.site(command.isTaxDeductible);
-    const key = hash({
+    const lockId = hash({
       siteCode: site.code,
       batchKey: command.batchKey,
       orderNo: command.orderNo,
       productAmount: command.productAmount,
     });
 
-    if (await this.lock(key)) {
+    if (await this.lock(lockId)) {
       try {
         const paymentApprovalResult = await this.executeCommand(command) as PaymentApprovalResult;
-        await this.approvalRepository.updatePaymentApprovalRequest(key, paymentApprovalResult);
+        await this.approvalRepository.updatePaymentApprovalRequest(lockId, paymentApprovalResult);
 
         return paymentApprovalResult;
       } catch (err) {
-        await this.unlock(key);
+        await this.unlock(lockId);
 
         throw err;
       }
@@ -154,14 +153,16 @@ export class KcpAppService {
       const paymentApprovalResult = await this.getSuccessfulPaymentApprovalResult(command);
       if (paymentApprovalResult !== null) {
         return paymentApprovalResult;
-      } else {
-        throw new DuplicatedRequestError(JSON.stringify({
-          isTaxDeductible: command.isTaxDeductible,
-          batchKey: command.batchKey,
-          orderNo: command.orderNo,
-          productAmount: command.productAmount,
-        }));
       }
+
+      console.log(
+        'Approval cannot be processed.',
+        JSON.stringify({
+          lockId,
+          orderNo: command.orderNo,
+        }),
+      );
+      throw new Error('Approval cannot be processed.');
     }
   }
 
