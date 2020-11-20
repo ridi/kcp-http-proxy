@@ -41,6 +41,8 @@ export class KcpAppService {
     try {
       await this.approvalRepository.createPaymentApprovalRequest(id, ttl);
     } catch (err) {
+      Sentry.captureException(err);
+
       return false;
     }
 
