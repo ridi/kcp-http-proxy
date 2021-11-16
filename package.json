@@ -48,7 +48,7 @@
     "@aws/dynamodb-data-mapper": "^0.7.3",
     "@aws/dynamodb-data-mapper-annotations": "^0.7.3",
     "@sentry/node": "^4.6.5",
-    "aws-sdk": "^2.429.0",
+    "aws-sdk": "^2.814.0",
     "body-parse": "^0.1.0",
     "class-validator": "^0.9.1",
     "class-validator-jsonschema": "^1.2.0",
